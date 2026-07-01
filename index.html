@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warrantix — Цифровой паспорт твоих вещей</title>
+
+    <script>
+        (function () { const t = localStorage.getItem('warrantix-theme'); if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-wrapper">
+            <a href="#" class="brand">
+                <i class="fa-solid fa-shield-halved"></i> Warrantix
+            </a>
+
+            <ul class="nav-list">
+                <li><a href="#features" data-i18n="nav_features">Возможности</a></li>
+                <li><a href="#process" data-i18n="nav_how">Как это работает</a></li>
+                <li><a href="#vision" data-i18n="nav_mission">Миссия</a></li>
+
+                <li class="controls">
+                    <button id="lang-toggle" class="icon-btn" title="Switch Language">EN</button>
+                    <button id="theme-toggle" class="icon-btn" title="Toggle Theme"><i
+                            class="fa-solid fa-moon"></i></button>
+                    <a href="#" class="btn btn-primary small" data-i18n="nav_login">Вход</a>
+                </li>
+            </ul>
+
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="container hero-grid">
+            <div class="hero-text fade-in-up">
+                <div class="badge" data-i18n="hero_badge">🚀 Этап 1: Бета-версия уже доступна</div>
+
+                <h1 data-i18n="hero_title">Гарантия больше не <br><span class="highlight">бумажка в ящике</span></h1>
+
+                <p data-i18n="hero_desc">Первая в мире платформа, которая объединяет чеки, серийные номера и инструкции
+                    в единый цифровой профиль для каждой вашей вещи.</p>
+
+                <div class="hero-actions">
+                    <form class="waitlist-form">
+                        <input type="email" placeholder="Ваш email" required data-i18n-placeholder="form_placeholder">
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i></button>
+                    </form>
+                    <span class="sub-text"><i class="fa-solid fa-check"></i> <span data-i18n="hero_subtext">Бесплатно
+                            навсегда для ранних пользователей</span></span>
+                </div>
+            </div>
+
+            <div class="hero-visual fade-in-up delay-1">
+                <div class="glass-card main-card">
+                    <div class="card-top">
+                        <div class="product-info">
+                            <div class="icon-box"><i class="fa-solid fa-mobile-screen"></i></div>
+                            <div>
+                                <h4>iPhone 15 Pro Max</h4>
+                                <span class="serial">S/N: F2L9...</span>
+                            </div>
+                        </div>
+                        <div class="status-badge active" data-i18n="card_status">Активна</div>
+                    </div>
+                    <div class="card-progress">
+                        <div class="progress-label">
+                            <span data-i18n="card_days_left">Осталось дней</span>
+                            <strong>285</strong>
+                        </div>
+                        <div class="bar-bg">
+                            <div class="bar-fill" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="card-actions-mini">
+                        <button><i class="fa-regular fa-file-pdf"></i> <span
+                                data-i18n="card_manual">Инструкция</span></button>
+                        <button><i class="fa-solid fa-location-dot"></i> <span
+                                data-i18n="card_service">Сервис</span></button>
+                    </div>
+                </div>
+
+                <div class="floating-card card-1">
+                    <i class="fa-solid fa-receipt"></i> <span data-i18n="float_receipt">Чек сохранен</span>
+                </div>
+                <div class="floating-card card-2">
+                    <i class="fa-solid fa-bell"></i> <span data-i18n="float_reminder">Напоминание</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="section features-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 data-i18n="feat_title">Все инструменты защиты <br>ваших покупок</h2>
+                <p data-i18n="feat_desc">Мы убрали хаос из гарантийного обслуживания, оставив только то, что
+                    действительно важно.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-item reveal">
+                    <div class="f-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <h3 data-i18n="feat_1_title">Облачный архив чеков</h3>
+                    <p data-i18n="feat_1_desc">Загружайте фото или PDF чеков. Наша система распознает данные и привяжет
+                        их к товару автоматически.</p>
+                </div>
+                <div class="feature-item reveal">
+                    <div class="f-icon"><i class="fa-solid fa-stopwatch"></i></div>
+                    <h3 data-i18n="feat_2_title">Живой таймер гарантии</h3>
+                    <p data-i18n="feat_2_desc">Больше никаких "куплено вроде год назад". Точный расчет сроков с учетом
+                        законодательства страны.</p>
+                </div>
+                <div class="feature-item reveal">
+                    <div class="f-icon"><i class="fa-solid fa-book-open"></i></div>
+                    <h3 data-i18n="feat_3_title">Библиотека инструкций</h3>
+                    <p data-i18n="feat_3_desc">Доступ к официальным мануалам в один клик. Поиск по ключевым словам
+                        внутри документов.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="process" class="section process-section bg-dark">
+        <div class="container">
+            <div class="section-header white reveal">
+                <h2 data-i18n="proc_title">Путь от покупки до спокойствия</h2>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item reveal">
+                    <div class="t-number">1</div>
+                    <div class="t-content">
+                        <h3 data-i18n="proc_1_title">Сканирование</h3>
+                        <p data-i18n="proc_1_desc">Наведите камеру на чек или введите серийный номер устройства вручную.
+                        </p>
+                    </div>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="t-number">2</div>
+                    <div class="t-content">
+                        <h3 data-i18n="proc_2_title">Верификация</h3>
+                        <p data-i18n="proc_2_desc">Система определяет модель, срок гарантии и добавляет товар в ваш
+                            личный кабинет.</p>
+                    </div>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="t-number">3</div>
+                    <div class="t-content">
+                        <h3 data-i18n="proc_3_title">Мониторинг</h3>
+                        <p data-i18n="proc_3_desc">Получайте уведомления об окончании срока и находите сервисы рядом в
+                            случае поломки.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="vision" class="vision-section">
+        <div class="container vision-wrapper reveal">
+            <div class="vision-content">
+                <h2 data-i18n="vision_title">Строим мировую инфраструктуру доверия</h2>
+                <p data-i18n="vision_desc">Наша цель — создать единый стандарт цифрового владения. В будущем Warrantix
+                    станет обязательным элементом для любой крупной покупки, обеспечивая прозрачность между покупателем,
+                    магазином и производителем.</p>
+                <a href="#" class="btn btn-outline" data-i18n="vision_btn">Читать Roadmap</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <a href="#" class="brand">Warrantix</a>
+                <p data-i18n="footer_tagline">Управляйте гарантиями умнее.</p>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer_prod">Продукт</h4>
+                <a href="#" data-i18n="nav_features">Возможности</a>
+                <a href="#" data-i18n="footer_sec">Безопасность</a>
+                <a href="#" data-i18n="footer_biz">Для бизнеса</a>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer_comp">Компания</h4>
+                <a href="#" data-i18n="footer_about">О нас</a>
+                <a href="#" data-i18n="footer_career">Карьера</a>
+                <a href="#" data-i18n="footer_contact">Контакты</a>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer_social">Соцсети</h4>
+                <div class="socials">
+                    <a href="#"><i class="fa-brands fa-telegram"></i></a>
+                    <a href="#"><i class="fa-brands fa-github"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="container copyright">
+            <p>&copy; 2026 Warrantix Inc. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="theme.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
