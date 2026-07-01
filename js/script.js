@@ -1,3 +1,9 @@
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabaseUrl = 'https://qjnzawjivqvgupbgxdao.supabase.co';
+const supabaseKey = 'sb_publishable__b1k1cuhxQEBn50III2tkQ_0DOOqe3V';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 document.addEventListener('DOMContentLoaded', () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const navList = document.querySelector('.nav-list');
@@ -38,22 +44,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     revealElements.forEach(el => revealObserver.observe(el));
 
-    const form = document.querySelector('.waitlist-form');
+    const form = document.getElementById('waitlist-form');
+    const messageEl = document.getElementById('form-message');
+
     if (form) {
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = form.querySelector('button');
+            const input = form.querySelector('input');
             const originalText = btn.innerHTML;
 
-            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-            btn.style.background = '#10b981';
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
-            setTimeout(() => {
-                alert('Спасибо! Вы добавлены в лист ожидания бета-теста.');
-                form.reset();
-                btn.innerHTML = originalText;
-                btn.style.background = '';
-            }, 1000);
+                const { error } = await supabase
+                    .from('waitlist')
+                    .insert([{ email: input.value.trim() }]);
+
+                if (error) throw error;
+
+                btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                btn.style.background = '#10b981';
+                input.value = '';
+
+                if (messageEl) {
+                    messageEl.textContent = 'Спасибо! Вы в списке ожидания.';
+                    messageEl.className = 'form-message success';
+                    messageEl.style.display = 'block';
+                    setTimeout(() => { messageEl.style.display = 'none'; }, 4000);
+                }
+
+            } catch (err) {
+                console.error(err);
+                if (err.code === '23505') {
+                    if (messageEl) {
+                        messageEl.textContent = 'Этот email уже зарегистрирован.';
+                        messageEl.className = 'form-message warning';
+                        messageEl.style.display = 'block';
+                    }
+                } else {
+                    if (messageEl) {
+                        messageEl.textContent = 'Ошибка. Попробуйте позже.';
+                        messageEl.className = 'form-message error';
+                        messageEl.style.display = 'block';
+                    }
+                }
+            } finally {
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 3000);
+            }
         });
     }
 
@@ -63,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const translations = {
         ru: {
             nav_features: "Возможности", nav_how: "Как это работает", nav_mission: "Миссия", nav_login: "Вход",
-            hero_badge: " Этап 1: Бета-версия уже доступна",
+            hero_badge: "🚀 Этап 1: Бета-версия уже доступна",
             hero_title: 'Гарантия больше не <br><span class="highlight">бумажка в ящике</span>',
             hero_desc: "Первая в мире платформа, которая объединяет чеки, серийные номера и инструкции в единый цифровой профиль для каждой вашей вещи.",
             form_placeholder: "Ваш email", hero_subtext: "Бесплатно навсегда для ранних пользователей",

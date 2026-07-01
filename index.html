@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warrantix — Цифровой паспорт твоих вещей</title>
-    <link rel="icon" type="image/png" href="favicon.png">
-
     <script>
         (function () { const t = localStorage.getItem('warrantix-theme'); if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); })();
     </script>
@@ -16,7 +14,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
 </head>
 
 <body>
@@ -65,10 +64,11 @@
                     в единый цифровой профиль для каждой вашей вещи.</p>
 
                 <div class="hero-actions">
-                    <form class="waitlist-form">
-                        <input type="email" placeholder="Ваш email" required data-i18n-placeholder="form_placeholder">
+                    <form id="waitlist-form" class="waitlist-form">
+                        <input type="email" name="email" placeholder="Ваш email" required>
                         <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i></button>
                     </form>
+                    <div id="form-message" class="form-message"></div>
                     <span class="sub-text"><i class="fa-solid fa-check"></i> <span data-i18n="hero_subtext">Бесплатно
                             навсегда для ранних пользователей</span></span>
                 </div>
@@ -223,8 +223,8 @@
         </div>
     </footer>
 
-    <script src="theme.js"></script>
-    <script src="script.js"></script>
+    <script src="js/theme.js"></script>
+    <script type="module" src="js/script.js"></script>
 </body>
 
 </html>
