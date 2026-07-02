@@ -16,6 +16,7 @@
 </head>
 
 <body class="dashboard-body">
+
     <header class="mobile-top-bar">
         <button id="mobile-menu-btn" class="menu-trigger">
             <i class="fa-solid fa-bars"></i>
@@ -29,16 +30,8 @@
             </svg>
             <span>Valuon</span>
         </a>
-
-
-
         <div class="top-bar-spacer"></div>
     </header>
-
-    <div id="sidebar-overlay" class="sidebar-overlay"></div>
-    <button id="mobile-menu-btn" class="mobile-menu-btn">
-        <i class="fa-solid fa-bars"></i>
-    </button>
 
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
@@ -59,14 +52,18 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="#" class="nav-item active"><i class="fa-solid fa-box-open"></i> <span data-i18n="nav_items">Мои
-                    вещи</span></a>
-            <a href="#" class="nav-item"><i class="fa-solid fa-receipt"></i> <span data-i18n="nav_receipts">Чеки и
-                    документы</span></a>
-            <a href="#" class="nav-item"><i class="fa-solid fa-bell"></i> <span
-                    data-i18n="nav_notifications">Уведомления</span></a>
-            <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> <span
-                    data-i18n="nav_settings">Настройки</span></a>
+            <a href="#view-items" class="nav-item active" data-view="items">
+                <i class="fa-solid fa-box-open"></i> <span data-i18n="nav_items">Мои вещи</span>
+            </a>
+            <a href="receipts.html" class="nav-item">
+                <i class="fa-solid fa-receipt"></i> <span data-i18n="nav_receipts">Чеки и документы</span>
+            </a>
+            <a href="#view-notifications" class="nav-item" data-view="notifications">
+                <i class="fa-solid fa-bell"></i> <span data-i18n="nav_notifications">Уведомления</span>
+            </a>
+            <a href="#view-settings" class="nav-item" data-view="settings">
+                <i class="fa-solid fa-gear"></i> <span data-i18n="nav_settings">Настройки</span>
+            </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -78,7 +75,6 @@
                     <span>RU</span>
                 </a>
             </div>
-
             <a href="#" id="logout-btn" class="nav-item full-width">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span data-i18n="ui_logout">Выйти</span>
@@ -87,39 +83,71 @@
     </aside>
 
     <main class="main-content">
-        <header class="content-header">
-            <h1 data-i18n="dashboard_title">Мои активы</h1>
-            <button id="add-item-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> <span
-                    data-i18n="btn_add">Добавить вещь</span></button>
-        </header>
+        <section id="view-items" class="dashboard-view active">
+            <header class="content-header">
+                <h1 data-i18n="dashboard_title">Мои активы</h1>
+                <button id="add-item-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> <span
+                        data-i18n="btn_add">Добавить вещь</span></button>
+            </header>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fa-solid fa-laptop"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label" data-i18n="stat_total">Всего вещей</span>
+                        <span class="stat-value" id="stat-total">0</span>
+                    </div>
+                </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon blue"><i class="fa-solid fa-laptop"></i></div>
-                <div class="stat-info">
-                    <span class="stat-label" data-i18n="stat_total">Всего вещей</span>
-                    <span class="stat-value" id="stat-total">0</span>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label" data-i18n="stat_active">Активных гарантий</span>
+                        <span class="stat-value" id="stat-active">0</span>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green"><i class="fa-solid fa-shield-halved"></i></div>
-                <div class="stat-info">
-                    <span class="stat-label" data-i18n="stat_active">Активных гарантий</span>
-                    <span class="stat-value" id="stat-active">0</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <div class="stat-info">
-                    <span class="stat-label" data-i18n="stat_expiring">Истекают скоро</span>
-                    <span class="stat-value" id="stat-expiring">0</span>
-                </div>
-            </div>
-        </div>
 
-        <section class="items-section">
-            <h2 data-i18n="section_recent">Недавние покупки</h2>
-            <div class="items-grid"></div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label" data-i18n="stat_expiring">Истекают скоро</span>
+                        <span class="stat-value" id="stat-expiring">0</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fa-solid fa-circle-xmark"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Истекла гарантия</span>
+                        <span class="stat-value" id="stat-expired">0</span>
+                    </div>
+                </div>
+            </div>
+            <section class="items-section">
+                <h2 data-i18n="section_recent">Недавние покупки</h2>
+                <div class="items-grid"></div>
+            </section>
+        </section>
+
+        <section id="view-notifications" class="dashboard-view hidden">
+            <header class="content-header">
+                <h1 data-i18n="nav_notifications">Уведомления</h1>
+                <button class="btn btn-outline" onclick="markAllAsRead()">Прочитать все</button>
+            </header>
+
+            <div class="notifications-list" id="notifications-container">
+                <div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Проверка статусов...
+                </div>
+            </div>
+        </section>
+
+
+        <section id="view-settings" class="dashboard-view hidden">
+            <header class="content-header">
+                <h1 data-i18n="nav_settings">Настройки</h1>
+            </header>
+            <div class="settings-container">
+                <p class="empty-state">Настройки профиля будут здесь</p>
+            </div>
         </section>
     </main>
 
@@ -141,9 +169,9 @@
                             <option value="laptop">💻 Ноутбук</option>
                             <option value="phone">📱 Смартфон</option>
                             <option value="tablet">📟 Планшет</option>
-                            <option value="watch"> Часы</option>
+                            <option value="watch">⌚ Часы</option>
                             <option value="headphones">🎧 Наушники</option>
-                            <option value="camera"> Камера</option>
+                            <option value="camera">📷 Камера</option>
                             <option value="console">🎮 Консоль</option>
                             <option value="appliance">🏠 Бытовая техника</option>
                             <option value="other">📦 Другое</option>
@@ -187,6 +215,8 @@
     <script src="js/dashboard-lang.js"></script>
     <script type="module" src="js/dashboard-auth.js"></script>
     <script type="module" src="js/dashboard-items.js"></script>
+    <script src="js/dashboard-notifications.js"></script>
+    <script src="js/dashboard-nav.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -196,20 +226,69 @@
             const overlay = document.getElementById('sidebar-overlay');
 
             function toggleMenu() {
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                if (!sidebar || !overlay) return;
+
+                const isActive = sidebar.classList.contains('active');
+                if (isActive) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                } else {
+                    sidebar.classList.add('active');
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
             }
 
             if (menuBtn) menuBtn.addEventListener('click', toggleMenu);
             if (closeBtn) closeBtn.addEventListener('click', toggleMenu);
             if (overlay) overlay.addEventListener('click', toggleMenu);
 
-            document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth <= 900) toggleMenu();
+            const allNavLinks = document.querySelectorAll('.sidebar-nav .nav-item');
+            const spaLinks = document.querySelectorAll('.sidebar-nav .nav-item[data-view]');
+            const views = document.querySelectorAll('.dashboard-view');
+
+            function closeMobileMenuIfNeeded() {
+                if (window.innerWidth <= 900 && sidebar?.classList.contains('active')) {
+                    toggleMenu();
+                }
+            }
+
+            spaLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    spaLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+
+                    views.forEach(view => view.classList.remove('active'));
+                    const targetId = link.getAttribute('href').replace('#', '');
+                    const targetView = document.getElementById(targetId);
+                    if (targetView) targetView.classList.add('active');
+
+                    closeMobileMenuIfNeeded();
                 });
             });
+
+            allNavLinks.forEach(link => {
+                if (!link.hasAttribute('data-view')) {
+                    link.addEventListener('click', () => {
+                        closeMobileMenuIfNeeded();
+                    });
+                }
+            });
+
+            const hash = window.location.hash.replace('#', '');
+            if (hash && document.getElementById(hash)) {
+                spaLinks.forEach(l => l.classList.remove('active'));
+                views.forEach(v => v.classList.remove('active'));
+
+                const activeLink = document.querySelector(`[href="#${hash}"]`);
+                if (activeLink) activeLink.classList.add('active');
+
+                const activeView = document.getElementById(hash);
+                if (activeView) activeView.classList.add('active');
+            }
         });
     </script>
 </body>

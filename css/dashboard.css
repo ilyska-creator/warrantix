@@ -194,6 +194,11 @@
     color: #ea580c;
 }
 
+.stat-icon.red {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
 [data-theme="dark"] .stat-icon.blue {
     background: rgba(37, 99, 235, 0.2);
 }
@@ -204,6 +209,11 @@
 
 [data-theme="dark"] .stat-icon.orange {
     background: rgba(234, 88, 12, 0.2);
+}
+
+[data-theme="dark"] .stat-icon.red {
+    background: rgba(220, 38, 38, 0.2);
+    color: #f87171;
 }
 
 .stat-info {
@@ -909,4 +919,126 @@
     .content-header {
         margin-top: 0;
     }
+}
+
+.dashboard-view {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.dashboard-view.active {
+    display: block !important;
+    opacity: 1;
+    transform: translateY(0);
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.notification-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.notification-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.notification-card.warning::before {
+    background: #f59e0b;
+}
+
+.notification-card.expired::before {
+    background: #ef4444;
+}
+
+.notification-card.info::before {
+    background: #3b82f6;
+}
+
+.notif-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.warning .notif-icon {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.expired .notif-icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.info .notif-icon {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.notif-content h4 {
+    margin: 0 0 4px 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.notif-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    line-height: 1.4;
+}
+
+.notif-time {
+    font-size: 0.75rem;
+    color: var(--secondary);
+    opacity: 0.7;
+    margin-top: 8px;
+    display: block;
 }

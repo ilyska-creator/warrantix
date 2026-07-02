@@ -39,25 +39,34 @@ async function loadItems(userId, client) {
         return;
     }
 
-    renderItems(items || []);
-    updateStats(items || []);
+    const safeItems = items || []; 
+
+    renderItems(safeItems);
+    updateStats(safeItems);
+
+    if (typeof renderNotifications === 'function') {
+        renderNotifications(safeItems);
+    }
 }
 
-function calculateDaysLeft(purchaseDate, months) {
+export function calculateDaysLeft(purchaseDate, months) {
     if (!purchaseDate || !months) return -999;
 
-    const parts = purchaseDate.split('-');
-    if (parts.length !== 3) return -999;
+    const [year, month, day] = purchaseDate.split('-').map(Number);
 
-    const year = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1;
-    const day = parseInt(parts[2], 10);
+    const endDate = new Date(year, month - 1, day);
 
-    const endDate = new Date(Date.UTC(year, month, day));
-    endDate.setUTCMonth(endDate.getUTCMonth() + parseInt(months));
+    const targetMonth = endDate.getMonth() + parseInt(months);
+    endDate.setFullYear(endDate.getFullYear() + Math.floor(targetMonth / 12));
+    endDate.setMonth(targetMonth % 12);
 
-    const now = new Date();
-    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    if (endDate.getDate() !== day) {
+        endDate.setDate(0);
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
 
     const diffTime = endDate.getTime() - today.getTime();
     const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -116,21 +125,31 @@ function updateStats(items) {
     const totalEl = document.getElementById('stat-total');
     const activeEl = document.getElementById('stat-active');
     const expiringEl = document.getElementById('stat-expiring');
+    const expiredEl = document.getElementById('stat-expired');
 
     if (!totalEl || !activeEl || !expiringEl) return;
 
     let activeCount = 0;
     let expiringCount = 0;
+    let expiredCount = 0;
 
     items.forEach(item => {
         const days = calculateDaysLeft(item.purchase_date, item.warranty_months);
-        if (days > 30) activeCount++;
-        else if (days > 0 && days <= 30) expiringCount++;
+
+        if (days > 30) {
+            activeCount++;
+        } else if (days > 0 && days <= 30) {
+            expiringCount++;
+        } else if (days <= 0) {
+            expiredCount++;
+        }
     });
 
     totalEl.textContent = items.length;
     activeEl.textContent = activeCount;
     expiringEl.textContent = expiringCount;
+
+    if (expiredEl) expiredEl.textContent = expiredCount;
 }
 
 function setupModal(client) {
@@ -167,7 +186,6 @@ function setupModal(client) {
 
             const { data: { user } } = await client.auth.getUser();
 
-            // Сбор данных из формы
             const nameInput = form.querySelector('input[name="name"]') || form.querySelector('input[type="text"]');
             const serialInputs = form.querySelectorAll('input[type="text"]');
             const dateInput = form.querySelector('input[type="date"]');
@@ -202,7 +220,6 @@ function setupModal(client) {
                 alert('Ошибка сохранения. Попробуйте снова.');
             }
             console.error(err);
-            alert('Ошибка сохранения. Попробуйте снова.');
             btn.innerHTML = originalText;
             btn.disabled = false;
             isSubmitting = false;
