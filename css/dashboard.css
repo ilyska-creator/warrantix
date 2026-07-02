@@ -851,6 +851,8 @@
 @media (max-width: 900px) {
     .mobile-top-bar {
         display: flex;
+        position: fixed;
+        top: 0;
     }
 
     .main-content {
