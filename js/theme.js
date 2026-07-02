@@ -1,5 +1,5 @@
 (function () {
-    const savedTheme = localStorage.getItem('warrantix-theme');
+    const savedTheme = localStorage.getItem('valuon-theme');
     if (savedTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
     }
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         const newTheme = isDark ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('warrantix-theme', newTheme);
+        localStorage.setItem('valuon-theme', newTheme);
         updateThemeIcon(newTheme);
     });
 

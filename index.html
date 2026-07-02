@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warrantix — Цифровой паспорт твоих вещей</title>
+    <title>Valuon</title>
     <script>
-        (function () { const t = localStorage.getItem('warrantix-theme'); if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); })();
+        (function () { const t = localStorage.getItem('valuon-theme'); if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +29,7 @@
                     <path d="M13 20L18 25L27 15" stroke="white" stroke-width="3" stroke-linecap="round"
                         stroke-linejoin="round" />
                 </svg>
-                Warrantix
+                Valuon
             </a>
 
             <ul class="nav-list">
@@ -64,14 +64,16 @@
                     в единый цифровой профиль для каждой вашей вещи.</p>
 
                 <div class="hero-actions">
-                    <form id="waitlist-form" class="waitlist-form">
-                        <input type="email" name="email" placeholder="Ваш email" required>
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i></button>
-                    </form>
-                    <div id="form-message" class="form-message"></div>
-                    <span class="sub-text"><i class="fa-solid fa-check"></i> <span data-i18n="hero_subtext">Бесплатно
-                            навсегда для ранних пользователей</span></span>
+                    <a href="register.html" class="btn btn-primary large" data-i18n="hero_btn_start">
+                        Начать бесплатно <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a href="login.html" class="btn btn-outline large" data-i18n="hero_btn_login">
+                        Войти в аккаунт
+                    </a>
                 </div>
+                <p class="hero-subtext" data-i18n="hero_subtext_social">
+                    🔥 Присоединись к 150+ ранним пользователям
+                </p>
             </div>
 
             <div class="hero-visual fade-in-up delay-1">
@@ -183,7 +185,7 @@
         <div class="container vision-wrapper reveal">
             <div class="vision-content">
                 <h2 data-i18n="vision_title">Строим мировую инфраструктуру доверия</h2>
-                <p data-i18n="vision_desc">Наша цель — создать единый стандарт цифрового владения. В будущем Warrantix
+                <p data-i18n="vision_desc">Наша цель — создать единый стандарт цифрового владения. В будущем Valuon
                     станет обязательным элементом для любой крупной покупки, обеспечивая прозрачность между покупателем,
                     магазином и производителем.</p>
                 <a href="roadmap.html" class="btn btn-outline" data-i18n="vision_btn">Читать Roadmap</a>
@@ -194,7 +196,7 @@
     <footer class="footer">
         <div class="container footer-grid">
             <div class="footer-col">
-                <a href="#" class="brand">Warrantix</a>
+                <a href="#" class="brand">Valuon</a>
                 <p data-i18n="footer_tagline">Управляйте гарантиями умнее.</p>
             </div>
             <div class="footer-col">
@@ -219,7 +221,7 @@
             </div>
         </div>
         <div class="container copyright">
-            <p>&copy; 2026 Warrantix Inc. Все права защищены.</p>
+            <p data-i18n="footer_copyright">© 2026 Valuon Inc. Все права защищены.</p>
         </div>
     </footer>
 

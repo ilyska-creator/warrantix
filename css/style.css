@@ -19,14 +19,14 @@
 }
 
 [data-theme="dark"] {
-    --bg-body: #020617;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --card-bg: rgba(15, 23, 42, 0.95);
-    --nav-bg: rgba(2, 6, 23, 0.9);
-    --border: #1e293b;
-    --light: #0f172a;
-    --shadow-lg: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --bg-body: #000000;
+    --text-main: #ffffff;
+    --text-muted: #888888;
+    --card-bg: #111111;
+    --nav-bg: rgba(0, 0, 0, 0.8);
+    --border: #222222;
+    --light: #1a1a1a;
+    --shadow-lg: 0 10px 40px -10px rgba(0, 0, 0, 0.8);
 }
 
 * {
@@ -135,11 +135,24 @@ ul {
     top: 0;
     width: 100%;
     z-index: 1000;
-    background: var(--nav-bg);
-    backdrop-filter: blur(2px);
-    border-bottom: 1px solid var(--border);
+
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+
     padding: 20px 0;
-    transition: 0.3s;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+[data-theme="light"] .navbar,
+:not([data-theme="dark"]) .navbar {
+    background: rgba(255, 255, 255, 0.75);
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .navbar {
+    background: rgba(0, 0, 0, 0.6);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 .nav-wrapper {
@@ -232,18 +245,20 @@ ul {
     color: var(--primary);
     position: relative;
     display: inline-block;
+    line-height: 1.2;
 }
 
 .highlight::after {
     content: '';
     position: absolute;
-    left: 0;
-    bottom: 5px;
-    width: 100%;
-    height: 30%;
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    left: -4px;
+    right: -4px;
+    bottom: 4px;
+    height: 28%;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
     z-index: -1;
-    border-radius: 4px;
+    border-radius: 6px;
+    pointer-events: none;
 }
 
 .hero-text p {
@@ -253,48 +268,49 @@ ul {
     max-width: 500px;
 }
 
-.waitlist-form {
+.hero-actions {
     display: flex;
-    gap: 10px;
-    background: var(--bg-body);
-    padding: 8px;
-    border: 1px solid var(--border);
-    border-radius: 50px;
-    max-width: 450px;
-    box-shadow: var(--shadow-sm);
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
-.waitlist-form input {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 0 20px;
-    font-family: inherit;
-    font-size: 1rem;
-    background: transparent;
-    color: var(--text-main);
+.btn.large {
+    padding: 16px 32px;
+    font-size: 1.1rem;
 }
 
-.waitlist-form button {
-    padding: 12px 24px;
-    border-radius: 40px;
+.hero-subtext {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    opacity: 0.8;
 }
 
 .sub-text {
-    display: block;
-    margin-top: 16px;
-    font-size: 0.9rem;
-    color: var(--text-muted);
+    display: none;
 }
 
-.sub-text i {
-    color: var(--success);
-    margin-right: 6px;
-}
+@media (max-width: 767px) {
+    .hero-text h1 {
+        font-size: 2.5rem;
+    }
 
-.hero-visual {
-    position: relative;
-    perspective: 1000px;
+    .hero-actions {
+        flex-direction: column;
+        width: 70%;
+    }
+
+    .btn.large {
+        width: 70%;
+        justify-content: center;
+    }
+
+    .hero-subtext {
+        text-align: center;
+        margin-top: 12px;
+    }
 }
 
 .glass-card {
@@ -306,12 +322,21 @@ ul {
     box-shadow: var(--shadow-lg);
     position: relative;
     z-index: 2;
-    transform: rotateY(-5deg) rotateX(5deg);
-    transition: 0.5s;
+    transform: translateY(0);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    animation: floatSmooth 6s ease-in-out infinite;
 }
 
-.glass-card:hover {
-    transform: rotateY(0) rotateX(0);
+@keyframes floatSmooth {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 .card-top {
@@ -397,9 +422,8 @@ ul {
 
 .floating-card {
     position: absolute;
-    background: var(--card-bg);
     padding: 12px 20px;
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: var(--shadow-lg);
     font-weight: 700;
     font-size: 0.9rem;
@@ -407,20 +431,37 @@ ul {
     align-items: center;
     gap: 10px;
     z-index: 3;
-    animation: float 6s ease-in-out infinite;
-    border: 1px solid var(--border);
     color: var(--text-main);
+    animation: floatSmooth 6s ease-in-out infinite;
+
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .floating-card,
+:not([data-theme="dark"]) .floating-card {
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .floating-card {
+    background: rgba(20, 20, 20, 0.6);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .card-1 {
-    top: -20px;
+    top: -15px;
     left: -20px;
+    animation-delay: 2s;
 }
 
 .card-2 {
-    bottom: 40px;
+    bottom: 20px;
     right: -30px;
-    animation-delay: 2s;
+    animation-delay: 4s;
 }
 
 .card-1 i {
@@ -431,7 +472,7 @@ ul {
     color: #f59e0b;
 }
 
-@keyframes float {
+@keyframes floatSmooth {
 
     0%,
     100% {
@@ -677,22 +718,32 @@ ul {
 }
 
 @media (max-width: 968px) {
+    .hero-section {
+        padding: 120px 0 40px;
+    }
+
     .hero-grid {
         grid-template-columns: 1fr;
+        gap: 32px;
         text-align: center;
     }
 
     .hero-text p {
-        margin: 0 auto 40px;
+        margin: 0 auto 24px;
     }
 
-    .waitlist-form {
-        margin: 0 auto;
+    .hero-actions {
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .hero-subtext {
+        text-align: center;
     }
 
     .hero-visual {
-        max-width: 500px;
-        margin: 60px auto 0;
+        max-width: 450px;
+        margin: 0 auto;
     }
 
     .timeline {
@@ -718,6 +769,25 @@ ul {
 }
 
 @media (max-width: 768px) {
+    .hero-section {
+        padding: 100px 0 20px;
+    }
+
+    .hero-text h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+    }
+
+    .btn.large {
+        width: 100%;
+        justify-content: center;
+    }
+
     .nav-list {
         position: fixed;
         left: -100%;
@@ -738,10 +808,6 @@ ul {
 
     .menu-toggle {
         display: block;
-    }
-
-    .hero-text h1 {
-        font-size: 2.5rem;
     }
 
     .footer-grid {
