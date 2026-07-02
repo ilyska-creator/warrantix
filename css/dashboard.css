@@ -787,33 +787,44 @@
     }
 }
 
+/* --- Исправленная мобильная панель --- */
 .mobile-top-bar {
+    display: none;
+    /* Скрыта на десктопе */
     position: fixed;
     top: 0;
+    left: 0;
     width: 100%;
+    height: 64px;
+    /* Фиксированная высота для стабильности */
     z-index: 1000;
 
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    /* Исправлено: добавлена ; после align-items */
+    align-items: center;
+    justify-content: flex-start;
+    /* Элементы идут слева направо */
 
-    padding: 20px 0;
+    padding: 0 20px;
+    /* Отступы по бокам вместо padding: 20px 0 */
     transition: all 0.3s ease;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid transparent;
 }
 
 [data-theme="light"] .mobile-top-bar,
 :not([data-theme="dark"]) .mobile-top-bar {
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.85);
     border-bottom-color: rgba(0, 0, 0, 0.05);
 }
 
 [data-theme="dark"] .mobile-top-bar {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.15);
     border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 .brand-mobile {
-    margin-top: 4px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -837,6 +848,7 @@
     margin-left: -8px;
     border-radius: 8px;
     transition: background 0.2s;
+    z-index: 2;
 }
 
 .menu-trigger:hover {
@@ -850,8 +862,6 @@
 @media (max-width: 900px) {
     .mobile-top-bar {
         display: flex;
-        position: fixed;
-        top: 0;
     }
 
     .main-content {
