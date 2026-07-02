@@ -1,50 +1,12 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { requireAuth, setupLogout } from './dashboard-auth.js';
 
-const supabaseUrl = 'https://qjnzawjivqvgupbgxdao.supabase.co';
-const supabaseKey = 'sb_publishable__b1k1cuhxQEBn50III2tkQ_0DOOqe3V';
+async function initDashboardItems() {
+    const auth = await requireAuth();
+    if (!auth) return;
 
-async function getSession() {
-    let client = createClient(supabaseUrl, supabaseKey, { auth: { storage: localStorage } });
-    let { data: { session } } = await client.auth.getSession();
-
-    if (!session) {
-        client = createClient(supabaseUrl, supabaseKey, { auth: { storage: sessionStorage } });
-        ({ data: { session } } = await client.auth.getSession());
-    }
-
-    return { session, client };
-}
-
-async function initDashboard() {
-    const { session, client } = await getSession();
-
-    if (!session) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    loadItems(session.user.id, client);
-    setupModal(client);
-    setupLogout(client);
-}
-
-function setupLogout(currentClient) {
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await currentClient.auth.signOut();
-                localStorage.removeItem('valuon-remember-email');
-                sessionStorage.clear();
-                window.location.href = 'index.html';
-            } catch (err) {
-                console.error(err);
-                localStorage.removeItem('valuon-remember-email');
-                sessionStorage.clear();
-                window.location.href = 'index.html';
-            }
-        });
-    }
+    loadItems(auth.user.id, auth.client);
+    setupModal(auth.client);
+    setupLogout(auth.client);
 }
 
 async function loadItems(userId, client) {
@@ -192,7 +154,7 @@ function setupModal(client) {
                 form.reset();
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-                initDashboard();
+                initDashboardItems();
             }, 800);
 
         } catch (err) {
@@ -204,4 +166,4 @@ function setupModal(client) {
     });
 }
 
-initDashboard();
+initDashboardItems();
