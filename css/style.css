@@ -790,7 +790,7 @@ ul {
 
     .nav-list {
         position: fixed;
-        left: -100%;
+        right: -100%;
         top: 70px;
         flex-direction: column;
         background: var(--bg-body);
@@ -800,10 +800,24 @@ ul {
         padding: 40px 0;
         box-shadow: var(--shadow-lg);
         border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+
+        background: rgba(255, 255, 255, 0.85);
+
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    [data-theme="dark"] .nav-list {
+        background: rgba(0, 0, 0, 0.9);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
 
     .nav-list.active {
-        left: 0;
+        right: 0;
     }
 
     .menu-toggle {
