@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ? 'Неверный email или пароль'
                         : 'Invalid email or password';
                 }
-                alert(msg);
+                showToast(msg);
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (err) {
                 console.error(err);
                 const lang = localStorage.getItem('valuon-lang') || 'ru';
-                alert(lang === 'ru'
+                showToast(lang === 'ru'
                     ? 'Ошибка отправки. Проверьте email и попробуйте снова.'
                     : 'Failed to send. Check email and try again.');
             } finally {
