@@ -1,11 +1,10 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-    console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY');
-}
+// ✅ СТАЛО — работает и с Vite, и без него
+const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL)
+    || 'https://qjnzawjivqvgupbgxdao.supabase.co';
+const supabaseKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY)
+    || 'sb_publishable__b1k1cuhxQEBn50III2tkQ_0DOOqe3V';
 
 function getSupabaseClient(rememberMe) {
     return createClient(supabaseUrl, supabaseKey, {
