@@ -284,7 +284,6 @@
     gap: 24px;
 }
 
-/* --- CLEAN CARD MVP STYLES --- */
 .item-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -304,7 +303,7 @@
 }
 
 .item-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.15);
     border-color: rgba(59, 130, 246, 0.3);
 }

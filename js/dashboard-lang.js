@@ -96,10 +96,19 @@ const dashboardTranslations = {
         prompt_delete_email: "Для подтверждения введите свой email:",
         msg_email_mismatch: "Email не совпадает. Удаление отменено.",
         msg_delete_failed: "Ошибка удаления. Попробуйте позже.",
-        mark_all_read: "Прочитать все",
         notif_checking: "Проверка статусов...",
 
-
+        notif_empty_title: "Нет товаров",
+        notif_empty_desc: "Добавьте хотя бы один товар, чтобы получать уведомления.",
+        notif_disabled_title: "Уведомления отключены",
+        notif_disabled_desc: "Включите напоминания о гарантиях в Настройках.",
+        notif_expiring_title: 'Гарантия "{name}" истекает',
+        notif_expiring_text: "Осталось {count} дн. Проверьте состояние устройства.",
+        notif_expired_title: 'Гарантия "{name}" истекла',
+        notif_expired_text: "Истекла {count} дн. назад.",
+        notif_all_good_title: "Всё отлично!",
+        notif_all_good_text: "У вас {count} товаров, и ни у одного не истекает гарантия в ближайшие 30 дней.",
+        notif_all_read: "Все уведомления прочитаны",
     },
     en: {
         page_title: "Valuon — Dashboard",
@@ -198,8 +207,19 @@ const dashboardTranslations = {
         prompt_delete_email: "To confirm, enter your email:",
         msg_email_mismatch: "Email does not match. Deletion cancelled.",
         msg_delete_failed: "Deletion failed. Try again later.",
-        mark_all_read: "Mark all as read",
         notif_checking: "Checking statuses...",
+
+        notif_empty_title: "No items yet",
+        notif_empty_desc: "Add at least one item to receive notifications.",
+        notif_disabled_title: "Notifications disabled",
+        notif_disabled_desc: "Enable warranty reminders in Settings to see alerts here.",
+        notif_expiring_title: 'Warranty for "{name}" is expiring',
+        notif_expiring_text: "{count} days left. Check device condition.",
+        notif_expired_title: 'Warranty for "{name}" has expired',
+        notif_expired_text: "Expired {count} days ago.",
+        notif_all_good_title: "All good!",
+        notif_all_good_text: "You have {count} items and none expire within 30 days.",
+        notif_all_read: "All notifications read",
 
     }
 };
@@ -239,6 +259,8 @@ function applyDashboardLang(lang) {
     }
 
     localStorage.setItem('valuon-lang', lang);
+    localStorage.setItem('valuon-lang', lang);
+    window.dispatchEvent(new CustomEvent('lang-changed', { detail: { lang } }));
     const typeLabels = {
         ru: { laptop: '💻 Ноутбук', phone: '📱 Смартфон', tablet: '📟 Планшет', watch: '⌚ Часы', headphones: '🎧 Наушники', camera: '📷 Камера', console: '🎮 Консоль', appliance: '🏠 Бытовая техника', other: '📦 Другое' },
         en: { laptop: '💻 Laptop', phone: '📱 Phone', tablet: '📟 Tablet', watch: '⌚ Watch', headphones: '🎧 Headphones', camera: '📷 Camera', console: '🎮 Console', appliance: '🏠 Appliance', other: '📦 Other' }

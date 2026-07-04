@@ -248,11 +248,14 @@ async function initSettings() {
                 }, 1000);
             } catch (err) {
                 console.error(err);
-                let msg = err.message || 'Failed';
-                if (err.message?.includes('already registered')) {
-                    msg = t.msg_email_in_use || 'Email in use';
-                } else if (err.message?.includes('rate limit')) {
-                    msg = t.msg_rate_limit || 'Rate limit';
+                const errMsg = (err.message || '').toLowerCase();
+                let msg;
+                if (errMsg.includes('already') && errMsg.includes('registered')) {
+                    msg = t.msg_email_in_use || 'This email is already in use';
+                } else if (errMsg.includes('rate limit') || errMsg.includes('too many')) {
+                    msg = t.msg_rate_limit || 'Too many attempts. Please wait a minute.';
+                } else {
+                    msg = errMsg || 'Failed';
                 }
                 showToast(msg, 'error');
                 confirmEmailChange.innerHTML = originalHTML;
