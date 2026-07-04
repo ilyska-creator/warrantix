@@ -36,10 +36,6 @@ async function loadNotifications(userId, client) {
 
     container.innerHTML = '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> <span data-i18n="notif_checking"></span></div>';
 
-    if (typeof window.applyDashboardLang === 'function') {
-        window.applyDashboardLang(getNotifLang());
-    }
-
     const { data: profile } = await client
         .from('profiles')
         .select('expiry_alerts')

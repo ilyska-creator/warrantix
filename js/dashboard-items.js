@@ -132,10 +132,10 @@ function renderItems(items) {
             const shortSerial = item.serial_number.length > 6
                 ? escapeHtml(item.serial_number.substring(0, 6)) + '...'
                 : escapeHtml(item.serial_number);
-            tags.push(`<span class="tag"><i class="fa-solid fa-barcode"></i> ${shortSerial}</span>`);
+            tags.push(`<span class="tag"><i class="fa-solid fa-barcode"></i> ${escapeHtml(shortSerial)}</span>`);
         }
         if (item.store_name) tags.push(`<span class="tag"><i class="fa-solid fa-store"></i> ${escapeHtml(item.store_name)}</span>`);
-        if (item.price && item.price > 0) tags.push(`<span class="tag"><i class="fa-solid fa-tag"></i> ${item.price} $</span>`);
+        if (item.price && item.price > 0) tags.push(`<span class="tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(item.price)} $</span>`);
 
         const btnEditText = t.btn_edit || 'Изменить';
         const btnDeleteText = t.btn_delete || 'Удалить';
