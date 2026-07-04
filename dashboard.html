@@ -327,6 +327,91 @@
             </form>
         </div>
     </div>
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="modal_edit_title">Изменить товар</h2>
+                <button id="close-edit-modal" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="edit-item-form" class="modal-form">
+                <input type="hidden" name="item_id" id="edit-item-id">
+                <div class="input-group">
+                    <label data-i18n="label_name">Название товара</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label data-i18n="label_type">Тип устройства</label>
+                        <select name="type" required>
+                            <option value="laptop">💻 Ноутбук</option>
+                            <option value="phone">📱 Смартфон</option>
+                            <option value="tablet">📟 Планшет</option>
+                            <option value="watch">⌚ Часы</option>
+                            <option value="headphones">🎧 Наушники</option>
+                            <option value="camera">📷 Камера</option>
+                            <option value="console">🎮 Консоль</option>
+                            <option value="appliance">🏠 Бытовая техника</option>
+                            <option value="other">📦 Другое</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label data-i18n="label_brand">Бренд</label>
+                        <input type="text" name="brand">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label data-i18n="label_price">Цена покупки ($)</label>
+                        <input type="number" name="price" min="0" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label data-i18n="label_store">Магазин / Продавец</label>
+                        <input type="text" name="store_name" data-i18n-placeholder="ph_store">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label data-i18n="label_serial">Серийный номер</label>
+                        <input type="text" name="serial_number">
+                    </div>
+                    <div class="input-group">
+                        <label data-i18n="label_date">Дата покупки</label>
+                        <input type="date" name="purchase_date" required>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label data-i18n="label_months">Срок гарантии (мес.)</label>
+                        <input type="number" name="warranty_months" min="1" max="60" required>
+                    </div>
+                    <div class="input-group">
+                        <label data-i18n="label_location">Место хранения</label>
+                        <input type="text" name="location" data-i18n-placeholder="ph_location">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-edit-modal" class="btn btn-outline"
+                        data-i18n="btn_cancel">Отмена</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="btn_save">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="delete-item-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="forgot-icon" style="background: rgba(239,68,68,0.1); color: #ef4444; margin-bottom: 16px;">
+                <i class="fa-solid fa-trash"></i>
+            </div>
+            <h3 data-i18n="delete_item_title">Удалить товар?</h3>
+            <p class="forgot-desc" data-i18n="delete_item_desc">Товар и связанные данные будут удалены безвозвратно.</p>
+            <div class="modal-actions">
+                <button type="button" id="cancel-delete-item" class="btn btn-outline"
+                    data-i18n="btn_cancel">Отмена</button>
+                <button type="button" id="confirm-delete-item" class="btn btn-danger"
+                    data-i18n="btn_delete">Удалить</button>
+            </div>
+        </div>
+    </div>
 
     <div id="toast-container" class="toast-container"></div>
 

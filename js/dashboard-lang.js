@@ -109,6 +109,15 @@ const dashboardTranslations = {
         notif_all_good_title: "Всё отлично!",
         notif_all_good_text: "У вас {count} товаров, и ни у одного не истекает гарантия в ближайшие 30 дней.",
         notif_all_read: "Все уведомления прочитаны",
+
+        btn_edit: "Изменить",
+        delete_item_title: "Удалить товар?",
+        delete_item_desc: "Товар и связанные данные будут удалены безвозвратно.",
+        msg_item_deleted: "Товар удалён",
+        msg_item_delete_failed: "Ошибка удаления товара",
+        modal_edit_title: "Изменить товар",
+        msg_item_updated: "Товар обновлён",
+        msg_item_update_failed: "Ошибка обновления товара",
     },
     en: {
         page_title: "Valuon — Dashboard",
@@ -221,6 +230,14 @@ const dashboardTranslations = {
         notif_all_good_text: "You have {count} items and none expire within 30 days.",
         notif_all_read: "All notifications read",
 
+        btn_edit: "Edit",
+        delete_item_title: "Delete item?",
+        delete_item_desc: "Item and related data will be permanently deleted.",
+        msg_item_deleted: "Item deleted",
+        msg_item_delete_failed: "Failed to delete item",
+        modal_edit_title: "Edit Item",
+        msg_item_updated: "Item updated",
+        msg_item_update_failed: "Failed to update item",
     }
 };
 window.dashboardTranslations = dashboardTranslations;

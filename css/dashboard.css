@@ -1930,7 +1930,7 @@
     background: rgba(239, 68, 68, 0.25);
 }
 
-#delete-receipt-modal .forgot-icon {
+.forgot-icon {
     width: 54px;
     height: 54px;
     margin: 0 auto 16px;
@@ -1956,4 +1956,69 @@
 .btn[disabled]:hover {
     transform: none !important;
     box-shadow: none !important;
+}
+
+.item-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.item-actions .btn-action {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    min-width: 44px;
+}
+
+.item-actions .btn-action.primary {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.item-actions .btn-action.primary:hover {
+    background: rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .item-actions .btn-action.primary {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+[data-theme="dark"] .item-actions .btn-action.primary:hover {
+    background: rgba(59, 130, 246, 0.25);
+}
+
+.item-actions .btn-action.danger {
+    flex: 0 0 auto;
+    min-width: 44px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.item-actions .btn-action.danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .item-actions .btn-action.danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+[data-theme="dark"] .item-actions .btn-action.danger:hover {
+    background: rgba(239, 68, 68, 0.25);
 }

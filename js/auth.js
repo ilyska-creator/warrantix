@@ -14,7 +14,6 @@ function getSupabaseClient(rememberMe) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Проверка сессии
     const tempClient = getSupabaseClient(true);
     const { data: { session } } = await tempClient.auth.getSession();
 
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Запомненный email
     const savedEmail = localStorage.getItem('valuon-remember-email');
     const emailInput = document.getElementById('email');
     const rememberCheckbox = document.getElementById('remember');
@@ -33,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (rememberCheckbox) rememberCheckbox.checked = true;
     }
 
-    // Переключение видимости пароля
     const toggleBtn = document.querySelector('.toggle-password');
     const passwordInput = document.getElementById('password');
     if (toggleBtn && passwordInput) {
@@ -45,7 +42,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Вход
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -89,7 +85,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- ВОССТАНОВЛЕНИЕ ПАРОЛЯ ---
     const forgotLink = document.querySelector('.forgot-link');
     const forgotModal = document.getElementById('forgot-modal');
     const forgotClose = forgotModal?.querySelector('.forgot-close');
@@ -158,7 +153,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (error) throw error;
 
-                // Показываем экран успеха
                 stepEmail?.classList.add('hidden');
                 stepSuccess?.classList.remove('hidden');
 
