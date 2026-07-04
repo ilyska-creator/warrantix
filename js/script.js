@@ -1,7 +1,11 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const supabaseUrl = 'https://qjnzawjivqvgupbgxdao.supabase.co';
-const supabaseKey = 'sb_publishable__b1k1cuhxQEBn50III2tkQ_0DOOqe3V';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY');
+}
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const translations = {
@@ -14,7 +18,7 @@ const translations = {
         form_placeholder: "Ваш email",
         hero_btn_start: "Начать бесплатно",
         hero_btn_login: "Войти в аккаунт",
-        hero_subtext_social: "🔥 Присоединись к 50+ ранним пользователям",
+        hero_subtext_social: "🔥 Присоединись к ранним пользователям",
         card_status: "Активна", demo_days_left: "Осталось 285 дней",
         card_manual: "Инструкция", card_service: "Сервис",
         float_receipt: "Чек сохранен", float_reminder: "Напоминание",
@@ -48,7 +52,7 @@ const translations = {
         form_placeholder: "Your email",
         hero_btn_start: "Get Started Free",
         hero_btn_login: "Sign In",
-        hero_subtext_social: "🔥 Join 50+ early adopters",
+        hero_subtext_social: "🔥 Join early adopters",
         card_status: "Active", demo_days_left: "285 days left", card_manual: "Manual", card_service: "Service",
         float_receipt: "Receipt saved", float_reminder: "Reminder",
         feat_title: "All protection tools <br>for your purchases",
