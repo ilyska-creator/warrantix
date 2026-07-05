@@ -96,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const key = el.getAttribute('data-i18n');
             if (!t[key]) return;
 
-            // Сохраняем иконку внутри бейджей статусов
             if (el.classList.contains('card-status')) {
                 const icon = el.querySelector('i');
                 const iconHtml = icon ? icon.outerHTML + ' ' : '';
@@ -106,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Обновляем текст кнопки языка
         const langBtn = document.getElementById('lang-toggle');
         if (langBtn) {
             const span = langBtn.querySelector('span');
@@ -116,10 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('valuon-lang', lang);
     }
 
-    // Применяем переводы при загрузке
     applyRoadmapTranslations(currentLang);
 
-    // Обработчик переключения языка
     const langToggle = document.getElementById('lang-toggle');
     if (langToggle) {
         langToggle.addEventListener('click', () => {
@@ -128,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Синхронизация между вкладками
     window.addEventListener('storage', (e) => {
         if (e.key === 'valuon-lang') {
             applyRoadmapTranslations(e.newValue || 'ru');
@@ -136,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Тема (отдельный IIFE, работает независимо)
 (function () {
     const savedTheme = localStorage.getItem('valuon-theme');
     if (savedTheme === 'dark') {

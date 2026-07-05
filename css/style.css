@@ -335,20 +335,20 @@ ul {
     color: var(--text-main);
     animation: floatSmooth 6s ease-in-out infinite;
 
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(1px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="light"] .floating-card,
 :not([data-theme="dark"]) .floating-card {
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.5);
     border-color: rgba(255, 255, 255, 0.4);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="dark"] .floating-card {
-    background: rgba(20, 20, 20, 0.6);
+    background: rgba(20, 20, 20, 0.5);
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
@@ -783,7 +783,6 @@ ul {
     box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.4);
 }
 
-/* Демо-карточка на главной: анимация парения + hover */
 .demo-card {
     animation: floatSmooth 6s ease-in-out infinite;
 }
@@ -946,4 +945,22 @@ ul {
 
 .days-left-text.expired {
     color: #ef4444;
+}
+
+.site-footer {
+    padding: 2rem 1rem;
+    text-align: center;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+    margin-top: 4rem;
+}
+
+.email-link {
+    color: var(--primary-color, #3b82f6);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.email-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
 }
