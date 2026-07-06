@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             phase_5_item_3: "Встроенное страхование: оформление расширенной гарантии или страховки от поломок в один клик из карточки товара",
             phase_5_item_4: "Децентрализованная верификация: независимое подтверждение истории владения через открытые реестры (без привязки к конкретному вендору)",
             phase_5_item_5: "Предиктивная аналитика: прогноз остаточной стоимости актива на основе истории обслуживания и рыночных данных",
-            footer_copyright: "© 2026 Valuon Inc. Все права защищены."
+            footer_copyright: "© 2026 Valuon. Все права защищены."
         },
         en: {
             roadmap_back: "← Back to Home",
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             phase_5_item_3: "Embedded insurance: extended warranty or breakdown coverage in one click from product card",
             phase_5_item_4: "Decentralized verification: independent ownership history confirmation via open registries (vendor-agnostic)",
             phase_5_item_5: "Predictive analytics: residual value forecasting based on service history and market data",
-            footer_copyright: "© 2026 Valuon Inc. All rights reserved."
+            footer_copyright: "© 2026 Valuon. All rights reserved."
         }
     };
 
@@ -96,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const key = el.getAttribute('data-i18n');
             if (!t[key]) return;
 
-            // Сохраняем иконку внутри бейджей статусов
             if (el.classList.contains('card-status')) {
                 const icon = el.querySelector('i');
                 const iconHtml = icon ? icon.outerHTML + ' ' : '';
@@ -106,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Обновляем текст кнопки языка
         const langBtn = document.getElementById('lang-toggle');
         if (langBtn) {
             const span = langBtn.querySelector('span');
@@ -116,10 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('valuon-lang', lang);
     }
 
-    // Применяем переводы при загрузке
     applyRoadmapTranslations(currentLang);
 
-    // Обработчик переключения языка
     const langToggle = document.getElementById('lang-toggle');
     if (langToggle) {
         langToggle.addEventListener('click', () => {
@@ -128,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Синхронизация между вкладками
     window.addEventListener('storage', (e) => {
         if (e.key === 'valuon-lang') {
             applyRoadmapTranslations(e.newValue || 'ru');
@@ -136,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Тема (отдельный IIFE, работает независимо)
 (function () {
     const savedTheme = localStorage.getItem('valuon-theme');
     if (savedTheme === 'dark') {

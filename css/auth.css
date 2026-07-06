@@ -371,7 +371,6 @@
     display: none !important;
 }
 
-/* --- CUSTOM TOAST NOTIFICATIONS --- */
 .toast-container {
     position: fixed;
     top: 24px;

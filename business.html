@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valuon — Seller Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/business.css">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('valuon-theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+</head>
+
+<body class="business-body">
+    <header class="business-top-bar">
+        <a href="dashboard.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Вернуться в личный кабинет</span>
+        </a>
+        <a href="index.html" class="brand-small">
+            <svg width="20" height="20" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 4L5 10V20C5 29.5 11.5 37.5 20 39C28.5 37.5 35 29.5 35 20V10L20 4Z" fill="#3b82f6"
+                    stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round" />
+                <path d="M13 20L18 25L27 15" stroke="white" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+            <span>Valuon Seller</span>
+        </a>
+        <button id="theme-toggle-btn" class="icon-btn" aria-label="Переключить тему">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+    </header>
+
+    <main class="business-main">
+        <section id="create-shop-view" class="view">
+            <div class="shop-setup-wrapper">
+                <div class="card shop-setup-card max-w-md">
+                    <div class="shop-setup-header">
+                        <div class="card-icon large-icon"><i class="fa-solid fa-store"></i></div>
+                        <h1>Регистрация магазина</h1>
+                        <p class="setup-subtitle">Создайте цифровой профиль вашего бизнеса для автоматической выдачи
+                            чеков клиентам.</p>
+                    </div>
+
+                    <form id="create-shop-form" class="mt-6">
+                        <div class="input-group">
+                            <label for="shop_name">Название бизнеса *</label>
+                            <input type="text" id="shop_name" name="shop_name" required placeholder="My Awesome Store"
+                                autocomplete="organization">
+                            <small class="field-hint">Как вас знают клиенты</small>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="tax_id">Налоговый номер (Tax ID / INN) *</label>
+                            <input type="text" id="tax_id" name="tax_id" required placeholder="1234567890"
+                                autocomplete="off">
+                            <small class="field-hint">Основной идентификатор для налоговой отчетности</small>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="address">Юридический адрес *</label>
+                            <textarea id="address" name="address" rows="3" required
+                                placeholder="ул. Примерная, д. 1, офис 101" autocomplete="street-address"></textarea>
+                            <small class="field-hint">Адрес регистрации компании</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-full mt-4 btn-lg">
+                            <i class="fa-solid fa-check-circle"></i> Зарегистрировать магазин
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-decoration bg-blob-1"></div>
+                <div class="bg-decoration bg-blob-2"></div>
+            </div>
+        </section>
+        <section id="shop-dashboard-view" class="view is-active">
+            <div class="content-header">
+                <h1>Мои чеки</h1>
+                <button id="open-create-receipt-btn" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Создать чек
+                </button>
+            </div>
+
+            <div class="shop-info-card mb-6">
+                <div class="shop-icon">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <div class="shop-details">
+                    <h3 class="shop-name" id="display-shop-name">Загрузка...</h3>
+                    <div class="shop-meta">
+                        <span class="meta-item"><i class="fa-solid fa-hashtag"></i> <span
+                                id="display-tax-id">—</span></span>
+                        <span class="meta-separator">•</span>
+                        <span class="meta-item"><i class="fa-solid fa-location-dot"></i> <span
+                                id="display-address">—</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid mb-6">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fa-solid fa-file-invoice"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Всего чеков</span>
+                        <span class="stat-value" id="total-receipts">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Ожидают привязки</span>
+                        <span class="stat-value" id="pending-receipts">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="receipts-list-container">
+                <h2 class="section-title">Выписанные чеки</h2>
+                <div id="business-receipts-grid" class="items-grid">
+                </div>
+                <div id="no-receipts-msg" class="empty-state" style="display: none;">
+                    <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
+                    <h3>У вас пока нет выписанных чеков</h3>
+                    <p>Нажмите кнопку «Создать чек», чтобы выдать первый цифровой документ клиенту.</p>
+                    <button id="create-first-receipt-btn" class="btn btn-outline mt-4">
+                        <i class="fa-solid fa-plus"></i> Создать первый чек
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div id="create-receipt-modal" class="modal-overlay is-hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content max-w-lg">
+                <div class="modal-header">
+                    <h2>Выписать новый чек</h2>
+                    <button id="close-receipt-modal" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form id="issue-receipt-form" class="modal-form">
+                    <div class="input-group">
+                        <label>Email покупателя *</label>
+                        <input type="email" name="customer_email" placeholder="client@example.com" required>
+                        <small>Если клиент зарегистрирован, чек привяжется автоматически</small>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Товар *</label>
+                            <input type="text" name="item_name" placeholder="MacBook Air M2" required>
+                        </div>
+                        <div class="input-group small">
+                            <label>Кол-во *</label>
+                            <input type="number" name="qty" value="1" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Цена за ед. *</label>
+                            <input type="number" name="price" step="0.01" min="0" placeholder="0.00" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Налог (%) *</label>
+                            <input type="number" name="vat_rate" step="0.1" min="0" max="100" value="0" placeholder="0"
+                                required>
+                            <small class="field-hint">Укажите ставку налога в вашем регионе</small>
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Дата покупки *</label>
+                            <input type="datetime-local" name="purchase_date" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Оплата</label>
+                            <select name="payment_method">
+                                <option value="Card">Карта</option>
+                                <option value="Cash">Наличные</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancel-receipt-modal" class="btn btn-outline">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Выписать чек</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/toast.js"></script>
+    <script type="module" src="js/business-panel.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeBtn = document.getElementById('theme-toggle-btn');
+            const icon = themeBtn.querySelector('i');
+
+            function updateIcon() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+
+            themeBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('valuon-theme', newTheme);
+                updateIcon();
+            });
+
+            updateIcon();
+        });
+    </script>
+
+</body>
+
+</html>

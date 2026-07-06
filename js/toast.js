@@ -28,15 +28,12 @@ function showToast(message, type = 'error', duration = 4000) {
         <div class="toast-progress" style="animation-duration: ${duration}ms"></div>
     `;
 
-    // Закрытие по кнопке
     toast.querySelector('.toast-close').addEventListener('click', () => removeToast(toast));
 
     container.appendChild(toast);
 
-    // Автоудаление
     const timer = setTimeout(() => removeToast(toast), duration);
 
-    // Пауза при наведении
     toast.addEventListener('mouseenter', () => {
         clearTimeout(timer);
         toast.querySelector('.toast-progress').style.animationPlayState = 'paused';
