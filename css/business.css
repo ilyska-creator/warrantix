@@ -553,7 +553,7 @@
 .modal-content {
     position: relative;
     background: var(--card-bg);
-    border-radius: var(--radius);
+    border-radius: 24px;
     padding: 2rem;
     width: 100%;
     max-width: 600px;
@@ -947,17 +947,17 @@
     .modal-overlay {
         padding: 0.5rem;
         align-items: flex-start;
-        
+
         padding-top: 2rem;
     }
 
     .modal-content {
         max-height: calc(100vh - 4rem);
-        
+
         padding: 1.5rem;
         border-radius: 16px;
         margin-bottom: 2rem;
-        
+
     }
 
     .modal-actions {
@@ -1025,7 +1025,7 @@
     padding: 4rem 1rem;
     color: var(--text-muted);
     grid-column: 1 / -1;
-    
+
     animation: fadeIn 0.5s ease;
 }
 
@@ -1065,7 +1065,7 @@
     align-items: center;
     justify-content: center;
     height: 42px;
-    
+
     border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--bg-body);
@@ -1080,7 +1080,7 @@
 
 .btn-action.download {
     flex: 1;
-    
+
     gap: 0.5rem;
     background: rgba(59, 130, 246, 0.05);
     border-color: rgba(59, 130, 246, 0.2);
@@ -1097,9 +1097,9 @@
 
 .btn-action.delete {
     width: 42px;
-    
+
     flex-shrink: 0;
-    
+
     background: rgba(239, 68, 68, 0.05);
     border-color: rgba(239, 68, 68, 0.2);
     color: #ef4444;
