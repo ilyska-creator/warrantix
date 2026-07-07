@@ -18,11 +18,9 @@
     height: 100px;
     z-index: 500;
     background: rgba(248, 250, 252, 0.5);
-    padding: 0 20px;
-    transition: background 0.3s ease, border-color 0.3s ease;
+    padding: 0 var(--space-5);
+    transition: background var(--transition-base), border-color var(--transition-base);
     isolation: isolate;
-
-
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     border-bottom: 1px solid transparent;
@@ -35,14 +33,14 @@
 .back-link {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: var(--space-2);
     color: var(--text-muted);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.95rem;
-    padding: 0.5rem 0.8rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    transition: var(--transition-base);
     background: transparent;
     z-index: 2;
 }
@@ -73,13 +71,10 @@
 .shop-setup-wrapper {
     position: relative;
     min-height: calc(100vh - 72px);
-    /* Весь экран минус шапка */
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-
-    /* Мягкий градиент вместо пятен */
+    padding: var(--space-8);
     background: linear-gradient(135deg,
             var(--bg-body) 0%,
             rgba(59, 130, 246, 0.03) 50%,
@@ -98,11 +93,11 @@
     z-index: 2;
     background: var(--card-bg);
     border: 1px solid var(--border);
-    box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-xl);
     backdrop-filter: blur(10px);
-    padding: 2.5rem;
-    border-radius: 24px;
-    animation: slideUpFade 0.5s ease-out;
+    padding: var(--space-10);
+    border-radius: var(--radius-2xl);
+    animation: slideUpFade var(--transition-slow) ease-out;
     width: 100%;
 }
 
@@ -113,7 +108,7 @@
 
 .shop-setup-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
 }
 
 .large-icon {
@@ -133,7 +128,7 @@
 .shop-setup-header h1 {
     font-size: 1.75rem;
     font-weight: 800;
-    margin-bottom: 0.75rem;
+    margin-bottom: var(--space-3);
     letter-spacing: -0.02em;
 }
 
@@ -147,7 +142,7 @@
 
 /* ✅ СОВРЕМЕННЫЕ ПОЛЯ ВВОДА */
 .input-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-6);
     position: relative;
 }
 
@@ -156,23 +151,23 @@
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-main);
-    margin-bottom: 0.5rem;
-    transition: color 0.2s ease;
+    margin-bottom: var(--space-2);
+    transition: var(--transition-fast);
 }
 
 .input-group input,
 .input-group textarea,
 .input-group select {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: var(--space-4) var(--space-4);
     font-family: var(--font-main);
     font-size: 0.95rem;
     color: var(--text-main);
     background: var(--bg-body);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     outline: none;
-    transition: all 0.2s ease;
+    transition: var(--transition-fast);
     box-sizing: border-box;
 }
 
@@ -209,21 +204,21 @@
     display: block;
     font-size: 0.75rem;
     color: var(--text-muted);
-    margin-top: 0.4rem;
+    margin-top: var(--space-1);
     opacity: 0.8;
 }
 
 .btn-lg {
-    padding: 1rem 1.5rem;
+    padding: var(--space-4) var(--space-6);
     font-size: 1.05rem;
     font-weight: 700;
-    border-radius: 12px;
-    margin-top: 1rem;
-    transition: all 0.2s ease;
+    border-radius: var(--radius-md);
+    margin-top: var(--space-4);
+    transition: var(--transition-fast);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
     width: 100%;
 }
 
@@ -315,7 +310,7 @@
 .stat-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-xl);
     padding: 1.25rem;
     display: flex;
     align-items: center;
@@ -401,7 +396,7 @@
 .item-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-2xl);
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
@@ -638,7 +633,7 @@
 .shop-info-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: var(--radius-xl);
     padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
@@ -1179,14 +1174,21 @@
 /* Header icons container */
 .header-icons {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--space-3);
     align-items: center;
+    padding-right: var(--space-5);
 }
 
 #lang-toggle-business {
     min-width: 40px;
     font-weight: 600;
     font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .header-icons {
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {

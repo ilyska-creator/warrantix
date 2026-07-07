@@ -305,14 +305,14 @@ async function initBusinessPanel() {
                 // ✅ ВИЗУАЛЬНОЕ ОТОБРАЖЕНИЕ СТАТУСА
                 const isVerified = r.status === 'verified';
                 const statusClass = isVerified ? 'active' : 'warning';
-                const statusText = isVerified ? 'Привязан к клиенту' : 'Ожидает регистрации';
+                const statusKey = isVerified ? 'status_verified' : 'status_pending';
                 const dateStr = new Date(r.purchase_date).toLocaleDateString('ru-RU');
 
                 return `
-            <div class="item-card status-${r.status}">
+            <div class="item-card status-${r.status}" data-receipt-id="${r.id}" data-receipt-status="${r.status}" data-receipt-date="${r.purchase_date}">
                 <div class="item-header">
                     <div class="item-icon"><i class="fa-solid fa-receipt"></i></div>
-                    <span class="item-status-badge ${statusClass}">${escapeHtml(statusText)}</span>
+                    <span class="item-status-badge ${statusClass}" data-i18n="${statusKey}"></span>
                 </div>
                 <div class="item-body">
                     <h3 class="item-title" title="${escapeHtml(r.item_name)}">${escapeHtml(r.item_name)}</h3>
@@ -321,15 +321,15 @@ async function initBusinessPanel() {
                     </div>
                     <div class="item-tags">
                         <span class="tag"><i class="fa-solid fa-tag"></i> $${parseFloat(r.gross_total).toFixed(2)}</span>
-                        <span class="tag"><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(dateStr)}</span>
+                        <span class="tag"><i class="fa-solid fa-calendar-days"></i> <span class="receipt-date">${escapeHtml(dateStr)}</span></span>
                         <span class="tag"><i class="fa-solid fa-hashtag"></i> ${escapeHtml(r.id.slice(0, 8).toUpperCase())}</span>
                     </div>
 
                     <div class="item-actions">
-                        <button class="btn-action download btn-download-receipt" data-id="${r.id}" title="Скачать чек">
-                            <i class="fa-solid fa-download"></i> Скачать
+                        <button class="btn-action download btn-download-receipt" data-id="${r.id}" data-i18n-title="download_receipt_title">
+                            <i class="fa-solid fa-download"></i> <span data-i18n="download_btn"></span>
                         </button>
-                        <button class="btn-action delete btn-delete-receipt" data-id="${r.id}" title="Удалить чек">
+                        <button class="btn-action delete btn-delete-receipt" data-id="${r.id}" data-i18n-title="delete_receipt_title">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -349,7 +349,9 @@ async function initBusinessPanel() {
                     deleteModal.classList.remove('is-hidden');
 
                     confirmBtn.disabled = false;
-                    confirmBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Удалить';
+                    const lang = localStorage.getItem('valuon-lang') || 'ru';
+                    const deleteText = lang === 'en' ? 'Delete' : 'Удалить';
+                    confirmBtn.innerHTML = `<i class="fa-solid fa-trash"></i> ${deleteText}`;
 
                     const handleConfirm = async () => {
                         confirmBtn.disabled = true;
@@ -363,14 +365,21 @@ async function initBusinessPanel() {
 
                             if (error) throw error;
 
-                            window.showToast('Чек успешно удален', 'success');
+                            const successMsg = lang === 'en' ? 'Receipt successfully deleted' : 'Чек успешно удален';
+                            window.showToast(successMsg, 'success');
                             deleteModal.classList.add('is-hidden');
                             await refreshDashboard(client, shopId, statsEl, listEl);
+                            
+                            // Reapply translations after refresh
+                            if (typeof applyBusinessTranslations === 'function') {
+                                applyBusinessTranslations();
+                            }
                         } catch (e) {
                             console.error('Delete failed:', e);
-                            window.showToast('Ошибка при удалении чека', 'error');
+                            const errorMsg = lang === 'en' ? 'Error deleting receipt' : 'Ошибка при удалении чека';
+                            window.showToast(errorMsg, 'error');
                             confirmBtn.disabled = false;
-                            confirmBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Удалить';
+                            confirmBtn.innerHTML = `<i class="fa-solid fa-trash"></i> ${deleteText}`;
                         }
                     };
 

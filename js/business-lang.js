@@ -69,6 +69,18 @@ const businessTranslations = {
 
         // Theme toggle
         theme_toggle_title: 'Переключить тему',
+
+        // Receipt cards
+        status_verified: 'Привязан к клиенту',
+        status_pending: 'Ожидает регистрации',
+        download_btn: 'Скачать',
+        download_receipt_title: 'Скачать чек',
+        delete_receipt_title: 'Удалить чек',
+        receipt_deleted_success: 'Чек успешно удален',
+        receipt_delete_error: 'Ошибка при удалении чека',
+        receipt_not_found: 'Не удалось найти данные чека',
+        data_refresh_error: 'Не удалось обновить данные. Попробуйте позже.',
+        data_load_error: 'Ошибка загрузки данных',
     },
     en: {
         // Top bar
@@ -140,6 +152,18 @@ const businessTranslations = {
 
         // Theme toggle
         theme_toggle_title: 'Toggle Theme',
+
+        // Receipt cards
+        status_verified: 'Linked to Customer',
+        status_pending: 'Awaiting Registration',
+        download_btn: 'Download',
+        download_receipt_title: 'Download receipt',
+        delete_receipt_title: 'Delete receipt',
+        receipt_deleted_success: 'Receipt successfully deleted',
+        receipt_delete_error: 'Error deleting receipt',
+        receipt_not_found: 'Could not find receipt data',
+        data_refresh_error: 'Failed to refresh data. Please try again later.',
+        data_load_error: 'Data loading error',
     }
 };
 
@@ -302,6 +326,44 @@ function applyBusinessTranslations() {
     // Theme toggle title
     const themeBtn = document.getElementById('theme-toggle-btn');
     if (themeBtn) themeBtn.setAttribute('aria-label', t.theme_toggle_title);
+
+    // Translate receipt cards
+    translateReceiptCards(t);
+}
+
+/**
+ * Translate receipt cards dynamically
+ */
+function translateReceiptCards(t) {
+    // Translate status badges
+    document.querySelectorAll('.item-status-badge[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+
+    // Translate download buttons
+    document.querySelectorAll('.btn-download-receipt span[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+
+    // Translate button titles
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        if (t[key]) el.setAttribute('title', t[key]);
+    });
+
+    // Translate dates based on language
+    document.querySelectorAll('.receipt-date').forEach(el => {
+        const card = el.closest('.item-card');
+        if (card) {
+            const dateStr = card.getAttribute('data-receipt-date');
+            if (dateStr) {
+                const locale = businessCurrentLang === 'en' ? 'en-US' : 'ru-RU';
+                el.textContent = new Date(dateStr).toLocaleDateString(locale);
+            }
+        }
+    });
 }
 
 /**

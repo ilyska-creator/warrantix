@@ -179,7 +179,7 @@ function renderBusinessCard(r, t) {
         <div class="receipt-card business-card">
             <div class="receipt-header">
                 <div class="receipt-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                <div class="item-status-badge active">Verified</div>
+                <div class="item-status-badge active" data-i18n="status_business_verified">${t.status_business_verified || 'Verified'}</div>
             </div>
             ${shopBadge}
             <div class="receipt-info">

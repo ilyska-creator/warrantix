@@ -1,13 +1,13 @@
 .roadmap-header {
     text-align: center;
-    padding-top: 160px;
-    padding-bottom: 60px;
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-16);
 }
 
 .roadmap-header h1 {
     font-size: 3rem;
     font-weight: 800;
-    margin-bottom: 24px;
+    margin-bottom: var(--space-6);
     color: var(--text-main);
 }
 
@@ -21,19 +21,19 @@
 .timeline-container {
     max-width: 800px;
     margin: 0 auto;
-    padding-bottom: 100px;
+    padding-bottom: var(--space-16);
 }
 
 .timeline-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 40px;
-    margin-bottom: 40px;
+    border-radius: var(--radius-2xl);
+    padding: var(--space-10);
+    margin-bottom: var(--space-10);
     position: relative;
     z-index: 1;
     box-shadow: var(--shadow-sm);
-    transition: 0.3s;
+    transition: var(--transition-base);
 }
 
 .timeline-card::after {
@@ -42,7 +42,7 @@
     left: 50%;
     bottom: -40px;
     width: 2px;
-    height: 40px;
+    height: var(--space-10);
     background: var(--border);
     transform: translateX(-50%);
     z-index: 0;
@@ -55,12 +55,12 @@
 .card-status {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 16px;
-    border-radius: 50px;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
     font-size: 0.85rem;
     font-weight: 700;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-4);
 }
 
 .card-status.current {
@@ -106,7 +106,7 @@
 .timeline-card h2 {
     font-size: 1.8rem;
     font-weight: 800;
-    margin-bottom: 24px;
+    margin-bottom: var(--space-6);
     color: var(--text-main);
 }
 
@@ -114,19 +114,19 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--space-4);
 }
 
 .feature-list li {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-3);
     font-size: 1.05rem;
     color: var(--text-muted);
 }
 
 .feature-list li i {
-    width: 24px;
+    width: var(--space-6);
     text-align: center;
 }
 
@@ -201,7 +201,7 @@
 .nav-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-3);
 }
 
 .icon-btn {

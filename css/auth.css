@@ -4,22 +4,23 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+    padding: var(--space-5);
     position: relative;
 }
 
 .back-link {
     position: absolute;
-    top: 24px;
-    left: 24px;
+    top: var(--space-6);
+    left: var(--space-6);
     color: var(--text-muted);
     font-weight: 600;
     font-size: 0.9rem;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: 0.3s;
+    gap: var(--space-2);
+    transition: var(--transition-base);
     z-index: 10;
+    text-decoration: none;
 }
 
 .back-link:hover {
@@ -30,28 +31,27 @@
 .auth-container {
     width: 100%;
     max-width: 420px;
-    margin-top: 60px;
+    margin-top: var(--space-16);
 }
 
 .auth-card {
     background: var(--card-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-
-    padding: 48px 40px;
-    border-radius: 24px;
+    padding: var(--space-12) var(--space-10);
+    border-radius: var(--radius-2xl);
     box-shadow: var(--shadow-lg);
     text-align: center;
     border: 1px solid var(--border);
-    transition: all 0.3s ease;
+    transition: var(--transition-base);
 }
 
 .auth-logo {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 12px;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
 }
 
 .auth-logo h1 {
@@ -64,14 +64,14 @@
 .auth-subtitle {
     color: var(--text-muted);
     font-size: 1rem;
-    margin-bottom: 32px;
+    margin-bottom: var(--space-8);
 }
 
 .auth-form {
     text-align: left;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--space-5);
 }
 
 .input-group label {
@@ -79,17 +79,17 @@
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-main);
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
 }
 
 .input-group input {
     width: 100%;
-    padding: 14px 16px;
+    padding: var(--space-4);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     font-family: inherit;
     font-size: 1rem;
-    transition: 0.3s;
+    transition: var(--transition-fast);
     background: var(--light);
     color: var(--text-main);
 }
@@ -150,12 +150,12 @@
 
 .auth-btn {
     width: 100%;
-    margin-top: 8px;
+    margin-top: var(--space-2);
     font-size: 1.05rem;
 }
 
 .auth-footer {
-    margin-top: 32px;
+    margin-top: var(--space-8);
     font-size: 0.9rem;
     color: var(--text-muted);
 }
