@@ -40,9 +40,12 @@
             </svg>
             <span>Valuon Seller</span>
         </a>
-        <button id="theme-toggle-btn" class="icon-btn" aria-label="Переключить тему">
-            <i class="fa-solid fa-moon"></i>
-        </button>
+        <div class="header-icons">
+            <button id="lang-toggle-business" class="icon-btn" title="EN/RU">EN</button>
+            <button id="theme-toggle-btn" class="icon-btn" aria-label="Переключить тему">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </div>
     </header>
 
     <main class="business-main">
@@ -226,6 +229,7 @@
     <div id="toast-container" class="toast-container"></div>
 
     <script src="js/toast.js"></script>
+    <script src="js/business-lang.js"></script>
     <script type="module" src="js/business-panel.js"></script>
 
     <script>
@@ -248,6 +252,17 @@
             });
 
             updateIcon();
+
+            // Language toggle
+            const langBtn = document.getElementById('lang-toggle-business');
+            if (langBtn) {
+                langBtn.addEventListener('click', () => {
+                    toggleBusinessLanguage();
+                    langBtn.textContent = businessCurrentLang.toUpperCase();
+                });
+                // Set initial language button text
+                langBtn.textContent = businessCurrentLang.toUpperCase();
+            }
         });
     </script>
 

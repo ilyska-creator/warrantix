@@ -1,4 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { checkLoginRateLimit, setLoadingButton, resetLoadingButton, isValidEmail } from './security.js';
 
 const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL)
     || 'https://qjnzawjivqvgupbgxdao.supabase.co';
@@ -56,9 +57,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const rememberMe = document.getElementById('remember')?.checked;
             const originalText = btn.innerHTML;
 
+            const rateLimitCheck = checkLoginRateLimit(email);
+            if (!rateLimitCheck.allowed) {
+                const lang = localStorage.getItem('valuon-lang') === 'ru';
+                showToast(lang 
+                    ? `Слишком много попыток входа. Попробуйте через ${rateLimitCheck.resetIn}`
+                    : `Too many login attempts. Try again in ${rateLimitCheck.resetIn}`);
+                return;
+            }
+
             try {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+                setLoadingButton(btn);
 
                 const client = getSupabaseClient(rememberMe);
                 const { data, error } = await client.auth.signInWithPassword({ email, password });
@@ -76,15 +85,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (err) {
                 console.error(err);
-                let msg = err.message;
-                if (msg.includes('Invalid login credentials')) {
-                    msg = localStorage.getItem('valuon-lang') === 'ru'
-                        ? 'Неверный email или пароль'
-                        : 'Invalid email or password';
-                }
+                const lang = localStorage.getItem('valuon-lang') === 'ru';
+                const msg = lang
+                    ? 'Неверный email или пароль'
+                    : 'Invalid email or password';
                 showToast(msg);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                resetLoadingButton(btn, originalText);
             }
         });
     }
@@ -143,12 +149,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             const btn = forgotForm.querySelector('button[type="submit"]');
             const email = forgotEmailInput?.value.trim();
             const originalText = btn.innerHTML;
+            const lang = localStorage.getItem('valuon-lang') === 'ru';
 
-            if (!email) return;
+            // Проверка пусто ли поле
+            if (!email) {
+                showToast(lang 
+                    ? 'Введите email адрес'
+                    : 'Please enter your email');
+                return;
+            }
+
+            // Проверка формата email
+            if (!isValidEmail(email)) {
+                showToast(lang
+                    ? 'Пожалуйста, введите корректный email адрес'
+                    : 'Please enter a valid email address');
+                return;
+            }
+
+            const rateLimitCheck = checkLoginRateLimit(`reset_${email}`);
+            if (!rateLimitCheck.allowed) {
+                showToast(lang 
+                    ? `Слишком много попыток. Попробуйте через ${rateLimitCheck.resetIn}`
+                    : `Too many attempts. Try again in ${rateLimitCheck.resetIn}`);
+                return;
+            }
 
             try {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+                setLoadingButton(btn);
 
                 const client = getSupabaseClient(false);
                 const { error } = await client.auth.resetPasswordForEmail(email, {
@@ -162,13 +190,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             } catch (err) {
                 console.error(err);
-                const lang = localStorage.getItem('valuon-lang') || 'ru';
                 showToast(lang === 'ru'
                     ? 'Ошибка отправки. Проверьте email и попробуйте снова.'
                     : 'Failed to send. Check email and try again.');
             } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                resetLoadingButton(btn, originalText);
             }
         });
     }

@@ -1176,6 +1176,19 @@
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
+/* Header icons container */
+.header-icons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+#lang-toggle-business {
+    min-width: 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
 @media (max-width: 480px) {
     .confirm-actions {
         grid-template-columns: 1fr;

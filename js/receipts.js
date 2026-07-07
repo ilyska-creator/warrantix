@@ -126,10 +126,10 @@ function renderSplitReceipts(businessReceipts, personalReceipts, client, userId)
     `;
 
     html += `<section class="items-section business-section">`;
-    html += `<h2><i class="fa-solid fa-store" style="color: var(--primary); margin-right: 8px;"></i> Чеки от партнеров</h2>`;
+    html += `<h2><i class="fa-solid fa-store" style="color: var(--primary); margin-right: 8px;"></i> ${t.section_business_receipts || 'Чеки от партнеров'}</h2>`;
 
     if (businessReceipts.length === 0) {
-        html += `<div class="empty-state">${lang === 'ru' ? 'У вас пока нет автоматически выписанных чеков.' : 'No business receipts yet.'}</div>`;
+        html += `<div class="empty-state">${t.no_business_receipts || (lang === 'ru' ? 'У вас пока нет автоматически выписанных чеков.' : 'No business receipts yet.')}</div>`;
     } else {
         html += `<div class="receipts-grid">`;
         businessReceipts.forEach(r => { html += renderBusinessCard(r, t); });

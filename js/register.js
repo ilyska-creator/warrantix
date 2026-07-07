@@ -1,4 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { checkSignupRateLimit, setLoadingButton, resetLoadingButton } from './security.js';
 
 const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL)
     || 'https://qjnzawjivqvgupbgxdao.supabase.co';
@@ -91,6 +92,14 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+
+                // Проверка rate limiting для регистрации
+                const rateLimitCheck = checkSignupRateLimit(email);
+                if (!rateLimitCheck.allowed) {
+                    throw new Error(lang === 'ru' 
+                        ? 'Слишком много попыток регистрации с этого email. Попробуйте позже.'
+                        : 'Too many signup attempts from this email. Try again later.');
+                }
 
                 const displayName = `${firstName} ${lastName}`;
 

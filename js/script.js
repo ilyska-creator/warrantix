@@ -83,7 +83,11 @@ function applyTranslations() {
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (translations[currentLang][key]) el.innerHTML = translations[currentLang][key];
+        if (translations[currentLang][key]) {
+            // Для элементов с HTML структурой (hero_title содержит <br> и <span>)
+            // используем innerHTML, но контент из переводов - это контролируемый HTML
+            el.innerHTML = translations[currentLang][key];
+        }
     });
 
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {

@@ -39,6 +39,7 @@ async function loadItems(userId, client) {
     const grid = document.querySelector('.items-grid');
     if (!grid) return;
 
+    // Безопасно устанавливаем HTML для загрузки (контролируемый HTML)
     grid.innerHTML = '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Загрузка...</div>';
 
     const { data: items, error } = await client
@@ -109,7 +110,8 @@ function renderItems(items) {
     const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
 
     if (items.length === 0) {
-        grid.innerHTML = `<p class="empty-state" data-i18n="empty_state">${t.empty_state || ''}</p>`;
+        // Безопасно устанавливаем пустое состояние (контролируемый HTML)
+        grid.innerHTML = `<p class="empty-state" data-i18n="empty_state">${escapeHtml(t.empty_state || '')}</p>`;
         return;
     }
 
@@ -134,24 +136,24 @@ function renderItems(items) {
             const shortSerial = item.serial_number.length > 6
                 ? escapeHtml(item.serial_number.substring(0, 6)) + '...'
                 : escapeHtml(item.serial_number);
-            tags.push(`<span class="tag"><i class="fa-solid fa-barcode"></i> ${escapeHtml(shortSerial)}</span>`);
+            tags.push(`<span class="tag"><i class="fa-solid fa-barcode"></i> ${shortSerial}</span>`);
         }
         if (item.store_name) tags.push(`<span class="tag"><i class="fa-solid fa-store"></i> ${escapeHtml(item.store_name)}</span>`);
-        if (item.price && item.price > 0) tags.push(`<span class="tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(item.price)} $</span>`);
+        if (item.price && item.price > 0) tags.push(`<span class="tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(String(item.price))} $</span>`);
 
-        const btnEditText = t.btn_edit || 'Изменить';
-        const btnDeleteText = t.btn_delete || 'Удалить';
+        const btnEditText = escapeHtml(t.btn_edit || 'Изменить');
+        const btnDeleteText = escapeHtml(t.btn_delete || 'Удалить');
 
         return `
-            <div class="item-card" data-item-id="${item.id}">
+            <div class="item-card" data-item-id="${escapeHtml(item.id)}">
                 <div class="item-header">
                     <div class="item-icon"><i class="fa-solid ${iconClass}"></i></div>
-                    <div class="item-status-badge ${status.class}" data-i18n="${statusTextKey}">${t[statusTextKey] || ''}</div>
+                    <div class="item-status-badge ${status.class}" data-i18n="${statusTextKey}">${escapeHtml(t[statusTextKey] || '')}</div>
                 </div>
                 
                 <div class="item-body">
                     <h3 class="item-title">${escapeHtml(item.name)}</h3>
-                    <div class="item-brand">${escapeHtml(item.brand) || (t.brand_not_specified || 'Brand not specified')}</div>
+                    <div class="item-brand">${escapeHtml(item.brand) || escapeHtml(t.brand_not_specified || 'Brand not specified')}</div>
                     
                     <div class="item-tags">
                         ${tags.join('')}
@@ -167,11 +169,11 @@ function renderItems(items) {
                          data-i18n-count="${daysLeft > 0 ? daysLeft : ''}">
                     </div>
                     <div class="item-actions">
-                        <button class="btn-action primary btn-edit-item" data-id="${item.id}" title="${btnEditText}">
+                        <button class="btn-action primary btn-edit-item" data-id="${escapeHtml(item.id)}" title="${btnEditText}">
                             <i class="fa-solid fa-pen"></i>
                             <span data-i18n="btn_edit">${btnEditText}</span>
                         </button>
-                        <button class="btn-action danger btn-delete-item" data-id="${item.id}" title="${btnDeleteText}">
+                        <button class="btn-action danger btn-delete-item" data-id="${escapeHtml(item.id)}" title="${btnDeleteText}">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
