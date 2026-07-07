@@ -241,6 +241,7 @@ async function initBusinessPanel() {
                     console.error('Ошибка проверки email покупателя:', checkError);
                 }
 
+                // ✅ СТАТУС ЗАВИСИТ ОТ НАЛИЧИЯ ПРОФИЛЯ
                 const status = emailIsRegistered ? 'verified' : 'pending';
 
                 const payload = {
@@ -341,6 +342,12 @@ async function initBusinessPanel() {
                 </div>
             </div>`;
             }).join('');
+
+            // ⚠️ Карточки только что вставлены через innerHTML и содержат
+            // пустые data-i18n/data-i18n-title бейджи (статус, кнопка
+            // скачивания). Без этого вызова текст появляется только после
+            // переключения языка сайта — прогоняем перевод сразу же.
+            window.applyBusinessTranslations?.();
 
             listEl.grid.querySelectorAll('.btn-delete-receipt').forEach(btn => {
                 btn.addEventListener('click', () => {

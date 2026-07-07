@@ -376,3 +376,5 @@ function toggleBusinessLanguage() {
 document.addEventListener('DOMContentLoaded', () => {
     applyBusinessTranslations();
 });
+
+window.applyBusinessTranslations = applyBusinessTranslations;
