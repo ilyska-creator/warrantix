@@ -637,6 +637,64 @@ ul {
     gap: 32px;
 }
 
+.business-section {
+    padding: 100px 0;
+    background: linear-gradient(180deg, var(--bg-body) 0%, var(--light) 100%);
+}
+
+.business-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.business-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-6);
+    transition: var(--transition-base);
+    box-shadow: var(--shadow-sm);
+}
+
+.b-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.business-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-main);
+}
+
+.business-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.business-cta {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.business-subtext {
+    margin-top: 16px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
 /* ============================================
    Unified Card System
    ============================================ */
@@ -1101,13 +1159,13 @@ ul {
 
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 
-        background: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.75);
 
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     [data-theme="dark"] .nav-list {
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.6);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
