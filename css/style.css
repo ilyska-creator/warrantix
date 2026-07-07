@@ -616,7 +616,6 @@ ul {
 }
 
 .business-section {
-    padding: 100px 0;
     background: linear-gradient(180deg, var(--bg-body) 0%, var(--light) 100%);
 }
 
