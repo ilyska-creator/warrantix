@@ -276,7 +276,6 @@ function applyDashboardLang(lang) {
     }
 
     localStorage.setItem('valuon-lang', lang);
-    localStorage.setItem('valuon-lang', lang);
     window.dispatchEvent(new CustomEvent('lang-changed', { detail: { lang } }));
     const typeLabels = {
         ru: { laptop: '💻 Ноутбук', phone: '📱 Смартфон', tablet: '📟 Планшет', watch: '⌚ Часы', headphones: '🎧 Наушники', camera: '📷 Камера', console: '🎮 Консоль', appliance: '🏠 Бытовая техника', other: '📦 Другое' },

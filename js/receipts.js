@@ -1,10 +1,16 @@
 import { requireAuth, setupLogout } from './dashboard-auth.js';
-import { downloadReceiptPDF } from './receipt-generator.js';
-
 
 let pendingDeleteId = null;
 let pendingDeletePath = null;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const SIGNED_URL_TTL = 60 * 60; // 1 час
+
+// Состояние текущего пользователя (нужно, чтобы не дёргать requireAuth() повторно)
+let currentUserId = null;
+let currentUserEmail = null;
+
+// Модалка загрузки инициализируется один раз и переиспользуется
+let uploadModal = null;
 
 function getLang() {
     return localStorage.getItem('valuon-lang') || 'ru';
@@ -36,18 +42,36 @@ async function initReceipts() {
     const { user, client } = auth;
     setupLogout(client);
 
-    window.supabaseClient = client;
-    window.currentUserId = user.id;
+    currentUserId = user.id;
+    currentUserEmail = user.email;
 
-    await loadAllReceipts(user.email, user.id, client);
-    await populateItemSelect(user.id, client);
+    // Модалка загрузки настраивается один раз за всё время жизни страницы
+    uploadModal = createUploadModal(client, currentUserId);
+    setupDeleteModal(client, currentUserId);
+
+    await loadAllReceipts(currentUserEmail, currentUserId, client);
+    await populateItemSelect(currentUserId, client);
 
     if (typeof window.applyDashboardLang === 'function') {
         window.applyDashboardLang(getLang());
     }
+}
 
-    setupUploadModal(client, user.id);
-    setupDeleteModal(client, user.id);
+// ФИКС #4: сохранённая в БД file_url (signed URL) может быть устаревшей/истёкшей.
+// Перед рендером всегда перевыпускаем свежую подписанную ссылку по file_path.
+async function attachFreshSignedUrls(receipts, client) {
+    return Promise.all(receipts.map(async (r) => {
+        if (!r.file_path) return r;
+        const { data, error } = await client.storage
+            .from('receipts')
+            .createSignedUrl(r.file_path, SIGNED_URL_TTL);
+
+        if (error || !data) {
+            console.warn('Не удалось перевыпустить signed URL для', r.file_path, error);
+            return r;
+        }
+        return { ...r, file_url: data.signedUrl };
+    }));
 }
 
 async function loadAllReceipts(userEmail, userId, client) {
@@ -57,27 +81,32 @@ async function loadAllReceipts(userEmail, userId, client) {
     mainContent.innerHTML = '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i></div>';
 
     try {
-        const { data: businessData } = await client
+        const { data: businessData, error: bizError } = await client
             .from('business_receipts')
             .select('*')
             .eq('customer_email', userEmail)
             .order('purchase_date', { ascending: false });
 
-        const { data: personalData } = await client
+        if (bizError) console.error('business_receipts error:', bizError);
+
+        const { data: personalData, error: personalError } = await client
             .from('receipts')
             .select('*, items(name, price, purchase_date, store_name)')
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
-        renderSplitReceipts(businessData || [], personalData || []);
+        if (personalError) throw personalError;
+
+        const personalWithFreshUrls = await attachFreshSignedUrls(personalData || [], client);
+
+        renderSplitReceipts(businessData || [], personalWithFreshUrls, client, userId);
     } catch (e) {
         console.error(e);
         mainContent.innerHTML = '<p class="empty-state error">Ошибка загрузки данных.</p>';
     }
 }
 
-// ✅ РЕНДЕРИНГ ДВУХ БЛОКОВ
-function renderSplitReceipts(businessReceipts, personalReceipts) {
+function renderSplitReceipts(businessReceipts, personalReceipts, client, userId) {
     const mainContent = document.querySelector('.main-content');
     const lang = getLang();
     const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
@@ -96,7 +125,6 @@ function renderSplitReceipts(businessReceipts, personalReceipts) {
         </div>
     `;
 
-    // БЛОК 1: ЧЕКИ ОТ БИЗНЕСА
     html += `<section class="items-section business-section">`;
     html += `<h2><i class="fa-solid fa-store" style="color: var(--primary); margin-right: 8px;"></i> Чеки от партнеров</h2>`;
 
@@ -109,10 +137,8 @@ function renderSplitReceipts(businessReceipts, personalReceipts) {
     }
     html += `</section>`;
 
-    // РАЗДЕЛИТЕЛЬ
     html += `<div class="section-divider"></div>`;
 
-    // БЛОК 2: ЛИЧНЫЕ ЧЕКИ
     html += `<section class="items-section personal-section">`;
     html += `<h2 data-i18n="section_documents">Ваши документы</h2>`;
 
@@ -136,7 +162,11 @@ function renderSplitReceipts(businessReceipts, personalReceipts) {
     html += `</section>`;
 
     mainContent.innerHTML = html;
-    restoreModalsAndListeners(personalReceipts);
+    restoreListeners(client, userId);
+
+    if (typeof window.applyDashboardLang === 'function') {
+        window.applyDashboardLang(lang);
+    }
 }
 
 function renderBusinessCard(r, t) {
@@ -159,10 +189,10 @@ function renderBusinessCard(r, t) {
             <div class="receipt-meta">
                 <span class="tag"><i class="fa-solid fa-tag"></i> $${parseFloat(r.gross_total || 0).toFixed(2)}</span>
                 <span class="tag"><i class="fa-regular fa-calendar"></i> ${dateStr}</span>
-                <span class="tag"><i class="fa-solid fa-hashtag"></i> ${escapeHtml(r.id.slice(0, 8).toUpperCase())}</span>
+                <span class="tag"><i class="fa-solid fa-hashtag"></i> ${escapeHtml(String(r.id).slice(0, 8).toUpperCase())}</span>
             </div>
             <div class="receipt-actions">
-                <button class="btn-action primary btn-download-biz" data-receipt='${JSON.stringify(r).replace(/'/g, "&#39;")}' title="${t.btn_download || 'Скачать'}">
+                <button class="btn-action primary btn-download-biz" data-receipt-id="${escapeHtml(r.id)}" title="${t.btn_download || 'Скачать'}">
                     <i class="fa-solid fa-download"></i> <span>${t.btn_download || 'Скачать'}</span>
                 </button>
             </div>
@@ -170,7 +200,6 @@ function renderBusinessCard(r, t) {
     `;
 }
 
-// ✅ КАРТОЧКА ЛИЧНОГО ЧЕКА
 function renderPersonalCard(r, t) {
     const isPdf = r.file_type === 'application/pdf';
     const isImage = r.file_type && r.file_type.startsWith('image/');
@@ -196,9 +225,11 @@ function renderPersonalCard(r, t) {
             </div>
             <div class="receipt-meta">${tags.join('')}</div>
             <div class="receipt-actions">
-                <a href="${escapeHtml(r.file_url)}" target="_blank" class="btn-action primary" title="${t.btn_view || 'Просмотр'}">
+                <button class="btn-action primary btn-view-receipt"
+                        data-url="${escapeHtml(r.file_url)}"
+                        title="${t.btn_view || 'Просмотр'}">
                     <i class="fa-solid fa-eye"></i> <span>${t.btn_view || 'Просмотр'}</span>
-                </a>
+                </button>
                 <button class="btn-action secondary btn-download-receipt" data-url="${escapeHtml(r.file_url)}" data-name="${escapeHtml(r.display_name)}" title="${t.btn_download || 'Скачать'}">
                     <i class="fa-solid fa-download"></i> <span>${t.btn_download || 'Скачать'}</span>
                 </button>
@@ -210,21 +241,32 @@ function renderPersonalCard(r, t) {
     `;
 }
 
-// ✅ ВОССТАНОВЛЕНИЕ ОБРАБОТЧИКОВ
-function restoreModalsAndListeners(personalReceipts) {
+// Обработчики для карточек, которые пересоздаются при каждом рендере.
+// Внутренности самих модалок сюда НЕ входят — они настраиваются один раз (см. createUploadModal / setupDeleteModal).
+function restoreListeners(client, userId) {
     const lang = getLang();
-    const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
 
-    // Скачивание личных чеков
+    document.querySelectorAll('.btn-view-receipt').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.dataset.url) window.open(btn.dataset.url, '_blank');
+        });
+    });
+
+    // ФИКС #6: cross-origin ссылки игнорируют атрибут download в браузере,
+    // поэтому качаем файл как blob и скачиваем локальный object URL.
     document.querySelectorAll('.btn-download-receipt').forEach(btn => {
         btn.addEventListener('click', async () => {
             const url = btn.dataset.url;
-            const name = btn.dataset.name;
+            const name = btn.dataset.name || 'receipt';
+            if (!url) return;
+
             const originalHTML = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
             try {
                 const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
                 const blob = await response.blob();
                 const blobUrl = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -244,11 +286,25 @@ function restoreModalsAndListeners(personalReceipts) {
         });
     });
 
-    // Скачивание бизнес-чеков через генератор
+    // ФИКС #1: генератор PDF подключается динамически и только по клику.
+    // Если модуль ещё не создан — страница чеков всё равно работает,
+    // падает только эта конкретная кнопка с понятной ошибкой.
     document.querySelectorAll('.btn-download-biz').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
             try {
-                const receipt = JSON.parse(btn.dataset.receipt.replace(/&#39;/g, "'"));
+                const { downloadReceiptPDF } = await import('./receipt-generator.js');
+                const { data: receipt, error } = await client
+                    .from('business_receipts')
+                    .select('*')
+                    .eq('id', btn.dataset.receiptId)
+                    .eq('customer_email', currentUserEmail)
+                    .single();
+
+                if (error || !receipt) throw error || new Error('Receipt not found');
+
                 const mockShop = {
                     shop_name: receipt.shop_name || 'Partner Store',
                     address: receipt.address || '',
@@ -256,13 +312,20 @@ function restoreModalsAndListeners(personalReceipts) {
                 };
                 downloadReceiptPDF(receipt, mockShop);
             } catch (e) {
-                console.error('Parse error:', e);
-                showToast('Ошибка генерации PDF', 'error');
+                console.error('PDF generation error:', e);
+                showToast(
+                    lang === 'ru'
+                        ? 'Генератор PDF пока недоступен'
+                        : 'PDF generator is not available yet',
+                    'error'
+                );
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
             }
         });
     });
 
-    // Удаление
     document.querySelectorAll('.btn-delete-receipt').forEach(btn => {
         btn.addEventListener('click', () => {
             pendingDeleteId = btn.dataset.id;
@@ -271,116 +334,38 @@ function restoreModalsAndListeners(personalReceipts) {
         });
     });
 
-    // Перезапуск модалок
-    setupUploadModal(window.supabaseClient, window.currentUserId);
-    setupDeleteModal(window.supabaseClient, window.currentUserId);
-}
+    // Кнопка и drop-zone открытия модалки пересоздаются при каждом рендере —
+    // перепривязываем только САМ триггер открытия, не трогая внутренности модалки.
+    if (uploadModal) {
+        document.getElementById('upload-receipt-btn')?.addEventListener('click', uploadModal.open);
 
-function renderReceipts(receipts) {
-    const grid = document.querySelector('.receipts-grid');
-    if (!grid) return;
-
-    const lang = getLang();
-    const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
-
-    grid.innerHTML = receipts.map(r => {
-        const isVerified = r.status === 'verified';
-        const statusClass = isVerified ? 'active' : 'warning';
-        const statusText = isVerified
-            ? (t.status_verified || 'Проверен')
-            : (t.status_pending || 'Обработка');
-        const isPdf = r.file_type === 'application/pdf';
-        const isImage = r.file_type && r.file_type.startsWith('image/');
-        const iconClass = isPdf ? 'fa-file-pdf' : isImage ? 'fa-file-image' : 'fa-file-invoice';
-
-        const safeName = escapeHtml(r.display_name || 'Untitled Receipt');
-        const safeStore = escapeHtml(r.display_store);
-        const safeItem = escapeHtml(r.item_name);
-        const safeFileUrl = escapeHtml(r.file_url);
-        const safeFilePath = escapeHtml(r.file_path);
-        const safeId = escapeHtml(r.id);
-
-        const tags = [];
-        if (r.display_amount) tags.push(`<span class="tag"><i class="fa-solid fa-tag"></i> $${parseFloat(r.display_amount).toFixed(2)}</span>`);
-        if (r.display_date) {
-            const date = new Date(r.display_date).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US');
-            tags.push(`<span class="tag"><i class="fa-regular fa-calendar"></i> ${date}</span>`);
+        const dropZone = document.getElementById('drop-zone');
+        if (dropZone) {
+            dropZone.addEventListener('click', uploadModal.open);
+            ['dragenter', 'dragover'].forEach(evt => {
+                dropZone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    dropZone.style.borderColor = 'var(--primary)';
+                    dropZone.style.background = 'rgba(59, 130, 246, 0.05)';
+                });
+            });
+            ['dragleave', 'drop'].forEach(evt => {
+                dropZone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    dropZone.style.borderColor = '';
+                    dropZone.style.background = '';
+                });
+            });
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    if (!validateFileSize(files[0])) return;
+                    uploadModal.open();
+                    uploadModal.setFile(files[0]);
+                }
+            });
         }
-        if (safeStore) tags.push(`<span class="tag"><i class="fa-solid fa-store"></i> ${safeStore}</span>`);
-        if (r.is_linked) tags.push(`<span class="tag"><i class="fa-solid fa-link"></i> ${safeItem}</span>`);
-
-        const btnViewText = t.btn_view || 'Просмотр';
-        const btnDownloadText = t.btn_download || 'Скачать';
-        const btnDeleteText = t.btn_delete || 'Удалить';
-
-        return `
-            <div class="receipt-card">
-                <div class="receipt-header">
-                    <div class="receipt-icon"><i class="fa-solid ${iconClass}"></i></div>
-                    <div class="item-status-badge ${statusClass}" data-i18n="${isVerified ? 'status_verified' : 'status_pending'}">${statusText}</div>                </div>
-                <div class="receipt-info">
-                    <h3>${safeName}</h3>
-                </div>
-                <div class="receipt-meta">
-                    ${tags.join('')}
-                </div>
-                <div class="receipt-actions">
-                    <a href="${safeFileUrl}" target="_blank" class="btn-action primary" title="${btnViewText}">
-                        <i class="fa-solid fa-eye"></i>
-                        <span data-i18n="btn_view">${btnViewText}</span>
-                    </a>
-                    <button class="btn-action secondary btn-download-receipt" data-url="${safeFileUrl}" data-name="${safeName}" title="${btnDownloadText}">
-                        <i class="fa-solid fa-download"></i>
-                        <span data-i18n="btn_download">${btnDownloadText}</span>
-                    </button>
-                    <button class="btn-action danger btn-delete-receipt" data-id="${safeId}" data-path="${safeFilePath}" title="${btnDeleteText}">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    if (typeof window.applyDashboardLang === 'function') {
-        window.applyDashboardLang(lang);
     }
-
-    grid.querySelectorAll('.btn-download-receipt').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const url = btn.dataset.url;
-            const name = btn.dataset.name;
-            const originalHTML = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const blobUrl = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = name;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(blobUrl);
-            } catch (err) {
-                console.error(err);
-                showToast(lang === 'ru' ? 'Не удалось скачать файл' : 'Failed to download file', 'error');
-            } finally {
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-            }
-        });
-    });
-
-    grid.querySelectorAll('.btn-delete-receipt').forEach(btn => {
-        btn.addEventListener('click', () => {
-            pendingDeleteId = btn.dataset.id;
-            pendingDeletePath = btn.dataset.path;
-            document.getElementById('delete-receipt-modal')?.classList.add('active');
-        });
-    });
 }
 
 async function populateItemSelect(userId, client) {
@@ -407,6 +392,7 @@ async function populateItemSelect(userId, client) {
     }
 }
 
+// Модалка удаления: внутренности (confirm/cancel/фон) настраиваются один раз за сессию.
 function setupDeleteModal(client, userId) {
     const modal = document.getElementById('delete-receipt-modal');
     const confirmBtn = document.getElementById('confirm-delete-receipt');
@@ -440,16 +426,17 @@ function setupDeleteModal(client, userId) {
                 }
             }
 
-            const { error: dbError } = await client
-                .from('receipts')
-                .delete()
-                .eq('id', pendingDeleteId);
+            const { error: dbError } = await client.from('receipts').delete()
+                .eq('id', pendingDeleteId)
+                .eq('user_id', userId);
 
             if (dbError) throw dbError;
 
             showToast(lang === 'ru' ? 'Чек удалён' : 'Receipt deleted', 'success');
             closeDeleteModal();
-            await loadReceipts(userId, client);
+
+            // ФИКС #3: раньше здесь был вызов несуществующей loadReceipts(...)
+            await loadAllReceipts(currentUserEmail, userId, client);
 
         } catch (err) {
             console.error(err);
@@ -466,10 +453,11 @@ function setupDeleteModal(client, userId) {
     });
 }
 
-function setupUploadModal(client, userId) {
+// Модалка загрузки: создаётся и настраивается РОВНО ОДИН РАЗ за жизнь страницы.
+// Возвращает { open, setFile } — их переиспользует restoreListeners() при каждом рендере,
+// вместо того чтобы навешивать обработчики на форму заново (ФИКС #2).
+function createUploadModal(client, userId) {
     const modal = document.getElementById('upload-modal');
-    const openBtns = [document.getElementById('upload-receipt-btn')];
-    const dropZone = document.getElementById('drop-zone');
     const closeBtn = document.getElementById('close-upload-modal');
     const cancelBtn = document.getElementById('cancel-upload-modal');
     const form = document.getElementById('upload-receipt-form');
@@ -477,6 +465,11 @@ function setupUploadModal(client, userId) {
     const fileNameDisplay = document.getElementById('file-name-display');
     const miniDropZone = document.getElementById('modal-drop-zone');
     const linkedItemSelect = document.getElementById('linked-item-select');
+
+    if (!modal || !form) {
+        return { open: () => { }, setFile: () => { } };
+    }
+
     const receiptNameInput = form.querySelector('[name="receipt_name"]');
     const amountInput = form.querySelector('[name="amount"]');
     const dateInput = form.querySelector('[name="purchase_date"]');
@@ -494,21 +487,14 @@ function setupUploadModal(client, userId) {
                 : '🔒 Data from item. Edit in item management.';
             linkHint.classList.add('locked');
         } else {
-            linkHint.textContent = lang === 'ru'
-                ? 'Ручной ввод данных'
-                : 'Manual data entry';
+            linkHint.textContent = lang === 'ru' ? 'Ручной ввод данных' : 'Manual data entry';
             linkHint.classList.remove('locked');
         }
     }
 
     function setFieldsLocked(locked) {
-        lockedFields.forEach(input => {
-            if (input) input.readOnly = locked;
-        });
-        lockIcons.forEach(icon => {
-            if (locked) icon.classList.remove('hidden');
-            else icon.classList.add('hidden');
-        });
+        lockedFields.forEach(input => { if (input) input.readOnly = locked; });
+        lockIcons.forEach(icon => icon.classList.toggle('hidden', !locked));
         updateHintText(locked);
     }
 
@@ -520,18 +506,16 @@ function setupUploadModal(client, userId) {
     }
 
     function clearLockedFields() {
-        lockedFields.forEach(input => {
-            if (input && input.readOnly) input.value = '';
-        });
+        lockedFields.forEach(input => { if (input && input.readOnly) input.value = ''; });
     }
 
-    function openModal() {
-        modal?.classList.add('active');
+    function open() {
+        modal.classList.add('active');
     }
 
-    function closeModal() {
-        modal?.classList.remove('active');
-        form?.reset();
+    function close() {
+        modal.classList.remove('active');
+        form.reset();
         miniDropZone?.classList.remove('has-file');
         setFieldsLocked(false);
         clearLockedFields();
@@ -547,13 +531,12 @@ function setupUploadModal(client, userId) {
         dataTransfer.items.add(file);
         fileInput.files = dataTransfer.files;
         fileNameDisplay.textContent = file.name;
-        miniDropZone.classList.add('has-file');
+        miniDropZone?.classList.add('has-file');
     }
 
-    openBtns.forEach(btn => btn?.addEventListener('click', openModal));
-    closeBtn?.addEventListener('click', closeModal);
-    cancelBtn?.addEventListener('click', closeModal);
-    modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    closeBtn?.addEventListener('click', close);
+    cancelBtn?.addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
     miniDropZone?.addEventListener('click', () => fileInput?.click());
 
     fileInput?.addEventListener('change', () => {
@@ -563,55 +546,24 @@ function setupUploadModal(client, userId) {
                 return;
             }
             fileNameDisplay.textContent = fileInput.files[0].name;
-            miniDropZone.classList.add('has-file');
+            miniDropZone?.classList.add('has-file');
         }
     });
-
-    if (dropZone) {
-        dropZone.addEventListener('click', openModal);
-
-        ['dragenter', 'dragover'].forEach(evt => {
-            dropZone.addEventListener(evt, (e) => {
-                e.preventDefault();
-                dropZone.style.borderColor = 'var(--primary)';
-                dropZone.style.background = 'rgba(59, 130, 246, 0.05)';
-            });
-        });
-
-        ['dragleave', 'drop'].forEach(evt => {
-            dropZone.addEventListener(evt, (e) => {
-                e.preventDefault();
-                dropZone.style.borderColor = '';
-                dropZone.style.background = '';
-            });
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                if (!validateFileSize(files[0])) return;
-                openModal();
-                setFile(files[0]);
-            }
-        });
-    }
 
     if (linkedItemSelect) {
         linkedItemSelect.addEventListener('change', () => {
             const selected = linkedItemSelect.options[linkedItemSelect.selectedIndex];
-
             if (!selected || !selected.value) {
                 clearLockedFields();
                 setFieldsLocked(false);
                 return;
             }
-
             fillFromItem(selected);
             setFieldsLocked(true);
         });
     }
 
-    form?.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const btn = form.querySelector('button[type="submit"]');
@@ -622,7 +574,6 @@ function setupUploadModal(client, userId) {
             showToast(lang === 'ru' ? 'Прикрепите файл чека' : 'Please attach a receipt file', 'warning');
             return;
         }
-
         if (!validateFileSize(fileInput.files[0])) return;
 
         btn.disabled = true;
@@ -643,22 +594,25 @@ function setupUploadModal(client, userId) {
 
             if (uploadError) throw uploadError;
 
-            const { data: { publicUrl } } = client.storage
+            const { data: signedData, error: signError } = await client.storage
                 .from('receipts')
-                .getPublicUrl(filePath);
+                .createSignedUrl(filePath, SIGNED_URL_TTL);
+
+            if (signError) throw signError;
 
             const receiptName = form.querySelector('[name="receipt_name"]').value.trim();
             const amount = form.querySelector('[name="amount"]').value;
             const purchaseDate = form.querySelector('[name="purchase_date"]').value;
             const storeName = form.querySelector('[name="store_name"]').value.trim();
             const rawItemId = form.querySelector('[name="item_id"]').value;
-            const itemId = rawItemId ? Number(rawItemId) : null;
+            // ФИКС #5: item.id может быть UUID — Number(uuid) даёт NaN. Передаём как есть.
+            const itemId = rawItemId || null;
 
             const { error: dbError } = await client.from('receipts').insert({
                 user_id: userId,
                 item_id: itemId,
                 receipt_name: receiptName,
-                file_url: publicUrl,
+                file_url: signedData.signedUrl,
                 file_path: filePath,
                 file_type: file.type,
                 amount: parseFloat(amount) || null,
@@ -670,9 +624,8 @@ function setupUploadModal(client, userId) {
             if (dbError) throw dbError;
 
             showToast(lang === 'ru' ? 'Чек успешно загружен!' : 'Receipt uploaded successfully!', 'success');
-            closeModal();
-            const auth = await requireAuth();
-            if (auth) await loadAllReceipts(auth.user.email, auth.user.id, client);
+            close();
+            await loadAllReceipts(currentUserEmail, userId, client);
 
         } catch (err) {
             console.error(err);
@@ -682,6 +635,8 @@ function setupUploadModal(client, userId) {
             btn.disabled = false;
         }
     });
+
+    return { open, setFile };
 }
 
 initReceipts();

@@ -1,3 +1,12 @@
+function escapeToastHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 function showToast(message, type = 'error', duration = 4000) {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -22,7 +31,7 @@ function showToast(message, type = 'error', duration = 4000) {
         <div class="toast-icon"><i class="${icons[type]}"></i></div>
         <div class="toast-body">
             <div class="toast-title">${titles[type]}</div>
-            <div class="toast-message">${message}</div>
+            <div class="toast-message">${escapeToastHtml(message)}</div>
         </div>
         <button class="toast-close"><i class="fa-solid fa-xmark"></i></button>
         <div class="toast-progress" style="animation-duration: ${duration}ms"></div>

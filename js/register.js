@@ -40,12 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const lang = getLang();
 
             if (password !== confirmPassword) {
-                showToast(translations[lang].msg_pass_mismatch, 'error');
+                showToast(lang === 'ru' ? 'Пароли не совпадают' : 'Passwords do not match', 'error');
                 return;
             }
 
             if (password.length < 6) {
-                showToast(translations[lang].msg_weak_pass, 'warning');
+                showToast(lang === 'ru' ? 'Пароль должен быть не менее 6 символов' : 'Password must be at least 6 characters', 'warning');
                 return;
             }
 

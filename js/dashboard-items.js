@@ -1,6 +1,7 @@
 import { requireAuth, setupLogout } from './dashboard-auth.js';
 
 let currentClient = null;
+let currentUserId = null;
 let pendingDeleteItemId = null;
 
 const DEVICE_ICONS = {
@@ -25,6 +26,7 @@ async function initDashboardItems() {
     if (!auth) return;
 
     currentClient = auth.client;
+    currentUserId = auth.user.id;
 
     loadItems(auth.user.id, auth.client);
     setupModal(auth.client);
@@ -180,7 +182,7 @@ function renderItems(items) {
 
     grid.querySelectorAll('.btn-edit-item').forEach(btn => {
         btn.addEventListener('click', () => {
-            openEditModal(btn.dataset.id, currentClient);
+            openEditModal(btn.dataset.id, currentClient, currentUserId);
         });
     });
 
@@ -221,7 +223,7 @@ function updateStats(items) {
     if (expiredEl) expiredEl.textContent = expiredCount;
 }
 
-async function openEditModal(itemId, client) {
+async function openEditModal(itemId, client, userId) {
     const modal = document.getElementById('edit-modal');
     const form = document.getElementById('edit-item-form');
     if (!modal || !form) return;
@@ -233,6 +235,7 @@ async function openEditModal(itemId, client) {
         .from('items')
         .select('*')
         .eq('id', itemId)
+        .eq('user_id', userId)
         .single();
 
     if (error || !item) {
@@ -300,7 +303,8 @@ function setupEditModal(client, userId) {
                 warranty_months: parseInt(form.querySelector('[name="warranty_months"]').value) || 12,
                 location: form.querySelector('[name="location"]').value.trim(),
                 updated_at: new Date().toISOString()
-            }).eq('id', itemId);
+            }).eq('id', itemId)
+                .eq('user_id', userId);
 
             if (error) throw error;
 
@@ -346,7 +350,9 @@ function setupDeleteItemModal(client, userId) {
         confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
         try {
-            const { error } = await client.from('items').delete().eq('id', pendingDeleteItemId);
+            const { error } = await client.from('items').delete()
+                .eq('id', pendingDeleteItemId)
+                .eq('user_id', userId);
             if (error) throw error;
 
             showToast(t.msg_item_deleted || 'Item deleted', 'success');

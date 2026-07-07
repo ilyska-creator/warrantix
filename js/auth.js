@@ -16,8 +16,10 @@ function getSupabaseClient(rememberMe) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const tempClient = getSupabaseClient(true);
-    const { data: { session } } = await tempClient.auth.getSession();
+    let { data: { session } } = await getSupabaseClient(true).auth.getSession();
+    if (!session) {
+        ({ data: { session } } = await getSupabaseClient(false).auth.getSession());
+    }
 
     if (session) {
         window.location.href = 'dashboard.html';
@@ -171,7 +173,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
-
-resetForm.classList.add('hidden');
-document.getElementById('reset-header')?.classList.add('hidden');
-successBlock?.classList.remove('hidden');

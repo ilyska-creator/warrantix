@@ -4,6 +4,11 @@ function getNotifLang() {
     return localStorage.getItem('valuon-lang') || 'ru';
 }
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function getNotifT() {
     const lang = getNotifLang();
     return window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
@@ -92,7 +97,7 @@ async function loadNotifications(userId, client) {
             notifications.push({
                 type: 'warning',
                 icon: 'fa-triangle-exclamation',
-                title: (t.notif_expiring_title || 'Warranty for "{name}" is expiring').replace('{name}', item.name),
+                title: (t.notif_expiring_title || 'Warranty for "{name}" is expiring').replace('{name}', escapeHtml(item.name)),
                 text: (t.notif_expiring_text || '{count} days left. Check device condition.').replace('{count}', daysLeft),
                 date: formatDate(new Date().toISOString())
             });
@@ -101,7 +106,7 @@ async function loadNotifications(userId, client) {
             notifications.push({
                 type: 'expired',
                 icon: 'fa-circle-xmark',
-                title: (t.notif_expired_title || 'Warranty for "{name}" has expired').replace('{name}', item.name),
+                title: (t.notif_expired_title || 'Warranty for "{name}" has expired').replace('{name}', escapeHtml(item.name)),
                 text: (t.notif_expired_text || 'Expired {count} days ago.').replace('{count}', absDays),
                 date: formatDate(item.purchase_date)
             });
