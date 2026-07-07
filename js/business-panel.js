@@ -229,14 +229,19 @@ async function initBusinessPanel() {
                 const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(hashData));
                 const fiscalHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
-                const { data: existingUser } = await client
-                    .from('profiles')
-                    .select('id')
-                    .eq('email', email)
-                    .maybeSingle();
+                // ⚠️ Раньше здесь был прямой select из profiles по email — RLS
+                // тихо возвращал null для чужих строк, и статус всегда получался
+                // 'pending', даже для уже зарегистрированных покупателей.
+                // Используем RPC (SECURITY DEFINER), который обходит RLS,
+                // но отдаёт наружу только true/false, а не сами данные профиля.
+                const { data: emailIsRegistered, error: checkError } = await client
+                    .rpc('check_profile_exists', { p_email: email });
 
-                // ✅ СТАТУС ЗАВИСИТ ОТ НАЛИЧИЯ ПРОФИЛЯ
-                const status = existingUser ? 'verified' : 'pending';
+                if (checkError) {
+                    console.error('Ошибка проверки email покупателя:', checkError);
+                }
+
+                const status = emailIsRegistered ? 'verified' : 'pending';
 
                 const payload = {
                     shop_id: currentShop.id,
