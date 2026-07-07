@@ -123,6 +123,9 @@ const dashboardTranslations = {
         modal_edit_title: "Изменить товар",
         msg_item_updated: "Товар обновлён",
         msg_item_update_failed: "Ошибка обновления товара",
+        msg_item_added: "Товар добавлен",
+        msg_item_exists: "Эта вещь уже добавлена!",
+        msg_item_save_failed: "Ошибка сохранения. Попробуйте снова.",
     },
     en: {
         page_title: "Valuon — Dashboard",
@@ -248,6 +251,9 @@ const dashboardTranslations = {
         modal_edit_title: "Edit Item",
         msg_item_updated: "Item updated",
         msg_item_update_failed: "Failed to update item",
+        msg_item_added: "Item added",
+        msg_item_exists: "This item already exists!",
+        msg_item_save_failed: "Save failed. Try again.",
     }
 };
 window.dashboardTranslations = dashboardTranslations;

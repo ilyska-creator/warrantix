@@ -241,7 +241,7 @@ async function initBusinessPanel() {
                 const payload = {
                     shop_id: currentShop.id,
                     customer_email: email,
-                    item_name: escapeHtml(fd.get('item_name')),
+                    item_name: fd.get('item_name'),
                     qty, unit_price: price, vat_rate: vatRate,
                     net_total: net, vat_amount: vat, gross_total: gross,
                     purchase_date: fd.get('purchase_date'),
@@ -337,10 +337,6 @@ async function initBusinessPanel() {
             </div>`;
             }).join('');
 
-            if (typeof applyBusinessTranslations === 'function') {
-                applyBusinessTranslations();
-            }
-
             listEl.grid.querySelectorAll('.btn-delete-receipt').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const receiptId = btn.dataset.id;
@@ -365,13 +361,15 @@ async function initBusinessPanel() {
                             const { error } = await client
                                 .from('business_receipts')
                                 .delete()
-                                .eq('id', receiptId);
+                                .eq('id', receiptId)
+                                .eq('shop_id', shopId);
 
                             if (error) throw error;
 
                             const successMsg = lang === 'en' ? 'Receipt successfully deleted' : 'Чек успешно удален';
                             window.showToast(successMsg, 'success');
                             deleteModal.classList.add('is-hidden');
+                            cleanup();
                             await refreshDashboard(client, shopId, statsEl, listEl);
 
                             // Reapply translations after refresh

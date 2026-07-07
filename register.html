@@ -35,23 +35,24 @@
             <form id="register-form" class="auth-form">
                 <div class="input-group" data-animate>
                     <label for="email" data-i18n="label_email">Email</label>
-                    <input type="email" id="email" required placeholder="name@example.com" autocomplete="email">
+                    <input type="email" id="email" name="email" required placeholder="name@example.com"
+                        autocomplete="email">
                 </div>
 
                 <div class="input-row" data-animate>
                     <div class="input-group">
                         <label for="first-name" data-i18n="label_first_name">Имя</label>
-                        <input type="text" id="first-name" required data-i18n-placeholder="ph_first_name"
-                            autocomplete="given-name">
+                        <input type="text" id="first-name" name="firstName" required
+                            data-i18n-placeholder="ph_first_name" autocomplete="given-name">
                     </div>
                     <div class="input-group">
                         <label for="last-name" data-i18n="label_last_name">Фамилия</label>
-                        <input type="text" id="last-name" required data-i18n-placeholder="ph_last_name"
+                        <input type="text" id="last-name" name="lastName" required data-i18n-placeholder="ph_last_name"
                             autocomplete="family-name">
                     </div>
                     <div class="input-group">
                         <label for="birthdate" data-i18n="label_birthdate">Дата рождения</label>
-                        <input type="date" id="birthdate" required autocomplete="bday">
+                        <input type="date" id="birthdate" name="birthdate" required autocomplete="bday">
                         <span class="field-hint" data-i18n="birthdate_warning">Нельзя изменить после регистрации</span>
                     </div>
                 </div>
@@ -59,8 +60,8 @@
                 <div class="input-group" data-animate>
                     <label for="password" data-i18n="label_password">Пароль</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" required minlength="6" placeholder="••••••••"
-                            autocomplete="new-password">
+                        <input type="password" id="password" name="newPassword" required minlength="6"
+                            placeholder="••••••••" autocomplete="new-password">
                         <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                             <i class="fa-regular fa-eye"></i>
                         </button>
@@ -70,8 +71,8 @@
                 <div class="input-group" data-animate>
                     <label for="confirm-password" data-i18n="label_confirm_password">Повторите пароль</label>
                     <div class="password-wrapper">
-                        <input type="password" id="confirm-password" required minlength="6" placeholder="••••••••"
-                            autocomplete="new-password">
+                        <input type="password" id="confirm-password" name="confirmPassword" required minlength="6"
+                            placeholder="••••••••" autocomplete="new-password">
                         <button type="button" class="toggle-password-confirm" aria-label="Toggle password visibility">
                             <i class="fa-regular fa-eye"></i>
                         </button>

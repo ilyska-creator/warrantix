@@ -136,7 +136,7 @@ function renderItems(items) {
             const shortSerial = item.serial_number.length > 6
                 ? escapeHtml(item.serial_number.substring(0, 6)) + '...'
                 : escapeHtml(item.serial_number);
-            tags.push(`<span class="tag"><i class="fa-solid fa-barcode"></i> ${shortSerial}</span>`);
+            tags.push(`<span class="tag"><i class="fa-solid fa-barcode"></i> ${escapeHtml(shortSerial)}</span>`);
         }
         if (item.store_name) tags.push(`<span class="tag"><i class="fa-solid fa-store"></i> ${escapeHtml(item.store_name)}</span>`);
         if (item.price && item.price > 0) tags.push(`<span class="tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(String(item.price))} $</span>`);
@@ -432,6 +432,10 @@ function setupModal(client) {
 
             btn.innerHTML = '<i class="fa-solid fa-check"></i>';
 
+            const lang = localStorage.getItem('valuon-lang') || 'ru';
+            const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
+            showToast(t.msg_item_added || 'Товар добавлен', 'success');
+
             setTimeout(() => {
                 modal.classList.remove('active');
                 form.reset();
@@ -444,11 +448,12 @@ function setupModal(client) {
         } catch (err) {
             console.error(err);
             const lang = localStorage.getItem('valuon-lang') || 'ru';
+            const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
 
             if (err.code === '23505') {
-                showToast(lang === 'ru' ? 'Эта вещь уже добавлена!' : 'This item already exists!', 'warning');
+                showToast(t.msg_item_exists || (lang === 'ru' ? 'Эта вещь уже добавлена!' : 'This item already exists!'), 'warning');
             } else {
-                showToast(lang === 'ru' ? 'Ошибка сохранения. Попробуйте снова.' : 'Save failed. Try again.', 'error');
+                showToast(t.msg_item_save_failed || (lang === 'ru' ? 'Ошибка сохранения. Попробуйте снова.' : 'Save failed. Try again.'), 'error');
             }
 
             btn.innerHTML = originalText;

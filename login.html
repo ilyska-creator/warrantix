@@ -35,13 +35,14 @@
             <form id="login-form" class="auth-form">
                 <div class="input-group" data-animate>
                     <label for="email" data-i18n="label_email">Email</label>
-                    <input type="email" id="email" required placeholder="name@example.com" autocomplete="email">
+                    <input type="email" id="email" name="email" required placeholder="name@example.com"
+                        autocomplete="email">
                 </div>
 
                 <div class="input-group" data-animate>
                     <label for="password" data-i18n="label_password">Пароль</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" required placeholder="••••••••"
+                        <input type="password" id="password" name="currentPassword" required placeholder="••••••••"
                             autocomplete="current-password">
                         <button type="button" class="toggle-password" aria-label="Toggle password visibility">
                             <i class="fa-regular fa-eye"></i>
@@ -83,7 +84,7 @@
                 <form id="forgot-form" class="auth-form">
                     <div class="input-group">
                         <label for="forgot-email" data-i18n="label_email">Email</label>
-                        <input type="email" id="forgot-email" required placeholder="name@example.com"
+                        <input type="email" id="forgot-email" name="forgotEmail" required placeholder="name@example.com"
                             autocomplete="email">
                     </div>
                     <button type="submit" class="btn btn-primary auth-btn" data-i18n="btn_send_link">Отправить
