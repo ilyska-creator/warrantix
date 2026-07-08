@@ -659,6 +659,71 @@ ul {
     font-size: 0.9rem;
 }
 
+.verify-section {
+    background: var(--light);
+}
+
+.verify-scanner-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.verify-scanner-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-6);
+    transition: var(--transition-base);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.verify-scanner-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.vs-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.verify-scanner-card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-main);
+}
+
+.verify-scanner-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.verify-scanner-cta {
+    text-align: center;
+    padding: 16px 0 40px;
+}
+
+[data-theme="dark"] .verify-section {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .vs-icon {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
 
 .card {
     background: var(--card-bg);
