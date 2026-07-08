@@ -78,6 +78,17 @@ const businessTranslations = {
         receipt_deleted_success: 'Чек успешно удален',
         receipt_delete_error: 'Ошибка при удалении чека',
         data_load_error: 'Ошибка загрузки данных',
+
+        
+        chart_title: 'Динамика выписки чеков',
+        chart_week: 'Неделя',
+        chart_month: 'Месяц',
+        chart_year: 'Год',
+        chart_empty: 'Нет данных для графика',
+        chart_label_receipts: 'Чеки',
+        chart_period_week: 'За последние 7 дней',
+        chart_period_month: 'За последние 30 дней',
+        chart_period_year: 'За последние 12 месяцев',
     },
     en: {
         
@@ -155,6 +166,17 @@ const businessTranslations = {
         receipt_deleted_success: 'Receipt successfully deleted',
         receipt_delete_error: 'Error deleting receipt',
         data_load_error: 'Data loading error',
+
+        
+        chart_title: 'Receipt Issuance Dynamics',
+        chart_week: 'Week',
+        chart_month: 'Month',
+        chart_year: 'Year',
+        chart_empty: 'No data for chart',
+        chart_label_receipts: 'Receipts',
+        chart_period_week: 'Last 7 days',
+        chart_period_month: 'Last 30 days',
+        chart_period_year: 'Last 12 months',
     }
 };
 
@@ -315,6 +337,15 @@ function applyBusinessTranslations() {
     if (themeBtn) themeBtn.setAttribute('aria-label', t.theme_toggle_title);
 
     
+    const chartTitle = document.querySelector('.chart-section .section-title');
+    if (chartTitle) chartTitle.textContent = t.chart_title;
+
+    const periodKeys = ['chart_week', 'chart_month', 'chart_year'];
+    document.querySelectorAll('.chart-period-btn').forEach((btn, i) => {
+        if (periodKeys[i] && t[periodKeys[i]]) btn.textContent = t[periodKeys[i]];
+    });
+
+    
     translateReceiptCards(t);
 }
 
@@ -355,6 +386,7 @@ function toggleBusinessLanguage() {
     businessCurrentLang = businessCurrentLang === 'ru' ? 'en' : 'ru';
     localStorage.setItem('valuon-lang', businessCurrentLang);
     applyBusinessTranslations();
+    window.dispatchEvent(new CustomEvent('business-lang-changed'));
 }
 
 

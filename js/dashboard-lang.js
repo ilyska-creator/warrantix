@@ -128,6 +128,14 @@ const dashboardTranslations = {
         msg_item_added: "Товар добавлен",
         msg_item_exists: "Эта вещь уже добавлена!",
         msg_item_save_failed: "Ошибка сохранения. Попробуйте снова.",
+
+        
+        calendar_title: "Календарь гарантий",
+        calendar_active: "Активна",
+        calendar_expiring: "Истекает",
+        calendar_expired: "Истекла",
+        calendar_today: "Сегодня",
+        calendar_item_count: "Вещей: {count}",
     },
     en: {
         page_title: "Valuon — Dashboard",
@@ -258,6 +266,14 @@ const dashboardTranslations = {
         msg_item_added: "Item added",
         msg_item_exists: "This item already exists!",
         msg_item_save_failed: "Save failed. Try again.",
+
+        
+        calendar_title: "Warranty Calendar",
+        calendar_active: "Active",
+        calendar_expiring: "Expiring",
+        calendar_expired: "Expired",
+        calendar_today: "Today",
+        calendar_item_count: "Items: {count}",
     }
 };
 window.dashboardTranslations = dashboardTranslations;

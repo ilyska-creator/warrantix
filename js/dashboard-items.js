@@ -57,6 +57,8 @@ async function loadItems(userId, client) {
 
     renderItems(safeItems);
     updateStats(safeItems);
+    renderWarrantyCalendar(safeItems);
+    window._lastLoadedItems = safeItems;
 
     if (typeof window.renderNotifications === 'function') {
         window.renderNotifications(safeItems);
@@ -276,6 +278,137 @@ async function openEditModal(itemId, client, userId) {
 
     modal.classList.add('active');
 }
+
+let calendarCurrentMonth = new Date().getMonth();
+let calendarCurrentYear = new Date().getFullYear();
+
+function renderWarrantyCalendar(items) {
+    const container = document.getElementById('warranty-calendar');
+    if (!container) return;
+
+    const monthLabel = document.getElementById('cal-month-label');
+    const weekdaysEl = document.getElementById('cal-weekdays');
+    const daysEl = document.getElementById('cal-days');
+    if (!monthLabel || !weekdaysEl || !daysEl) return;
+
+    const lang = localStorage.getItem('valuon-lang') || 'ru';
+    const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
+
+    const monthNames = lang === 'ru'
+        ? ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+        : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    const weekdays = lang === 'ru'
+        ? ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+        : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+
+    monthLabel.textContent = `${monthNames[calendarCurrentMonth]} ${calendarCurrentYear}`;
+
+    weekdaysEl.innerHTML = weekdays.map(d => `<span>${d}</span>`).join('');
+
+    const firstDay = new Date(calendarCurrentYear, calendarCurrentMonth, 1).getDay();
+    const daysInMonth = new Date(calendarCurrentYear, calendarCurrentMonth + 1, 0).getDate();
+    const daysInPrevMonth = new Date(calendarCurrentYear, calendarCurrentMonth, 0).getDate();
+
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    
+    const warrantyMap = {};
+    (items || []).forEach(item => {
+        if (!item.purchase_date || !item.warranty_months) return;
+        const parts = item.purchase_date.split('-');
+        if (parts.length !== 3) return;
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        const startDate = new Date(year, month, day);
+        const endDate = new Date(year, month, day);
+        endDate.setMonth(endDate.getMonth() + parseInt(item.warranty_months));
+        if (endDate.getDate() !== day) endDate.setDate(0);
+
+        
+        let current = new Date(startDate);
+        while (current <= endDate) {
+            const key = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
+            if (!warrantyMap[key]) warrantyMap[key] = [];
+            const daysLeft = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            let status = daysLeft > 30 ? 'active' : daysLeft > 0 ? 'warning' : 'expired';
+            warrantyMap[key].push({ name: item.name, status });
+            current.setDate(current.getDate() + 1);
+        }
+    });
+
+    const sundayOffset = firstDay === 0 ? 6 : firstDay - 1;
+    const totalSlots = Math.ceil((sundayOffset + daysInMonth) / 7) * 7;
+
+    let html = '';
+    for (let i = 0; i < totalSlots; i++) {
+        let dayNum, isOtherMonth = false, dateStr;
+
+        if (i < sundayOffset) {
+            dayNum = daysInPrevMonth - sundayOffset + i + 1;
+            isOtherMonth = true;
+            const prevMonth = calendarCurrentMonth === 0 ? 11 : calendarCurrentMonth - 1;
+            const prevYear = calendarCurrentMonth === 0 ? calendarCurrentYear - 1 : calendarCurrentYear;
+            dateStr = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+        } else if (i >= sundayOffset + daysInMonth) {
+            dayNum = i - sundayOffset - daysInMonth + 1;
+            isOtherMonth = true;
+            const nextMonth = calendarCurrentMonth === 11 ? 0 : calendarCurrentMonth + 1;
+            const nextYear = calendarCurrentMonth === 11 ? calendarCurrentYear + 1 : calendarCurrentYear;
+            dateStr = `${nextYear}-${String(nextMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+        } else {
+            dayNum = i - sundayOffset + 1;
+            dateStr = `${calendarCurrentYear}-${String(calendarCurrentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+        }
+
+        const isToday = dateStr === todayStr;
+        const dayWarranties = warrantyMap[dateStr] || [];
+        const statusCounts = { active: 0, warning: 0, expired: 0 };
+        dayWarranties.forEach(w => { if (statusCounts[w.status] !== undefined) statusCounts[w.status]++; });
+
+        const hasDot = dayWarranties.length > 0;
+        const dotClass = hasDot
+            ? (statusCounts.expired > 0 ? 'expired' : statusCounts.warning > 0 ? 'warning' : 'active')
+            : '';
+
+        const tooltipText = dayWarranties.length > 0
+            ? dayWarranties.map(w => `${w.name} (${t[w.status === 'active' ? 'status_active' : w.status === 'warning' ? 'status_expiring' : 'status_expired'] || w.status})`).join(', ')
+            : '';
+
+        html += `<div class="calendar-day${isOtherMonth ? ' other-month' : ''}${isToday ? ' today' : ''}" title="${escapeHtml(tooltipText)}">
+            <span>${dayNum}</span>
+            ${hasDot ? `<span class="day-dot ${dotClass}"></span>` : ''}
+            ${dayWarranties.length > 1 ? `<span class="day-count">+${dayWarranties.length - 1}</span>` : ''}
+        </div>`;
+    }
+
+    daysEl.innerHTML = html;
+}
+
+function setupCalendarNav() {
+    const prevBtn = document.getElementById('cal-prev');
+    const nextBtn = document.getElementById('cal-next');
+
+    prevBtn?.addEventListener('click', () => {
+        calendarCurrentMonth--;
+        if (calendarCurrentMonth < 0) { calendarCurrentMonth = 11; calendarCurrentYear--; }
+        renderWarrantyCalendar(window._lastLoadedItems || []);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+        calendarCurrentMonth++;
+        if (calendarCurrentMonth > 11) { calendarCurrentMonth = 0; calendarCurrentYear++; }
+        renderWarrantyCalendar(window._lastLoadedItems || []);
+    });
+}
+
+window.addEventListener('lang-changed', () => {
+    renderWarrantyCalendar(window._lastLoadedItems || []);
+});
+
+setupCalendarNav();
 
 function setupEditModal(client, userId) {
     const modal = document.getElementById('edit-modal');

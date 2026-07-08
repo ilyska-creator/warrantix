@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/business.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
         (function () {
             const savedTheme = localStorage.getItem('valuon-theme');
@@ -129,6 +130,20 @@
                         <span class="stat-label">Ожидают привязки</span>
                         <span class="stat-value" id="pending-receipts">0</span>
                     </div>
+                </div>
+            </div>
+
+            <div class="chart-section mb-6" data-animate>
+                <div class="chart-header">
+                    <h2 class="section-title" data-i18n="chart_title">Динамика выписки чеков</h2>
+                    <div class="chart-controls">
+                        <button class="chart-period-btn active" data-period="week" data-i18n="chart_week">Неделя</button>
+                        <button class="chart-period-btn" data-period="month" data-i18n="chart_month">Месяц</button>
+                        <button class="chart-period-btn" data-period="year" data-i18n="chart_year">Год</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="receipts-chart"></canvas>
                 </div>
             </div>
 

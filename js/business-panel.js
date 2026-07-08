@@ -343,6 +343,7 @@ async function initBusinessPanel() {
             if (receipts.length === 0) {
                 listEl.grid.innerHTML = '';
                 if (emptyMsg) emptyMsg.style.display = 'block';
+                updateChart();
                 return;
             }
 
@@ -473,6 +474,8 @@ async function initBusinessPanel() {
                     }
                 });
             });
+
+            updateChart();
         } catch (e) {
             console.error('Dashboard refresh failed:', e);
             window.showToast('Не удалось обновить данные. Попробуйте позже.', 'error');
@@ -491,6 +494,14 @@ async function initBusinessPanel() {
             .replace(/"/g, '&quot;');
     }
 
+    
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            setTimeout(updateChart, 100);
+        });
+    }
+
     const firstReceiptBtn = document.getElementById('create-first-receipt-btn');
     if (firstReceiptBtn) {
         firstReceiptBtn.addEventListener('click', () => {
@@ -498,6 +509,155 @@ async function initBusinessPanel() {
             if (openBtn) openBtn.click();
         });
     }
+
+    
+    let receiptsChartInstance = null;
+    let chartPeriod = 'week';
+
+    function aggregateReceiptsByPeriod(receipts, period) {
+        if (!receipts || receipts.length === 0) return { labels: [], data: [] };
+
+        const now = new Date();
+        const groups = {};
+        const daysMap = {};
+
+        const maxDays = period === 'week' ? 7 : period === 'month' ? 30 : 365;
+
+        for (let i = maxDays - 1; i >= 0; i--) {
+            const d = new Date(now);
+            d.setDate(d.getDate() - i);
+            const key = d.toISOString().slice(0, 10);
+            const label = d.toLocaleDateString(localStorage.getItem('valuon-lang') === 'en' ? 'en-US' : 'ru-RU', {
+                day: 'numeric', month: 'short'
+            });
+            groups[key] = { label, count: 0 };
+            daysMap[key] = true;
+        }
+
+        receipts.forEach(r => {
+            const dateStr = r.purchase_date ? r.purchase_date.slice(0, 10) : null;
+            if (dateStr && daysMap[dateStr]) {
+                groups[dateStr].count++;
+            }
+        });
+
+        const labels = [];
+        const data = [];
+        const sortedKeys = Object.keys(groups).sort();
+        sortedKeys.forEach(k => {
+            labels.push(groups[k].label);
+            data.push(groups[k].count);
+        });
+
+        return { labels, data };
+    }
+
+    function renderChart(period) {
+        if (!window.Chart) return;
+
+        let canvas = document.getElementById('receipts-chart');
+        let wrapper = document.querySelector('.chart-wrapper');
+        if (!wrapper) return;
+
+        const t = businessTranslations[businessCurrentLang] || businessTranslations.ru;
+
+        const aggregated = aggregateReceiptsByPeriod(currentReceiptsList || [], period);
+        const hasData = aggregated.data.some(v => v > 0);
+
+        if (!hasData) {
+            if (receiptsChartInstance) {
+                receiptsChartInstance.destroy();
+                receiptsChartInstance = null;
+            }
+            if (!canvas) {
+                wrapper.innerHTML = `<div class="chart-empty">${t.chart_empty}</div>`;
+            } else {
+                const parent = canvas.parentElement;
+                if (parent && parent.classList.contains('chart-wrapper')) {
+                    parent.innerHTML = `<div class="chart-empty">${t.chart_empty}</div>`;
+                }
+            }
+            return;
+        }
+
+        if (!canvas || !wrapper.contains(canvas)) {
+            wrapper.innerHTML = '<canvas id="receipts-chart"></canvas>';
+        }
+        canvas = document.getElementById('receipts-chart');
+        wrapper = canvas.parentElement;
+
+        const ctx = canvas.getContext('2d');
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+        const textColor = isDark ? '#888' : '#64748b';
+
+        receiptsChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: aggregated.labels,
+                datasets: [{
+                    label: t.chart_label_receipts,
+                    data: aggregated.data,
+                    backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: isDark ? '#1a1a1a' : '#fff',
+                        titleColor: isDark ? '#fff' : '#0f172a',
+                        bodyColor: isDark ? '#ccc' : '#64748b',
+                        borderColor: isDark ? '#333' : '#e2e8f0',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: gridColor },
+                        ticks: { color: textColor, font: { size: 11 } },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: gridColor },
+                        ticks: {
+                            color: textColor,
+                            font: { size: 11 },
+                            stepSize: 1,
+                            precision: 0,
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateChart() {
+        renderChart(chartPeriod);
+    }
+
+    
+    const periodBtns = document.querySelectorAll('.chart-period-btn');
+    periodBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            periodBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            chartPeriod = btn.dataset.period;
+            updateChart();
+        });
+    });
+
+    window.addEventListener('business-lang-changed', () => {
+        setTimeout(updateChart, 50);
+    });
 }
 
 initBusinessPanel();

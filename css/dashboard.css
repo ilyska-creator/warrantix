@@ -2133,3 +2133,227 @@
     content: ' *';
     color: var(--error);
 }
+
+
+.calendar-section {
+    margin-top: var(--space-10);
+}
+
+.calendar-section h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: var(--space-6);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.calendar-section h2 i {
+    color: var(--primary);
+}
+
+.warranty-calendar {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-6);
+    max-width: 480px;
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+}
+
+.calendar-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-body);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+    font-size: 0.85rem;
+}
+
+.calendar-nav-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.calendar-month-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: var(--space-2);
+}
+
+.calendar-weekdays span {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: var(--space-2) 0;
+    text-transform: uppercase;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    position: relative;
+    cursor: default;
+    transition: var(--transition-fast);
+    min-height: 40px;
+}
+
+.calendar-day.other-month {
+    color: var(--text-muted);
+    opacity: 0.3;
+}
+
+.calendar-day.today {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+    font-weight: 800;
+}
+
+.calendar-day .day-dot {
+    position: absolute;
+    bottom: 3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.calendar-day .day-dot.active {
+    background: #10b981;
+}
+
+.calendar-day .day-dot.warning {
+    background: #f59e0b;
+}
+
+.calendar-day .day-dot.expired {
+    background: #ef4444;
+}
+
+.calendar-day .day-count {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    line-height: 1;
+}
+
+.calendar-legend {
+    display: flex;
+    gap: var(--space-6);
+    margin-top: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.legend-dot.active {
+    background: #10b981;
+}
+
+.legend-dot.warning {
+    background: #f59e0b;
+}
+
+.legend-dot.expired {
+    background: #ef4444;
+}
+
+.calendar-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+}
+
+.calendar-day:hover .calendar-tooltip {
+    display: block;
+}
+
+@media (max-width: 480px) {
+    .warranty-calendar {
+        max-width: 100%;
+        padding: var(--space-4);
+    }
+
+    .calendar-nav-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1rem;
+    }
+
+    .calendar-day {
+        font-size: 0.75rem;
+        min-height: 38px;
+    }
+
+    .calendar-day .day-dot {
+        width: 5px;
+        height: 5px;
+        bottom: 2px;
+    }
+
+    .calendar-legend {
+        gap: var(--space-3);
+    }
+
+    .legend-item {
+        font-size: 0.75rem;
+    }
+}
