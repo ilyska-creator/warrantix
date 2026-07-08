@@ -272,15 +272,11 @@ function applyBusinessTranslations() {
     const itemNameInput = document.querySelector('[name="item_name"]');
     if (itemNameInput) itemNameInput.placeholder = t.item_name_placeholder;
 
-    const qtyInput = document.querySelector('[name="qty"]');
-    if (qtyInput) qtyInput.value = t.qty_default;
-
     const priceInput = document.querySelector('[name="price"]');
     if (priceInput) priceInput.placeholder = t.price_placeholder;
 
     const vatInput = document.querySelector('[name="vat_rate"]');
     if (vatInput) {
-        vatInput.value = '0';
         const hint = vatInput.nextElementSibling;
         if (hint && hint.classList.contains('field-hint')) hint.textContent = t.vat_rate_hint;
     }

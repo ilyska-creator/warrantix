@@ -208,5 +208,5 @@ async function checkAuthOnHome() {
 }
 
 if (document.querySelector('.hero-actions')) {
-    checkAuthOnHome();
+    checkAuthOnHome().catch(e => console.warn('checkAuthOnHome failed:', e));
 }

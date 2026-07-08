@@ -278,8 +278,10 @@ function restoreListeners(client, userId) {
                 a.download = name;
                 document.body.appendChild(a);
                 a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(blobUrl);
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                }, 200);
             } catch (err) {
                 console.error(err);
                 showToast(lang === 'ru' ? 'Не удалось скачать файл' : 'Failed to download file', 'error');
