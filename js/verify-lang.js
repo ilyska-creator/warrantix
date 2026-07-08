@@ -45,6 +45,9 @@ const verifyTranslations = {
         internal_error: 'Внутренняя ошибка при проверке',
         scan_error: 'Ошибка при обработке изображения',
         file_error: 'Ошибка при обработке файла',
+        copy_btn: 'Копировать результат',
+        copied: 'Скопировано',
+        drop_hint: 'Отпустите файл для загрузки',
     },
     en: {
         page_title: 'Valuon — Receipt Verification',
@@ -92,6 +95,9 @@ const verifyTranslations = {
         internal_error: 'Internal verification error',
         scan_error: 'Error processing image',
         file_error: 'Error processing file',
+        copy_btn: 'Copy result',
+        copied: 'Copied',
+        drop_hint: 'Drop file to upload',
     }
 };
 

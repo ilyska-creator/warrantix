@@ -63,6 +63,12 @@ function resetAll() {
     stopCamera();
     Object.values(panels).forEach(p => p?.classList.remove('done'));
     resultBlockWrapper?.classList.remove('active');
+    if (copyBtn) {
+        copyBtn.style.display = 'none';
+        copyBtn.classList.remove('copied');
+        const span = copyBtn.querySelector('span');
+        if (span) span.textContent = t('copy_btn');
+    }
     const lastTab = sessionStorage.getItem('verify-active-tab') || 'scan';
     tabs.forEach(t => t.classList.remove('active'));
     Object.values(panels).forEach(p => p?.classList.remove('active'));
@@ -173,7 +179,10 @@ function showResult(status, data) {
     Object.values(panels).forEach(p => p?.classList.add('done'));
     resultBlockWrapper?.classList.add('active');
     retryBtn && (retryBtn.style.display = '');
+    copyBtn && (copyBtn.style.display = '');
     resultBlock.className = 'verify-result';
+
+    lastResultData = status === 'success' ? data : null;
 
     if (status === 'success') {
         resultBlock.classList.add('success');
@@ -222,6 +231,9 @@ function showResult(status, data) {
             resultBadge.textContent = t('result_error_badge');
         }
         resultDetails.style.display = 'none';
+    }
+    if (status !== 'success') {
+        copyBtn && (copyBtn.style.display = 'none');
     }
 }
 
@@ -302,14 +314,20 @@ async function verifyReceiptFromQRData(qrRaw) {
 let mediaStream = null;
 let scanInterval = null;
 let verifying = false;
+let cameraFacingMode = 'environment';
+let torchOn = false;
+let lastResultData = null;
 const video = document.getElementById('scanner-video');
 const canvas = document.getElementById('scanner-canvas');
 const scanBtn = document.getElementById('verify-scan-btn');
+const flashBtn = document.getElementById('camera-flash-btn');
+const switchBtn = document.getElementById('camera-switch-btn');
+const copyBtn = document.getElementById('verify-copy-btn');
 
 async function startCamera() {
     try {
         mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 640 } }
+            video: { facingMode: cameraFacingMode, width: { ideal: 640 }, height: { ideal: 640 } }
         });
         video.srcObject = mediaStream;
         await video.play();
@@ -319,10 +337,46 @@ async function startCamera() {
         scanBtn.classList.add('btn-outline');
         resultBlockWrapper?.classList.remove('active');
         startScanLoop();
+        setupCameraControls();
     } catch (err) {
         console.error('[verify] camera error:', err);
         scanFileInput?.click();
     }
+}
+
+function setupCameraControls() {
+    const track = mediaStream?.getVideoTracks()[0];
+    if (!track) return;
+
+    switchBtn.hidden = false;
+
+    const capabilities = track.getCapabilities?.();
+    if (capabilities?.torch) {
+        flashBtn.hidden = false;
+        flashBtn.classList.remove('active');
+        torchOn = false;
+    } else {
+        flashBtn.hidden = true;
+    }
+}
+
+async function toggleFlash() {
+    const track = mediaStream?.getVideoTracks()[0];
+    if (!track) return;
+    try {
+        torchOn = !torchOn;
+        await track.applyConstraints({ advanced: [{ torch: torchOn }] });
+        flashBtn.classList.toggle('active', torchOn);
+    } catch (err) {
+        console.error('[verify] torch error:', err);
+        torchOn = !torchOn;
+    }
+}
+
+async function switchCamera() {
+    stopCamera();
+    cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
+    await startCamera();
 }
 
 function stopCamera() {
@@ -368,6 +422,7 @@ function startScanLoop() {
 
         if (code) {
             stopCamera();
+            navigator.vibrate?.(100);
             const icon = scanArea?.querySelector('.scanner-content i');
             const hint = document.getElementById('scan-hint');
             if (icon) icon.className = 'fa-solid fa-spinner fa-spin';
@@ -379,6 +434,9 @@ function startScanLoop() {
     }, 400);
 }
 
+flashBtn?.addEventListener('click', toggleFlash);
+switchBtn?.addEventListener('click', switchCamera);
+
 scanArea?.addEventListener('click', () => {
     if (!mediaStream) {
         startCamera();
@@ -386,14 +444,85 @@ scanArea?.addEventListener('click', () => {
 });
 
 uploadZone?.addEventListener('click', () => {
-    fileInput?.click();
+    if (!uploadZone.classList.contains('has-file')) {
+        fileInput?.click();
+    }
 });
+
+if (uploadZone && !('ontouchstart' in window)) {
+    let dragCounter = 0;
+
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.add('drag-over');
+    });
+
+    uploadZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dragCounter--;
+        if (dragCounter <= 0) {
+            dragCounter = 0;
+            uploadZone.classList.remove('drag-over');
+        }
+    });
+
+    uploadZone.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.remove('drag-over');
+        dragCounter = 0;
+
+        const files = e.dataTransfer?.files;
+        if (!files?.length) return;
+
+        const file = files[0];
+        if (file.size > 10 * 1024 * 1024) {
+            alert(t('file_too_big'));
+            return;
+        }
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event('change'));
+    });
+
+    uploadZone.addEventListener('dragenter', () => {
+        dragCounter++;
+    });
+}
 
 scanBtn?.addEventListener('click', () => {
     if (mediaStream) {
         stopCamera();
     } else {
         startCamera();
+    }
+});
+
+copyBtn?.addEventListener('click', async () => {
+    if (!lastResultData) return;
+    const text = [
+        t('detail_name') + ': ' + lastResultData.name,
+        t('detail_date') + ': ' + lastResultData.date,
+        t('detail_amount') + ': ' + lastResultData.amount,
+        t('detail_store') + ': ' + lastResultData.store,
+        t('detail_status') + ': ' + lastResultData.sellerStatus,
+    ].join('\n');
+    try {
+        await navigator.clipboard.writeText(text);
+        const span = copyBtn.querySelector('span') || copyBtn;
+        const original = span.textContent;
+        span.textContent = t('copied');
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+            span.textContent = original;
+            copyBtn.classList.remove('copied');
+        }, 2000);
+    } catch (err) {
+        console.error('[verify] copy error:', err);
     }
 });
 
@@ -424,7 +553,7 @@ scanFileInput?.addEventListener('change', async () => {
 
         if (icon) icon.className = 'fa-solid fa-check-circle';
         if (scanHint) scanHint.textContent = t('scanning');
-
+        navigator.vibrate?.(100);
         await verifyReceiptFromQRData(qrData);
     } catch (err) {
         console.error('[verify] scan error:', err);
@@ -504,5 +633,10 @@ window.addEventListener('verify-lang-changed', () => {
         scanBtn.innerHTML = mediaStream
             ? '<i class="fa-solid fa-stop"></i> ' + t('scan_btn_stop')
             : '<i class="fa-solid fa-camera"></i> ' + t('scan_btn_open');
+    }
+    if (copyBtn && lastResultData) {
+        copyBtn.style.display = '';
+        const span = copyBtn.querySelector('span');
+        if (span) span.textContent = t('copy_btn');
     }
 });

@@ -278,6 +278,54 @@
     100% { top: 15%; }
 }
 
+.scanner-actions {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--space-2);
+    z-index: 5;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+    pointer-events: none;
+}
+
+.scanner-area.active .scanner-actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.scanner-action {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    border: none;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.scanner-action:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+}
+
+.scanner-action:active {
+    transform: scale(0.9);
+}
+
+.scanner-action.active {
+    color: #fbbf24;
+}
+
 .upload-zone {
     border: 2px dashed var(--border);
     border-radius: var(--radius-xl);
@@ -291,6 +339,34 @@
 .upload-zone:hover {
     border-color: var(--primary);
     background: rgba(59, 130, 246, 0.03);
+}
+
+.upload-zone.drag-over {
+    border-color: var(--primary);
+    background: rgba(59, 130, 246, 0.06);
+    transform: scale(1.02);
+}
+
+.upload-zone.drag-over i {
+    opacity: 1;
+    color: var(--primary);
+}
+
+.upload-zone .drop-hint {
+    display: none;
+    font-size: 0.75rem;
+    color: var(--primary);
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.upload-zone.drag-over .drop-hint {
+    display: block;
+}
+
+.upload-zone.drag-over p,
+.upload-zone.drag-over > span {
+    opacity: 0.5;
 }
 
 .upload-zone i {
@@ -433,6 +509,93 @@
     margin-bottom: 0;
 }
 
+.copy-btn {
+    margin: var(--space-4) auto 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-size: 0.8rem;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.copy-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.copy-btn:active {
+    transform: scale(0.97);
+}
+
+.copy-btn i {
+    font-size: 0.85rem;
+}
+
+.copy-btn.copied {
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.copy-btn.copied i {
+    color: var(--success);
+}
+
+.result-details + .copy-btn {
+    margin-top: var(--space-3);
+}
+
+.verify-result.success #result-icon {
+    animation: iconPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.verify-result.failure #result-icon {
+    animation: iconShake 0.4s ease;
+}
+
+@keyframes iconPop {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes iconShake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes badgePulse {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.verify-result-block.active .verify-result {
+    animation: resultSlide 0.35s ease both;
+}
+
+@keyframes resultSlide {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 .verify-badge {
     display: inline-flex;
     align-items: center;
@@ -449,6 +612,10 @@
 .verify-badge.verified {
     background: rgba(16, 185, 129, 0.1);
     color: var(--success);
+}
+
+.verify-result.success .verify-badge.verified {
+    animation: badgePulse 0.6s ease 0.3s both;
 }
 
 .verify-badge.invalid {
@@ -585,6 +752,16 @@
 
     .verify-result-block.active {
         margin-top: var(--space-4);
+    }
+
+    .scanner-actions {
+        bottom: 8px;
+    }
+
+    .scanner-action {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
     }
 
     .verify-footer {
