@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const captchaToken = typeof turnstile !== 'undefined' ? turnstile.getResponse() : null;
+            const captchaToken = typeof turnstile !== 'undefined' ? turnstile.getResponse('login-turnstile') : null;
             if (!captchaToken) {
                 const lang = localStorage.getItem('valuon-lang') === 'ru';
                 showToast(lang ? 'Подтвердите, что вы не робот' : 'Please complete the captcha', 'warning');
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     : 'Invalid email or password';
                 showToast(msg);
                 resetLoadingButton(btn, originalText);
-                if (typeof turnstile !== 'undefined') turnstile.reset();
+                if (typeof turnstile !== 'undefined') turnstile.reset('login-turnstile');
             }
         });
     }
@@ -139,14 +139,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             e.preventDefault();
             openForgotModal();
         });
-    }
-
-    // Пришли сюда с истёкшей/невалидной ссылкой сброса пароля
-    // (reset-password.html теперь редиректит на login.html?forgot=1) —
-    // сразу открываем модалку запроса новой ссылки, а не оставляем
-    // человека просто на экране входа гадать, что делать дальше.
-    if (new URLSearchParams(window.location.search).get('forgot') === '1') {
-        openForgotModal();
     }
 
     if (forgotClose) {
@@ -195,39 +187,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
+            const captchaToken = typeof turnstile !== 'undefined' ? turnstile.getResponse('forgot-turnstile') : null;
+            if (!captchaToken) {
+                showToast(lang ? 'Подтвердите, что вы не робот' : 'Please complete the captcha', 'warning');
+                return;
+            }
+
             try {
                 setLoadingButton(btn);
 
                 const client = getSupabaseClient(false);
-
-                // Проверяем, зарегистрирована ли эта почта в системе, и
-                // явно сообщаем пользователю, если нет — используем ту же
-                // RPC-функцию (обходит RLS, но отдаёт наружу только
-                // true/false), что и в бизнес-панели при выпуске чека.
-                // Обёрнуто в свой собственный try/catch: если RPC-функция
-                // ещё не создана в Supabase (миграция не применена) или
-                // недоступна по любой другой причине, это НЕ должно ронять
-                // весь сброс пароля — просто пропускаем проверку.
-                let emailIsRegistered = true;
-                try {
-                    const { data, error: checkError } = await client
-                        .rpc('check_profile_exists', { p_email: email });
-                    if (checkError) throw checkError;
-                    emailIsRegistered = data;
-                } catch (checkErr) {
-                    console.warn('Проверка email пропущена (RPC недоступна):', checkErr);
-                }
-
-                if (!emailIsRegistered) {
-                    resetLoadingButton(btn, originalText);
-                    showToast(lang
-                        ? 'Эта почта не зарегистрирована в системе'
-                        : 'This email is not registered', 'warning');
-                    return;
-                }
-
                 const { error } = await client.auth.resetPasswordForEmail(email, {
-                    redirectTo: `${window.location.origin}/reset-password.html`
+                    redirectTo: `${window.location.origin}/reset-password.html`,
+                    captchaToken
                 });
 
                 if (error) throw error;
@@ -236,24 +208,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 stepSuccess?.classList.remove('hidden');
 
             } catch (err) {
-                // Логируем настоящее сообщение Supabase — почти всегда
-                // сюда попадают из-за встроенного в Supabase лимита на
-                // количество писем (auth email rate limit), особенно при
-                // частом тестировании, а не из-за "неверного" email.
-                console.error('Ошибка сброса пароля:', err?.message || err);
-
-                const isRateLimited = err?.status === 429 ||
-                    /rate limit/i.test(err?.message || '');
-
-                if (isRateLimited) {
-                    showToast(lang
-                        ? 'Слишком много запросов на сброс пароля. Подождите несколько минут и попробуйте снова.'
-                        : 'Too many password reset requests. Please wait a few minutes and try again.');
-                } else {
-                    showToast(lang
-                        ? 'Ошибка отправки. Проверьте email и попробуйте снова.'
-                        : 'Failed to send. Check email and try again.');
-                }
+                console.error(err);
+                showToast(lang === 'ru'
+                    ? 'Ошибка отправки. Проверьте email и попробуйте снова.'
+                    : 'Failed to send. Check email and try again.');
+                if (typeof turnstile !== 'undefined') turnstile.reset('forgot-turnstile');
             } finally {
                 resetLoadingButton(btn, originalText);
             }
