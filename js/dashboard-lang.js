@@ -25,7 +25,7 @@ const dashboardTranslations = {
         msg_save_success: "Данные успешно сохранены",
 
 
-        status_active: 'Активна',
+        status_active: 'Покупка',
         status_expiring: 'Заканчивается',
         status_warning: 'Заканчивается',
         status_expired: 'Истекла',

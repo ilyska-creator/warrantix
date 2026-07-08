@@ -640,3 +640,8 @@ window.addEventListener('verify-lang-changed', () => {
         if (span) span.textContent = t('copy_btn');
     }
 });
+
+window.addEventListener('beforeunload', stopCamera);
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopCamera();
+});

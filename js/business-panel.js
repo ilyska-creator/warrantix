@@ -69,7 +69,7 @@ async function initBusinessPanel() {
     try {
         const { data: shop, error } = await client
             .from('shops')
-            .select('*')
+            .select('id, shop_name, tax_id, address, public_key, private_key, owner_id')
             .eq('owner_id', user.id)
             .maybeSingle();
 
@@ -165,7 +165,7 @@ async function initBusinessPanel() {
 
                 const { data: newShop } = await client
                     .from('shops')
-                    .select('*')
+                    .select('id, shop_name, tax_id, address, public_key, private_key, owner_id')
                     .eq('owner_id', currentUser.id)
                     .maybeSingle();
 
@@ -331,9 +331,9 @@ async function initBusinessPanel() {
 
         try {
             const [totalRes, pendingRes, receiptsRes] = await Promise.all([
-                client.from('business_receipts').select('*', { count: 'exact', head: true }).eq('shop_id', shopId),
-                client.from('business_receipts').select('*', { count: 'exact', head: true }).eq('shop_id', shopId).eq('status', 'pending'),
-                client.from('business_receipts').select('*').eq('shop_id', shopId).order('created_at', { ascending: false })
+                client.from('business_receipts').select('id', { count: 'exact', head: true }).eq('shop_id', shopId),
+                client.from('business_receipts').select('id', { count: 'exact', head: true }).eq('shop_id', shopId).eq('status', 'pending'),
+                client.from('business_receipts').select('id, status, purchase_date, item_name, customer_email, gross_total, created_at').eq('shop_id', shopId).order('created_at', { ascending: false })
             ]);
 
             if (statsEl.total) statsEl.total.textContent = totalRes.count || 0;
@@ -526,7 +526,10 @@ async function initBusinessPanel() {
         for (let i = maxDays - 1; i >= 0; i--) {
             const d = new Date(now);
             d.setDate(d.getDate() - i);
-            const key = d.toISOString().slice(0, 10);
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const key = `${y}-${m}-${dd}`;
             const label = d.toLocaleDateString(localStorage.getItem('valuon-lang') === 'en' ? 'en-US' : 'ru-RU', {
                 day: 'numeric', month: 'short'
             });
