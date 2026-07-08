@@ -350,7 +350,7 @@ async function initBusinessPanel() {
                 const isVerified = r.status === 'verified';
                 const statusClass = isVerified ? 'active' : 'warning';
                 const statusKey = isVerified ? 'status_verified' : 'status_pending';
-                const dateStr = new Date(r.purchase_date).toLocaleDateString('ru-RU');
+                const dateStr = new Date(r.purchase_date).toLocaleDateString(localStorage.getItem('valuon-lang') === 'ru' ? 'ru-RU' : 'en-US');
 
                 return `
             <div class="item-card status-${r.status}" data-receipt-id="${r.id}" data-receipt-status="${r.status}" data-receipt-date="${r.purchase_date}">

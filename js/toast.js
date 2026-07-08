@@ -43,14 +43,17 @@ function showToast(message, type = 'error', duration = 4000) {
 
     const timer = setTimeout(() => removeToast(toast), duration);
 
+    let hoverTimer;
     toast.addEventListener('mouseenter', () => {
         clearTimeout(timer);
+        clearTimeout(hoverTimer);
         toast.querySelector('.toast-progress').style.animationPlayState = 'paused';
     });
 
     toast.addEventListener('mouseleave', () => {
         toast.querySelector('.toast-progress').style.animationPlayState = 'running';
-        setTimeout(() => removeToast(toast), 1500);
+        clearTimeout(hoverTimer);
+        hoverTimer = setTimeout(() => removeToast(toast), 1500);
     });
 }
 

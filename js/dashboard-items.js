@@ -397,8 +397,8 @@ function setupModal(client) {
     let isSubmitting = false;
 
     addBtn.addEventListener('click', () => modal.classList.add('active'));
-    closeBtn?.addEventListener('click', () => modal.classList.remove('active'));
-    cancelBtn?.addEventListener('click', () => modal.classList.remove('active'));
+    closeBtn?.addEventListener('click', () => { modal.classList.remove('active'); form.reset(); });
+    cancelBtn?.addEventListener('click', () => { modal.classList.remove('active'); form.reset(); });
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.remove('active');
