@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             } catch (err) {
                 console.error(err);
-                showToast(lang === 'ru'
+                showToast(lang
                     ? 'Ошибка отправки. Проверьте email и попробуйте снова.'
                     : 'Failed to send. Check email and try again.');
                 if (typeof turnstile !== 'undefined' && forgotWidgetId !== null) turnstile.reset(forgotWidgetId);

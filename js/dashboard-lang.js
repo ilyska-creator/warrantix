@@ -281,8 +281,8 @@ function applyDashboardLang(lang) {
                 if (countStr !== '') {
                     const count = parseInt(countStr, 10);
                     if (!isNaN(count)) {
-                        const lang = localStorage.getItem('valuon-lang') || 'ru';
-                        if (lang === 'ru') {
+                        const storedLang = localStorage.getItem('valuon-lang') || 'ru';
+                        if (storedLang === 'ru') {
                             const d = count % 10, dd = count % 100;
                             text = text.replace(/({count}\s*)(\w+)/, (_, p, w) => {
                                 if (!w.startsWith('дн')) return p + w;
