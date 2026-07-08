@@ -197,9 +197,13 @@ async function initBusinessPanel() {
 
             modal.el.classList.remove('is-hidden');
             const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             if (forms.receipt?.purchase_date) {
-                forms.receipt.purchase_date.value = now.toISOString().slice(0, 16);
+                const y = now.getFullYear();
+                const m = String(now.getMonth() + 1).padStart(2, '0');
+                const d = String(now.getDate()).padStart(2, '0');
+                const h = String(now.getHours()).padStart(2, '0');
+                const min = String(now.getMinutes()).padStart(2, '0');
+                forms.receipt.purchase_date.value = `${y}-${m}-${d}T${h}:${min}`;
             }
         } else {
             const emailField = forms.receipt?.querySelector('[name="customer_email"]');
