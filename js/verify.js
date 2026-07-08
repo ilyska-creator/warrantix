@@ -176,6 +176,7 @@ async function decodeQR(file) {
 
 function showResult(status, data) {
     if (!resultBlock) return;
+    stopCamera();
 
     Object.values(panels).forEach(p => p?.classList.add('done'));
     resultBlockWrapper?.classList.add('active');
@@ -332,12 +333,13 @@ async function startCamera() {
         video.srcObject = mediaStream;
         await video.play();
         scanArea?.classList.add('active');
-        scanBtn.innerHTML = '<i class="fa-solid fa-stop"></i> ' + t('scan_btn_stop');
-        scanBtn.classList.remove('btn-primary');
-        scanBtn.classList.add('btn-outline');
-        resultBlockWrapper?.classList.remove('active');
-        startScanLoop();
-        setupCameraControls();
+    scanBtn.innerHTML = '<i class="fa-solid fa-stop"></i> ' + t('scan_btn_stop');
+    scanBtn.classList.remove('btn-primary');
+    scanBtn.classList.add('btn-outline');
+    resultBlockWrapper?.classList.remove('active');
+    startScanLoop();
+    setupCameraControls();
+    document.body.classList.add('camera-fullscreen');
     } catch (err) {
         console.error('[verify] camera error:', err);
         scanFileInput?.click();
@@ -393,6 +395,7 @@ function stopCamera() {
     scanBtn.innerHTML = '<i class="fa-solid fa-camera"></i> ' + t('scan_btn_open');
     scanBtn.classList.remove('btn-outline');
     scanBtn.classList.add('btn-primary');
+    document.body.classList.remove('camera-fullscreen');
 }
 
 function startScanLoop() {
@@ -438,7 +441,7 @@ flashBtn?.addEventListener('click', toggleFlash);
 switchBtn?.addEventListener('click', switchCamera);
 
 scanArea?.addEventListener('click', () => {
-    if (!mediaStream) {
+    if (!mediaStream && !resultBlockWrapper?.classList.contains('active')) {
         startCamera();
     }
 });
@@ -497,7 +500,7 @@ if (uploadZone && !('ontouchstart' in window)) {
 scanBtn?.addEventListener('click', () => {
     if (mediaStream) {
         stopCamera();
-    } else {
+    } else if (!resultBlockWrapper?.classList.contains('active')) {
         startCamera();
     }
 });
