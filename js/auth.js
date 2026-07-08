@@ -199,6 +199,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setLoadingButton(btn);
 
                 const client = getSupabaseClient(false);
+
+                // Проверяем, зарегистрирована ли эта почта в системе, и
+                // явно сообщаем пользователю, если нет — используем ту же
+                // RPC-функцию (обходит RLS, но отдаёт наружу только
+                // true/false), что и в бизнес-панели при выпуске чека.
+                const { data: emailIsRegistered, error: checkError } = await client
+                    .rpc('check_profile_exists', { p_email: email });
+
+                if (checkError) {
+                    console.error('Ошибка проверки email:', checkError);
+                    // RPC недоступна — не блокируем сброс пароля из-за этого,
+                    // просто продолжаем как раньше.
+                } else if (!emailIsRegistered) {
+                    resetLoadingButton(btn, originalText);
+                    showToast(lang
+                        ? 'Эта почта не зарегистрирована в системе'
+                        : 'This email is not registered', 'warning');
+                    return;
+                }
+
                 const { error } = await client.auth.resetPasswordForEmail(email, {
                     redirectTo: `${window.location.origin}/reset-password.html`
                 });

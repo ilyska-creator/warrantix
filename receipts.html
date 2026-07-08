@@ -221,6 +221,12 @@
             if (closeBtn) closeBtn.addEventListener('click', toggleMenu);
             if (overlay) overlay.addEventListener('click', toggleMenu);
 
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && sidebar?.classList.contains('active')) {
+                    toggleMenu();
+                }
+            });
+
             document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
                 link.addEventListener('click', () => {
                     if (window.innerWidth <= 900 && sidebar?.classList.contains('active')) {
