@@ -109,23 +109,6 @@
     position: relative;
 }
 
-.toggle-password {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 0;
-    transition: 0.3s;
-}
-
-.toggle-password:hover {
-    color: var(--primary);
-}
-
 .form-options {
     display: flex;
     justify-content: space-between;
@@ -141,6 +124,7 @@
     gap: 8px;
     color: var(--text-muted);
     cursor: pointer;
+    user-select: none;
 }
 
 .forgot-link {
@@ -163,24 +147,6 @@
 .auth-footer a {
     color: var(--primary);
     font-weight: 700;
-}
-
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.85rem;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-muted);
-    cursor: pointer;
-    user-select: none;
 }
 
 .checkbox-label input[type="checkbox"] {

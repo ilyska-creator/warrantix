@@ -463,6 +463,11 @@
     color: #f59e0b;
 }
 
+.item-status-badge.expired {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
 [data-theme="dark"] .item-status-badge.active {
     background: rgba(16, 185, 129, 0.15);
 }

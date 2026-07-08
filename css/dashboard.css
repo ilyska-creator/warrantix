@@ -619,7 +619,7 @@
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px) saturate(150%);
         border-right: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5),
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     }
 
     .sidebar-nav {
@@ -1689,7 +1689,6 @@
 
 .toast-container {
     position: fixed;
-    top: toast 24px;
     top: 24px;
     right: 24px;
     z-index: 9999;
