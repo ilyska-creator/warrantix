@@ -28,6 +28,7 @@
 .verify-logo {
     text-align: center;
     margin-bottom: var(--space-6);
+    position: relative;
 }
 
 .verify-logo .shield-icon {
@@ -52,6 +53,15 @@
     font-weight: 800;
     color: var(--text-main);
     margin: 0;
+}
+
+.verify-logo .lang-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
 }
 
 .verify-subtitle {
@@ -522,6 +532,12 @@
 
     .verify-logo h1 {
         font-size: 1.25rem;
+    }
+
+    .verify-logo .lang-toggle {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
     }
 
     .verify-subtitle {

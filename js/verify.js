@@ -1,6 +1,7 @@
 import ReceiptVerifier from './crypto-verification.js';
 import Ed25519Signer from './crypto-signature.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { t, getVerifyLocale, applyVerifyTranslations, initVerifyLang } from './verify-lang.js';
 
 const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL)
     || 'https://qjnzawjivqvgupbgxdao.supabase.co';
@@ -45,17 +46,29 @@ tabs.forEach(tab => {
         const target = panels[tab.dataset.tab];
         if (target) target.classList.add('active');
         resultBlockWrapper?.classList.remove('active');
+        sessionStorage.setItem('verify-active-tab', tab.dataset.tab);
     });
 });
+
+const savedTab = sessionStorage.getItem('verify-active-tab');
+if (savedTab && savedTab !== 'scan' && panels[savedTab]) {
+    tabs.forEach(t => t.classList.remove('active'));
+    Object.values(panels).forEach(p => p?.classList.remove('active'));
+    const tab = [...tabs].find(t => t.dataset.tab === savedTab);
+    if (tab) tab.classList.add('active');
+    if (panels[savedTab]) panels[savedTab].classList.add('active');
+}
 
 function resetAll() {
     stopCamera();
     Object.values(panels).forEach(p => p?.classList.remove('done'));
     resultBlockWrapper?.classList.remove('active');
+    const lastTab = sessionStorage.getItem('verify-active-tab') || 'scan';
     tabs.forEach(t => t.classList.remove('active'));
-    tabs[0]?.classList.add('active');
     Object.values(panels).forEach(p => p?.classList.remove('active'));
-    panels.scan?.classList.add('active');
+    const tab = [...tabs].find(t => t.dataset.tab === lastTab);
+    if (tab) tab.classList.add('active');
+    if (panels[lastTab]) panels[lastTab].classList.add('active');
     uploadZone?.classList.remove('has-file');
     uploadPreview?.classList.remove('active');
     fileInput.value = '';
@@ -63,7 +76,7 @@ function resetAll() {
     scanArea?.classList.remove('has-qr');
     const icon = scanArea?.querySelector('.scanner-content i');
     if (icon) icon.className = 'fa-solid fa-qrcode';
-    if (scanHint) scanHint.textContent = 'Наведите камеру на QR-код';
+    if (scanHint) scanHint.textContent = t('scan_hint');
 }
 
 retryBtn?.addEventListener('click', resetAll);
@@ -73,7 +86,7 @@ function showLoading(btn, loading) {
     if (loading) {
         if (!btn.dataset.original) btn.dataset.original = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Проверяем...';
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> ' + t('verifying');
     } else {
         btn.disabled = false;
         btn.innerHTML = btn.dataset.original || btn.innerHTML;
@@ -166,10 +179,10 @@ function showResult(status, data) {
         resultBlock.classList.add('success');
         resultBlock.classList.remove('failure');
         resultIcon.className = 'fa-solid fa-circle-check';
-        resultTitle.textContent = 'Чек верифицирован';
-        resultDesc.textContent = 'Подпись чека действительна. Данные не были изменены.';
+        resultTitle.textContent = t('result_success_title');
+        resultDesc.textContent = t('result_success_desc');
         resultBadge.className = 'verify-badge verified';
-        resultBadge.textContent = 'Подлинный';
+        resultBadge.textContent = t('result_success_badge');
 
         if (data) {
             resultDetails.style.display = 'block';
@@ -188,25 +201,25 @@ function showResult(status, data) {
         resultBadge.className = 'verify-badge invalid';
 
         if (status === 'not-found') {
-            resultTitle.textContent = 'Чек не найден';
-            resultDesc.textContent = 'Чек с указанными данными не обнаружен в реестре. Возможно, он был выдан в другой системе.';
-            resultBadge.textContent = 'Не найден';
+            resultTitle.textContent = t('result_not_found_title');
+            resultDesc.textContent = t('result_not_found_desc');
+            resultBadge.textContent = t('result_not_found_badge');
         } else if (status === 'invalid') {
-            resultTitle.textContent = 'Подпись недействительна';
-            resultDesc.textContent = 'Криптографическая подпись чека не прошла проверку. Данные были изменены после подписания.';
-            resultBadge.textContent = 'Недействителен';
+            resultTitle.textContent = t('result_invalid_title');
+            resultDesc.textContent = t('result_invalid_desc');
+            resultBadge.textContent = t('result_invalid_badge');
         } else if (status === 'no-qr') {
-            resultTitle.textContent = 'QR-код не найден';
-            resultDesc.textContent = data || 'На изображении не удалось обнаружить QR-код. Попробуйте другое фото.';
-            resultBadge.textContent = 'Ошибка';
+            resultTitle.textContent = t('result_no_qr_title');
+            resultDesc.textContent = data || t('result_no_qr_desc');
+            resultBadge.textContent = t('result_error_badge');
         } else if (status === 'error') {
-            resultTitle.textContent = 'Ошибка проверки';
-            resultDesc.textContent = data || 'Произошла ошибка при проверке чека.';
-            resultBadge.textContent = 'Ошибка';
+            resultTitle.textContent = t('result_error_title');
+            resultDesc.textContent = data || t('result_error_desc');
+            resultBadge.textContent = t('result_error_badge');
         } else {
-            resultTitle.textContent = 'Ошибка проверки';
-            resultDesc.textContent = data || 'Произошла ошибка при проверке чека.';
-            resultBadge.textContent = 'Ошибка';
+            resultTitle.textContent = t('result_error_title');
+            resultDesc.textContent = data || t('result_error_desc');
+            resultBadge.textContent = t('result_error_badge');
         }
         resultDetails.style.display = 'none';
     }
@@ -231,7 +244,7 @@ async function verifyReceiptFromQRData(qrRaw) {
 
         if (error) {
             console.error('[verify] RPC error:', error);
-            showResult('error', 'Ошибка доступа к реестру: ' + error.message);
+            showResult('error', t('rpc_error') + ': ' + error.message);
             return;
         }
 
@@ -247,7 +260,7 @@ async function verifyReceiptFromQRData(qrRaw) {
 
         if (!Ed25519Signer.isSupported()) {
             console.error('[verify] Ed25519 not supported in this browser');
-            showResult('error', 'Ваш браузер не поддерживает криптографию Ed25519.');
+            showResult('error', t('crypto_error'));
             return;
         }
 
@@ -257,15 +270,15 @@ async function verifyReceiptFromQRData(qrRaw) {
 
         if (result.valid) {
             const dateStr = receipt.purchase_date
-                ? new Date(receipt.purchase_date).toLocaleDateString('ru-RU', {
+                ? new Date(receipt.purchase_date).toLocaleDateString(getVerifyLocale(), {
                     day: 'numeric', month: 'long', year: 'numeric'
                   })
                 : '—';
             const gross = parseFloat(receipt.gross_total);
             const amount = Number.isFinite(gross) ? '$' + gross.toFixed(2) : '—';
             const sellerStatus = receipt.status === 'verified'
-                ? 'Email подтверждён'
-                : 'Ожидает подтверждения';
+                ? t('seller_verified')
+                : t('seller_pending');
 
             showResult('success', {
                 name: receipt.item_name || '—',
@@ -280,7 +293,7 @@ async function verifyReceiptFromQRData(qrRaw) {
         }
     } catch (err) {
         console.error('[verify] Unexpected error:', err);
-        showResult('error', 'Внутренняя ошибка при проверке');
+        showResult('error', t('internal_error'));
     } finally {
         verifying = false;
     }
@@ -301,7 +314,7 @@ async function startCamera() {
         video.srcObject = mediaStream;
         await video.play();
         scanArea?.classList.add('active');
-        scanBtn.innerHTML = '<i class="fa-solid fa-stop"></i> Остановить';
+        scanBtn.innerHTML = '<i class="fa-solid fa-stop"></i> ' + t('scan_btn_stop');
         scanBtn.classList.remove('btn-primary');
         scanBtn.classList.add('btn-outline');
         resultBlockWrapper?.classList.remove('active');
@@ -323,7 +336,7 @@ function stopCamera() {
     }
     video.srcObject = null;
     scanArea?.classList.remove('active');
-    scanBtn.innerHTML = '<i class="fa-solid fa-camera"></i> Открыть камеру';
+    scanBtn.innerHTML = '<i class="fa-solid fa-camera"></i> ' + t('scan_btn_open');
     scanBtn.classList.remove('btn-outline');
     scanBtn.classList.add('btn-primary');
 }
@@ -358,7 +371,7 @@ function startScanLoop() {
             const icon = scanArea?.querySelector('.scanner-content i');
             const hint = document.getElementById('scan-hint');
             if (icon) icon.className = 'fa-solid fa-spinner fa-spin';
-            if (hint) hint.textContent = 'QR найден, проверяем...';
+            if (hint) hint.textContent = t('scanning');
             verifyReceiptFromQRData(code.data).catch(err => {
                 console.error('[verify] scan loop error:', err);
             });
@@ -389,7 +402,7 @@ scanFileInput?.addEventListener('change', async () => {
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-        alert('Файл слишком большой. Максимум 10 МБ.');
+        alert(t('file_too_big'));
         scanFileInput.value = '';
         return;
     }
@@ -397,25 +410,25 @@ scanFileInput?.addEventListener('change', async () => {
     scanArea?.classList.add('has-qr');
     const icon = scanArea?.querySelector('.scanner-content i');
     if (icon) icon.className = 'fa-solid fa-spinner fa-spin';
-    if (scanHint) scanHint.textContent = 'Декодируем QR...';
+    if (scanHint) scanHint.textContent = t('decoding');
 
     try {
         const qrData = await decodeQR(file);
 
         if (!qrData) {
             if (icon) icon.className = 'fa-solid fa-circle-xmark';
-            if (scanHint) scanHint.textContent = 'QR-код не найден';
+            if (scanHint) scanHint.textContent = t('qr_not_found_text');
             showResult('no-qr');
             return;
         }
 
         if (icon) icon.className = 'fa-solid fa-check-circle';
-        if (scanHint) scanHint.textContent = 'QR найден, проверяем...';
+        if (scanHint) scanHint.textContent = t('scanning');
 
         await verifyReceiptFromQRData(qrData);
     } catch (err) {
         console.error('[verify] scan error:', err);
-        showResult('error', 'Ошибка при обработке изображения');
+        showResult('error', t('scan_error'));
     } finally {
         scanFileInput.value = '';
     }
@@ -426,7 +439,7 @@ fileInput?.addEventListener('change', async () => {
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-        alert('Файл слишком большой. Максимум 10 МБ.');
+        alert(t('file_too_big'));
         fileInput.value = '';
         return;
     }
@@ -477,8 +490,19 @@ document.getElementById('verify-upload-btn')?.addEventListener('click', async ()
         await verifyReceiptFromQRData(qrData);
     } catch (err) {
         console.error('[verify] upload error:', err);
-        showResult('error', 'Ошибка при обработке файла');
+        showResult('error', t('file_error'));
     } finally {
         showLoading(btn, false);
+    }
+});
+
+initVerifyLang();
+
+window.addEventListener('verify-lang-changed', () => {
+    applyVerifyTranslations();
+    if (scanBtn) {
+        scanBtn.innerHTML = mediaStream
+            ? '<i class="fa-solid fa-stop"></i> ' + t('scan_btn_stop')
+            : '<i class="fa-solid fa-camera"></i> ' + t('scan_btn_open');
     }
 });

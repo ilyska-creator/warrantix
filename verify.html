@@ -30,21 +30,22 @@
                         <path d="M9 12l2 2 4-4"/>
                     </svg>
                 </div>
-                <h1>Верификация чека</h1>
+                <h1 data-i18n="title">Верификация чека</h1>
+                <button id="lang-toggle" class="icon-btn lang-toggle">EN</button>
             </div>
 
-            <p class="verify-subtitle" data-animate>
+            <p class="verify-subtitle" data-i18n="subtitle" data-animate>
                 Проверьте подлинность чека по QR-коду или загрузите фото/PDF
             </p>
 
             <div class="verify-tabs" data-animate>
                 <button class="verify-tab active" data-tab="scan">
                     <i class="fa-solid fa-camera"></i>
-                    Сканировать
+                    <span data-i18n="tab_scan">Сканировать</span>
                 </button>
                 <button class="verify-tab" data-tab="upload">
                     <i class="fa-solid fa-image"></i>
-                    Фото
+                    <span data-i18n="tab_upload">Фото</span>
                 </button>
             </div>
 
@@ -57,29 +58,29 @@
                     <div class="scan-line"></div>
                     <div class="scanner-content" id="scanner-placeholder">
                         <i class="fa-solid fa-qrcode"></i>
-                        <span id="scan-hint">Наведите камеру на QR-код</span>
+                        <span id="scan-hint" data-i18n="scan_hint">Наведите камеру на QR-код</span>
                     </div>
                     <video id="scanner-video" class="scanner-video" playsinline muted></video>
                     <canvas id="scanner-canvas" hidden></canvas>
                     <input type="file" id="scan-file-input" accept="image/*" capture="environment" hidden>
                 </div>
                 <button id="verify-scan-btn" class="btn btn-primary auth-btn" data-animate>
-                    <i class="fa-solid fa-camera"></i> Открыть камеру
+                    <i class="fa-solid fa-camera"></i> <span data-i18n="scan_btn_open">Открыть камеру</span>
                 </button>
             </div>
 
             <div id="upload-panel" class="verify-panel">
                 <div id="upload-zone" class="upload-zone" data-animate>
                     <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <p>Загрузите фото или PDF чека</p>
-                    <span>JPG, PNG, PDF до 10 МБ</span>
+                    <p data-i18n="upload_title">Загрузите фото или PDF чека</p>
+                    <span data-i18n="upload_hint">JPG, PNG, PDF до 10 МБ</span>
                     <input type="file" id="receipt-file" accept="image/*,application/pdf" hidden>
                 </div>
                 <div id="upload-preview" class="upload-preview">
                     <img id="preview-img" src="" alt="Превью чека">
                 </div>
                 <button id="verify-upload-btn" class="btn btn-primary auth-btn" data-animate>
-                    <i class="fa-solid fa-qrcode"></i> Проверить
+                    <i class="fa-solid fa-qrcode"></i> <span data-i18n="upload_btn">Проверить</span>
                 </button>
             </div>
 
@@ -90,26 +91,26 @@
                     <p id="result-desc">Данные чека совпадают с записью в реестре.</p>
                     <div id="result-badge" class="verify-badge verified">Подлинный</div>
                     <dl id="result-details" class="result-details">
-                        <dt>Товар</dt>
+                        <dt data-i18n="detail_name">Товар</dt>
                         <dd id="result-receipt-name">—</dd>
-                        <dt>Дата покупки</dt>
+                        <dt data-i18n="detail_date">Дата покупки</dt>
                         <dd id="result-receipt-date">—</dd>
-                        <dt>Сумма</dt>
+                        <dt data-i18n="detail_amount">Сумма</dt>
                         <dd id="result-receipt-amount">—</dd>
-                        <dt>Продавец</dt>
+                        <dt data-i18n="detail_store">Продавец</dt>
                         <dd id="result-receipt-store">—</dd>
-                        <dt>Статус продавца</dt>
+                        <dt data-i18n="detail_status">Статус продавца</dt>
                         <dd id="result-seller-status">—</dd>
                     </dl>
                 </div>
                 <button id="verify-retry-btn" class="btn btn-outline auth-btn" data-animate style="display:none">
-                    <i class="fa-solid fa-rotate"></i> Проверить другой чек
+                    <i class="fa-solid fa-rotate"></i> <span data-i18n="retry_btn">Проверить другой чек</span>
                 </button>
             </div>
 
             <div class="verify-footer" data-animate="fade">
-                <p>Все данные проверяются по защищённому реестру.</p>
-                <p class="brand-highlight">Valuon — гарантия подлинности</p>
+                <p data-i18n="footer_text">Все данные проверяются по защищённому реестру.</p>
+                <p class="brand-highlight" data-i18n="footer_brand">Valuon — гарантия подлинности</p>
             </div>
 
         </div>
