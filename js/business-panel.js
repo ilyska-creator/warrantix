@@ -300,12 +300,14 @@ async function initBusinessPanel() {
 
                 const { error } = await client.from('business_receipts').insert([payload]);
                 if (error) {
-                    window.showToast('Ошибка выписки чека', 'error');
+                    const errLang = localStorage.getItem('valuon-lang') || 'ru';
+                    window.showToast(errLang === 'en' ? 'Receipt issue error' : 'Ошибка выписки чека', 'error');
                     console.error(error);
                     return;
                 }
 
-                window.showToast('Чек выписан!', 'success');
+                const succLang = localStorage.getItem('valuon-lang') || 'ru';
+                window.showToast(succLang === 'en' ? 'Receipt issued!' : 'Чек выписан!', 'success');
                 toggleModal(false);
                 await refreshDashboard(client, currentShop.id, stats, list);
             } finally {
