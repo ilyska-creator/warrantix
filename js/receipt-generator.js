@@ -1,6 +1,3 @@
-
-
-
 export function generateQRDataURL(text, size = 80) {
     if (typeof qrcode === 'undefined') {
         console.error('qrcode-generator library is not loaded');

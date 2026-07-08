@@ -3,7 +3,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL)
     || 'https://qjnzawjivqvgupbgxdao.supabase.co';
 const supabaseKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY)
-    || 'sb_publishable__b1k1cuhxQEBn50III2tkQ_0DOOqe3V';
+    || 'sb_publishable_AwSiUBE-lYKiQAvA_T5ryw_2r_JOOH8';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const translations = {
@@ -107,8 +107,8 @@ function applyTranslations() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[currentLang][key]) {
-            
-            
+
+
             el.innerHTML = translations[currentLang][key];
         }
     });
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         revealElements.forEach(el => revealObserver.observe(el));
     }
 
-    
+
     const navbar = document.querySelector('.navbar');
     if (navbar) {
         const updateNavbarScrollState = () => {
