@@ -277,8 +277,23 @@ function applyDashboardLang(lang) {
             let text = t[key];
 
             if (el.hasAttribute('data-i18n-count')) {
-                const count = el.getAttribute('data-i18n-count');
-                text = text.replace('{count}', count);
+                const countStr = el.getAttribute('data-i18n-count');
+                if (countStr !== '') {
+                    const count = parseInt(countStr, 10);
+                    if (!isNaN(count)) {
+                        const lang = localStorage.getItem('valuon-lang') || 'ru';
+                        if (lang === 'ru') {
+                            const d = count % 10, dd = count % 100;
+                            text = text.replace(/({count}\s*)(\w+)/, (_, p, w) => {
+                                if (!w.startsWith('дн')) return p + w;
+                                if (d === 1 && dd !== 11) return p + 'день';
+                                if (d >= 2 && d <= 4 && (dd < 10 || dd >= 20)) return p + 'дня';
+                                return p + 'дней';
+                            });
+                        }
+                        text = text.replace('{count}', count);
+                    }
+                }
             }
 
             el.textContent = text;

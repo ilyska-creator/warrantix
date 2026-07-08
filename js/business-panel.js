@@ -241,7 +241,8 @@ async function initBusinessPanel() {
 
                 const qty = parseFloat(fd.get('qty')) || 1;
                 const price = parseFloat(fd.get('price')) || 0;
-                const vatRate = parseFloat(fd.get('vat_rate')) || 19;
+                const vatRate = parseFloat(fd.get('vat_rate'));
+                if (isNaN(vatRate) || vatRate < 0) vatRate = 0;
                 const net = qty * price;
                 const vat = net * (vatRate / 100);
                 const gross = net + vat;

@@ -176,61 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('scroll', updateNavbarScrollState, { passive: true });
     }
 
-    const form = document.getElementById('waitlist-form');
-    const messageEl = document.getElementById('form-message');
 
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = form.querySelector('button');
-            const input = form.querySelector('input');
-            const originalText = btn.innerHTML;
-
-            try {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-                const { error } = await supabase
-                    .from('waitlist')
-                    .insert([{ email: input.value.trim() }]);
-
-                if (error) throw error;
-
-                btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-                btn.style.background = '#10b981';
-                input.value = '';
-
-                if (messageEl) {
-                    messageEl.textContent = translations[currentLang].msg_success;
-                    messageEl.className = 'form-message success';
-                    messageEl.style.display = 'block';
-                    setTimeout(() => { messageEl.style.display = 'none'; }, 4000);
-                }
-
-            } catch (err) {
-                console.error(err);
-                if (err.code === '23505') {
-                    if (messageEl) {
-                        messageEl.textContent = translations[currentLang].msg_duplicate;
-                        messageEl.className = 'form-message warning';
-                        messageEl.style.display = 'block';
-                    }
-                } else {
-                    if (messageEl) {
-                        messageEl.textContent = translations[currentLang].msg_error;
-                        messageEl.className = 'form-message error';
-                        messageEl.style.display = 'block';
-                    }
-                }
-            } finally {
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.background = '';
-                    btn.disabled = false;
-                }, 3000);
-            }
-        });
-    }
 
     const langToggle = document.getElementById('lang-toggle');
     if (langToggle) {
