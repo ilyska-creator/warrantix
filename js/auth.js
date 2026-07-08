@@ -16,6 +16,22 @@ function getSupabaseClient(rememberMe) {
     });
 }
 
+function waitForTurnstile(timeoutMs = 5000) {
+    return new Promise((resolve) => {
+        if (typeof turnstile !== 'undefined') return resolve(true);
+        const start = Date.now();
+        const check = setInterval(() => {
+            if (typeof turnstile !== 'undefined') {
+                clearInterval(check);
+                resolve(true);
+            } else if (Date.now() - start > timeoutMs) {
+                clearInterval(check);
+                resolve(false);
+            }
+        }, 50);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     let { data: { session } } = await getSupabaseClient(true).auth.getSession();
     if (!session) {
@@ -25,6 +41,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (session) {
         window.location.href = 'dashboard.html';
         return;
+    }
+
+    let loginWidgetId = null;
+    if (await waitForTurnstile()) {
+        loginWidgetId = turnstile.render('#login-turnstile', {
+            sitekey: '0x4AAAAAADxC9yNLOh3uKLe-',
+            theme: 'auto'
+        });
     }
 
     const savedEmail = localStorage.getItem('valuon-remember-email');
@@ -66,7 +90,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const captchaToken = typeof turnstile !== 'undefined' ? turnstile.getResponse('login-turnstile') : null;
+            const captchaToken = (typeof turnstile !== 'undefined' && loginWidgetId !== null)
+                ? turnstile.getResponse(loginWidgetId)
+                : null;
             if (!captchaToken) {
                 const lang = localStorage.getItem('valuon-lang') === 'ru';
                 showToast(lang ? 'Подтвердите, что вы не робот' : 'Please complete the captcha', 'warning');
@@ -102,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     : 'Invalid email or password';
                 showToast(msg);
                 resetLoadingButton(btn, originalText);
-                if (typeof turnstile !== 'undefined') turnstile.reset('login-turnstile');
+                if (typeof turnstile !== 'undefined' && loginWidgetId !== null) turnstile.reset(loginWidgetId);
             }
         });
     }
