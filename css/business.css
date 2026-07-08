@@ -70,7 +70,8 @@
 
 .shop-setup-wrapper {
     position: relative;
-    min-height: calc(100vh - 72px);
+    min-height: 100vh;
+    padding: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
