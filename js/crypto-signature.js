@@ -5,7 +5,7 @@ class Ed25519Signer {
         this.privateKey = null;
     }
 
-    
+
     async generateKeyPair() {
         try {
             const keyPair = await window.crypto.subtle.generateKey(
@@ -28,7 +28,7 @@ class Ed25519Signer {
         }
     }
 
-    
+
     async exportPublicKey(publicKey = this.publicKey) {
         if (!publicKey) throw new Error('No public key available');
 
@@ -37,7 +37,7 @@ class Ed25519Signer {
         return exportedAsBase64;
     }
 
-    
+
     async importPublicKey(base64Key) {
         const binaryString = this.base64ToArrayBuffer(base64Key);
         return await window.crypto.subtle.importKey(
@@ -52,7 +52,7 @@ class Ed25519Signer {
         );
     }
 
-    
+
     async exportPrivateKey(privateKey = this.privateKey) {
         if (!privateKey) throw new Error('No private key available');
 
@@ -61,7 +61,7 @@ class Ed25519Signer {
         return exportedAsBase64;
     }
 
-    
+
     async importPrivateKey(base64Key) {
         const binaryString = this.base64ToArrayBuffer(base64Key);
         return await window.crypto.subtle.importKey(
@@ -76,7 +76,7 @@ class Ed25519Signer {
         );
     }
 
-    
+
     async sign(data, privateKey = this.privateKey) {
         if (!privateKey) throw new Error('No private key available for signing');
 
@@ -92,7 +92,7 @@ class Ed25519Signer {
         return this.arrayBufferToBase64(signature);
     }
 
-    
+
     async verify(data, signatureBase64, publicKey = this.publicKey) {
         if (!publicKey) throw new Error('No public key available for verification');
 
@@ -110,7 +110,7 @@ class Ed25519Signer {
         return isValid;
     }
 
-    
+
     arrayBufferToBase64(buffer) {
         const bytes = new Uint8Array(buffer);
         let binary = '';
@@ -120,7 +120,7 @@ class Ed25519Signer {
         return window.btoa(binary);
     }
 
-    
+
     base64ToArrayBuffer(base64) {
         const binaryString = window.atob(base64);
         const bytes = new Uint8Array(binaryString.length);
@@ -130,7 +130,7 @@ class Ed25519Signer {
         return bytes.buffer;
     }
 
-    
+
     static isSupported() {
         return 'crypto' in window &&
             'subtle' in window.crypto &&
@@ -139,3 +139,44 @@ class Ed25519Signer {
 }
 
 export default Ed25519Signer;
+
+// ⚠️ ИСПРАВЛЕНИЕ (аудит C3): раньше строка для подписи собиралась из
+// «сырых» значений формы (например, purchase_date вида "2026-07-07T14:30"
+// и net/vat — необработанные float с плавающей точкой вроде
+// "19.900000000000002"), а строка для проверки — из значений,
+// возвращённых Supabase из БД, которые сериализуются иначе
+// ("2026-07-07T14:30:00+00:00", "19.9" и т.п.). Строки не совпадали —
+// verify() возвращал false для абсолютно любого, даже подлинного чека.
+//
+// Обе стороны (подпись в business-panel.js, проверка в
+// crypto-verification.js) теперь обязаны использовать эту функцию, чтобы
+// собирать данные для подписи в одном и том же каноническом виде,
+// независимо от того, откуда пришли значения — из формы или из БД.
+export function buildSignaturePayload({ taxId, itemName, netTotal, vatAmount, purchaseDate }) {
+    const canonicalAmount = (value) => {
+        const num = typeof value === 'number' ? value : parseFloat(value);
+        return Number.isFinite(num) ? num.toFixed(2) : '0.00';
+    };
+
+    // Берём только дату (YYYY-MM-DD), без времени и часового пояса —
+    // это единственная часть значения, которая гарантированно совпадает
+    // и на входе из формы (datetime-local), и на выходе из Postgres
+    // (date/timestamp/timestamptz), какой бы формат сериализации ни
+    // использовался.
+    const canonicalDate = (value) => {
+        if (!value) return '';
+        const str = String(value);
+        const isoLike = str.match(/^\d{4}-\d{2}-\d{2}/);
+        if (isoLike) return isoLike[0];
+        const parsed = new Date(str);
+        return Number.isNaN(parsed.getTime()) ? str : parsed.toISOString().slice(0, 10);
+    };
+
+    return [
+        String(taxId ?? ''),
+        String(itemName ?? '').trim(),
+        canonicalAmount(netTotal),
+        canonicalAmount(vatAmount),
+        canonicalDate(purchaseDate),
+    ].join('|');
+}

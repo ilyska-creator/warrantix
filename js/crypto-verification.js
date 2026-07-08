@@ -1,13 +1,11 @@
-
-
-import Ed25519Signer from './crypto-signature.js';
+import Ed25519Signer, { buildSignaturePayload } from './crypto-signature.js';
 
 class ReceiptVerifier {
     constructor() {
         this.signer = new Ed25519Signer();
     }
 
-    
+
     async verifyReceipt(receipt, shop) {
         try {
             if (!receipt.fiscal_hash) {
@@ -18,13 +16,19 @@ class ReceiptVerifier {
                 return { valid: false, error: 'Shop public key not found' };
             }
 
-            
+
             const publicKey = await this.signer.importPublicKey(shop.public_key);
 
-            
-            const signData = `${shop.tax_id}|${receipt.item_name}|${receipt.net_total}|${receipt.vat_amount}|${receipt.purchase_date}`;
 
-            
+            const signData = buildSignaturePayload({
+                taxId: shop.tax_id,
+                itemName: receipt.item_name,
+                netTotal: receipt.net_total,
+                vatAmount: receipt.vat_amount,
+                purchaseDate: receipt.purchase_date,
+            });
+
+
             const isValid = await this.signer.verify(signData, receipt.fiscal_hash, publicKey);
 
             return { valid: isValid };
@@ -34,10 +38,10 @@ class ReceiptVerifier {
         }
     }
 
-    
+
     async verifyReceiptsBatch(receipts, shop) {
         const results = [];
-        
+
         for (const receipt of receipts) {
             const result = await this.verifyReceipt(receipt, shop);
             results.push({ receipt, ...result });
@@ -46,7 +50,7 @@ class ReceiptVerifier {
         return results;
     }
 
-    
+
     static isSupported() {
         return Ed25519Signer.isSupported();
     }

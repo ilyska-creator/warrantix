@@ -141,6 +141,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Пришли сюда с истёкшей/невалидной ссылкой сброса пароля
+    // (reset-password.html теперь редиректит на login.html?forgot=1) —
+    // сразу открываем модалку запроса новой ссылки, а не оставляем
+    // человека просто на экране входа гадать, что делать дальше.
+    if (new URLSearchParams(window.location.search).get('forgot') === '1') {
+        openForgotModal();
+    }
+
     if (forgotClose) {
         forgotClose.addEventListener('click', closeForgotModal);
     }
@@ -163,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const originalText = btn.innerHTML;
             const lang = localStorage.getItem('valuon-lang') === 'ru';
 
-            
+
             if (!email) {
                 showToast(lang
                     ? 'Введите email адрес'
@@ -171,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            
+
             if (!isValidEmail(email)) {
                 showToast(lang
                     ? 'Пожалуйста, введите корректный email адрес'

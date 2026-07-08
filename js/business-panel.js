@@ -1,6 +1,6 @@
 import { requireAuth } from './dashboard-auth.js';
 import { downloadReceiptPDF } from './receipt-generator.js';
-import Ed25519Signer from './crypto-signature.js';
+import Ed25519Signer, { buildSignaturePayload } from './crypto-signature.js';
 
 let currentClient = null;
 let currentUser = null;
@@ -129,7 +129,7 @@ async function initBusinessPanel() {
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Создание...';
 
             try {
-                
+
                 if (!Ed25519Signer.isSupported()) {
                     window.showToast('Ваш браузер не поддерживает Ed25519. Пожалуйста, используйте Chrome 137+, Firefox 129+ или Safari 17+', 'error');
                     btn.disabled = false;
@@ -138,8 +138,8 @@ async function initBusinessPanel() {
                 }
 
                 const fd = new FormData(e.target);
-                
-                
+
+
                 const signer = new Ed25519Signer();
                 const keyPair = await signer.generateKeyPair();
                 const publicKeyBase64 = await signer.exportPublicKey();
@@ -246,26 +246,32 @@ async function initBusinessPanel() {
                 const vat = net * (vatRate / 100);
                 const gross = net + vat;
 
-                
+
                 const signer = new Ed25519Signer();
-                
-                
+
+
                 if (!currentShop.private_key) {
                     window.showToast('Криптографический ключ магазина не найден. Пересоздайте магазин.', 'error');
                     return;
                 }
-                
+
                 const privateKey = await signer.importPrivateKey(currentShop.private_key);
-                
-                
-                const signData = `${currentShop.tax_id}|${fd.get('item_name')}|${net}|${vat}|${fd.get('purchase_date')}`;
+
+
+                const signData = buildSignaturePayload({
+                    taxId: currentShop.tax_id,
+                    itemName: fd.get('item_name'),
+                    netTotal: net,
+                    vatAmount: vat,
+                    purchaseDate: fd.get('purchase_date'),
+                });
                 const fiscalSignature = await signer.sign(signData, privateKey);
 
-                
-                
-                
-                
-                
+
+
+
+
+
                 const { data: emailIsRegistered, error: checkError } = await client
                     .rpc('check_profile_exists', { p_email: email });
 
@@ -273,7 +279,7 @@ async function initBusinessPanel() {
                     console.error('Ошибка проверки email покупателя:', checkError);
                 }
 
-                
+
                 const status = emailIsRegistered ? 'verified' : 'pending';
 
                 const payload = {
@@ -284,8 +290,8 @@ async function initBusinessPanel() {
                     net_total: net, vat_amount: vat, gross_total: gross,
                     purchase_date: fd.get('purchase_date'),
                     payment_method: fd.get('payment_method'),
-                    status: status, 
-                    fiscal_hash: fiscalSignature, 
+                    status: status,
+                    fiscal_hash: fiscalSignature,
                     shop_name: currentShop.shop_name,
                     tax_id: currentShop.tax_id,
                     address: currentShop.address
@@ -340,7 +346,7 @@ async function initBusinessPanel() {
             if (emptyMsg) emptyMsg.style.display = 'none';
 
             listEl.grid.innerHTML = receipts.map(r => {
-                
+
                 const isVerified = r.status === 'verified';
                 const statusClass = isVerified ? 'active' : 'warning';
                 const statusKey = isVerified ? 'status_verified' : 'status_pending';
@@ -375,10 +381,10 @@ async function initBusinessPanel() {
             </div>`;
             }).join('');
 
-            
-            
-            
-            
+
+
+
+
             window.applyBusinessTranslations?.();
 
             listEl.grid.querySelectorAll('.btn-delete-receipt').forEach(btn => {
@@ -416,7 +422,7 @@ async function initBusinessPanel() {
                             cleanup();
                             await refreshDashboard(client, shopId, statsEl, listEl);
 
-                            
+
                             if (typeof applyBusinessTranslations === 'function') {
                                 applyBusinessTranslations();
                             }
