@@ -316,7 +316,7 @@ function setupEditModal(client, userId) {
                 store_name: form.querySelector('[name="store_name"]').value.trim(),
                 serial_number: form.querySelector('[name="serial_number"]').value.trim(),
                 purchase_date: form.querySelector('[name="purchase_date"]').value,
-                warranty_months: parseInt(form.querySelector('[name="warranty_months"]').value) || 12,
+                warranty_months: (m => isNaN(m) ? 12 : m)(parseInt(form.querySelector('[name="warranty_months"]').value)),
                 location: form.querySelector('[name="location"]').value.trim(),
                 updated_at: new Date().toISOString()
             }).eq('id', itemId)
@@ -436,7 +436,7 @@ function setupModal(client) {
                 brand: brandInput ? brandInput.value.trim() : '',
                 serial_number: serialInput ? serialInput.value.trim() : '',
                 purchase_date: dateInput.value,
-                warranty_months: parseInt(monthsInput.value) || 12,
+                warranty_months: (m => isNaN(m) ? 12 : m)(parseInt(monthsInput.value)),
                 location: locationInput ? locationInput.value.trim() : '',
                 price: parseFloat(priceInput?.value) || 0,
                 store_name: storeInput ? storeInput.value.trim() : ''
