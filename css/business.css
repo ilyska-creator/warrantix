@@ -884,6 +884,10 @@
     }
 }
 
+.verify-btn {
+    margin-left: 0.5rem;
+}
+
 @media (max-width: 768px) {
     .business-top-bar {
         position: sticky;
@@ -936,9 +940,13 @@
         gap: 1rem;
     }
 
-    .content-header .btn {
+        .content-header .btn {
         width: 100%;
         justify-content: center;
+    }
+
+    .verify-btn {
+        margin-left: 0;
     }
 
     .stats-grid {

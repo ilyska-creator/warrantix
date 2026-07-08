@@ -25,6 +25,29 @@
     box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.5);
 }
 
+.verify-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.verify-back-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.2s;
+    cursor: pointer;
+}
+
+.verify-back-link:hover {
+    color: var(--text-main);
+}
+
 .verify-logo {
     text-align: center;
     margin-bottom: var(--space-6);

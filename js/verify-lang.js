@@ -48,6 +48,7 @@ const verifyTranslations = {
         copy_btn: 'Копировать результат',
         copied: 'Скопировано',
         drop_hint: 'Отпустите файл для загрузки',
+        back: 'Назад',
     },
     en: {
         page_title: 'Valuon — Receipt Verification',
@@ -98,6 +99,7 @@ const verifyTranslations = {
         copy_btn: 'Copy result',
         copied: 'Copied',
         drop_hint: 'Drop file to upload',
+        back: 'Back',
     }
 };
 

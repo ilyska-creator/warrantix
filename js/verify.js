@@ -264,14 +264,9 @@ async function verifyReceiptFromQRData(qrRaw) {
         }
 
         const receipt = data.receipt;
+        const shop = data.shop;
 
-        const { data: shop, error: shopError } = await supabase
-            .from('shops')
-            .select('public_key, tax_id, shop_name')
-            .eq('id', receipt.shop_id)
-            .single();
-
-        if (shopError || !shop) {
+        if (!shop) {
             showResult('error', t('shop_not_found') || 'Магазин не найден');
             return;
         }
@@ -650,3 +645,19 @@ window.addEventListener('beforeunload', stopCamera);
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) stopCamera();
 });
+
+const backBtn = document.getElementById('verify-back-btn');
+if (backBtn) {
+    const params = new URLSearchParams(window.location.search);
+    const fromParam = params.get('from');
+    if (fromParam) {
+        backBtn.href = fromParam;
+    } else if (document.referrer) {
+        try {
+            const refUrl = new URL(document.referrer);
+            if (['/dashboard.html', '/business.html', '/receipts.html', '/index.html'].includes(refUrl.pathname)) {
+                backBtn.href = document.referrer;
+            }
+        } catch (_) {}
+    }
+}
