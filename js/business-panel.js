@@ -537,12 +537,20 @@ async function initBusinessPanel() {
             daysMap[key] = true;
         }
 
+        console.log('[chart] receipts:', receipts.length, receipts.map(r => ({ id: r.id.slice(0, 8), date: r.purchase_date })));
         receipts.forEach(r => {
-            const dateStr = r.purchase_date ? r.purchase_date.slice(0, 10) : null;
-            if (dateStr && daysMap[dateStr]) {
+            if (!r.purchase_date) {
+                console.warn('[chart] receipt missing purchase_date:', r.id);
+                return;
+            }
+            const dateStr = r.purchase_date.slice(0, 10);
+            if (daysMap[dateStr]) {
                 groups[dateStr].count++;
+            } else {
+                console.warn('[chart] date not in range:', dateStr);
             }
         });
+        console.log('[chart] aggregated:', Object.entries(groups).filter(([, v]) => v.count > 0).map(([k, v]) => `${k}:${v.count}`));
 
         const labels = [];
         const data = [];
