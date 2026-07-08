@@ -2128,3 +2128,8 @@
         margin: 32px 0;
     }
 }
+
+.input-group:has([required]) label::after {
+    content: ' *';
+    color: var(--error);
+}

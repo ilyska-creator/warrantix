@@ -1422,3 +1422,8 @@ ul {
         transition: none !important;
     }
 }
+
+.input-group:has([required]) label::after {
+    content: ' *';
+    color: var(--error);
+}

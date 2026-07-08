@@ -1202,3 +1202,8 @@
         grid-template-columns: 1fr;
     }
 }
+
+.input-group:has([required]) label::after {
+    content: ' *';
+    color: var(--error);
+}
