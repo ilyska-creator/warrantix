@@ -67,14 +67,7 @@
                     </div>
                     <video id="scanner-video" class="scanner-video" playsinline muted></video>
                     <canvas id="scanner-canvas" hidden></canvas>
-                    <div class="scanner-actions" id="scanner-actions">
-                        <button id="camera-flash-btn" class="scanner-action" title="Flash" hidden>
-                            <i class="fa-solid fa-bolt"></i>
-                        </button>
-                        <button id="camera-switch-btn" class="scanner-action" title="Switch Camera" hidden>
-                            <i class="fa-solid fa-camera-rotate"></i>
-                        </button>
-                    </div>
+                    <canvas id="qr-overlay" class="qr-overlay"></canvas>
                     <input type="file" id="scan-file-input" accept="image/*" capture="environment" hidden>
                 </div>
                 <button id="verify-scan-btn" class="btn btn-primary auth-btn" data-animate>

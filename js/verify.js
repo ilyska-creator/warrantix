@@ -319,76 +319,40 @@ async function verifyReceiptFromQRData(qrRaw) {
 let mediaStream = null;
 let scanInterval = null;
 let verifying = false;
-let cameraFacingMode = 'environment';
-let torchOn = false;
 let lastResultData = null;
 const video = document.getElementById('scanner-video');
 const canvas = document.getElementById('scanner-canvas');
+const qrOverlay = document.getElementById('qr-overlay');
+const qrOverlayCtx = qrOverlay?.getContext('2d');
 const scanBtn = document.getElementById('verify-scan-btn');
-const flashBtn = document.getElementById('camera-flash-btn');
-const switchBtn = document.getElementById('camera-switch-btn');
 const copyBtn = document.getElementById('verify-copy-btn');
 
 async function startCamera() {
     try {
         mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: cameraFacingMode, width: { ideal: 640 }, height: { ideal: 640 } }
+            video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 640 } }
         });
         video.srcObject = mediaStream;
         await video.play();
         scanArea?.classList.add('active');
-    scanBtn.innerHTML = '<i class="fa-solid fa-stop"></i> ' + t('scan_btn_stop');
-    scanBtn.classList.remove('btn-primary');
-    scanBtn.classList.add('btn-outline');
-    resultBlockWrapper?.classList.remove('active');
-    startScanLoop();
-    setupCameraControls();
+        scanBtn.innerHTML = '<i class="fa-solid fa-stop"></i> ' + t('scan_btn_stop');
+        scanBtn.classList.remove('btn-primary');
+        scanBtn.classList.add('btn-outline');
+        resultBlockWrapper?.classList.remove('active');
+        startScanLoop();
     } catch (err) {
         console.error('[verify] camera error:', err);
         scanFileInput?.click();
     }
 }
 
-function setupCameraControls() {
-    const track = mediaStream?.getVideoTracks()[0];
-    if (!track) return;
-
-    switchBtn.hidden = false;
-
-    const capabilities = track.getCapabilities?.();
-    if (capabilities?.torch) {
-        flashBtn.hidden = false;
-        flashBtn.classList.remove('active');
-        torchOn = false;
-    } else {
-        flashBtn.hidden = true;
-    }
-}
-
-async function toggleFlash() {
-    const track = mediaStream?.getVideoTracks()[0];
-    if (!track) return;
-    try {
-        torchOn = !torchOn;
-        await track.applyConstraints({ advanced: [{ torch: torchOn }] });
-        flashBtn.classList.toggle('active', torchOn);
-    } catch (err) {
-        console.error('[verify] torch error:', err);
-        torchOn = !torchOn;
-    }
-}
-
-async function switchCamera() {
-    stopCamera();
-    cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
-    await startCamera();
-}
 
 function stopCamera() {
     if (scanInterval) {
         clearInterval(scanInterval);
         scanInterval = null;
     }
+    if (qrOverlayCtx) qrOverlayCtx.clearRect(0, 0, qrOverlay.width, qrOverlay.height);
     if (mediaStream) {
         mediaStream.getTracks().forEach(t => t.stop());
         mediaStream = null;
@@ -404,13 +368,13 @@ function startScanLoop() {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     scanInterval = setInterval(() => {
-        if (!mediaStream || video.readyState < 2) return;
+        if (!mediaStream || video.readyState < 2 || document.hidden) return;
 
         const w = video.videoWidth;
         const h = video.videoHeight;
         if (!w || !h) return;
 
-        const maxSize = 640;
+        const maxSize = 480;
         let sw = w;
         let sh = h;
         if (sw > maxSize || sh > maxSize) {
@@ -426,21 +390,49 @@ function startScanLoop() {
         const code = window.jsQR(imageData.data, sw, sh, { inversionAttempts: 'dontInvert' });
 
         if (code) {
-            stopCamera();
-            navigator.vibrate?.(100);
-            const icon = scanArea?.querySelector('.scanner-content i');
-            const hint = document.getElementById('scan-hint');
-            if (icon) icon.className = 'fa-solid fa-spinner fa-spin';
-            if (hint) hint.textContent = t('scanning');
-            verifyReceiptFromQRData(code.data).catch(err => {
-                console.error('[verify] scan loop error:', err);
-            });
-        }
-    }, 400);
-}
+            clearInterval(scanInterval);
+            scanInterval = null;
 
-flashBtn?.addEventListener('click', toggleFlash);
-switchBtn?.addEventListener('click', switchCamera);
+            if (qrOverlayCtx) {
+                qrOverlay.width = sw;
+                qrOverlay.height = sh;
+                const loc = code.location;
+                qrOverlayCtx.fillStyle = 'rgba(16, 185, 129, 0.12)';
+                qrOverlayCtx.strokeStyle = '#10b981';
+                qrOverlayCtx.lineWidth = 3;
+                qrOverlayCtx.setLineDash([6, 4]);
+                qrOverlayCtx.beginPath();
+                qrOverlayCtx.moveTo(loc.topLeftCorner.x, loc.topLeftCorner.y);
+                qrOverlayCtx.lineTo(loc.topRightCorner.x, loc.topRightCorner.y);
+                qrOverlayCtx.lineTo(loc.bottomRightCorner.x, loc.bottomRightCorner.y);
+                qrOverlayCtx.lineTo(loc.bottomLeftCorner.x, loc.bottomLeftCorner.y);
+                qrOverlayCtx.closePath();
+                qrOverlayCtx.fill();
+                qrOverlayCtx.stroke();
+
+                qrOverlayCtx.setLineDash([]);
+                qrOverlayCtx.fillStyle = '#10b981';
+                [
+                    loc.topLeftCorner, loc.topRightCorner,
+                    loc.bottomRightCorner, loc.bottomLeftCorner
+                ].forEach(p => {
+                    qrOverlayCtx.beginPath();
+                    qrOverlayCtx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                    qrOverlayCtx.fill();
+                });
+            }
+
+            navigator.vibrate?.(100);
+
+            setTimeout(() => {
+                stopCamera();
+                verifyReceiptFromQRData(code.data).catch(err => {
+                    console.error('[verify] scan loop error:', err);
+                });
+            }, 350);
+        }
+    }, 250);
+}
 
 scanArea?.addEventListener('click', () => {
     if (!mediaStream && !resultBlockWrapper?.classList.contains('active')) {

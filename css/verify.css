@@ -241,6 +241,20 @@
     display: block;
 }
 
+.qr-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+    display: none;
+}
+
+.scanner-area.active .qr-overlay {
+    display: block;
+}
+
 .scanner-area .scan-corner {
     position: absolute;
     z-index: 3;
