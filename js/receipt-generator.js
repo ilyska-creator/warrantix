@@ -61,7 +61,7 @@ export function downloadReceiptPDF(receipt, shop) {
         const grossTotal = receipt.gross_total;
 
         
-        function qrEscape(v) { return String(v).replace(/\|/g, '').replace(/:/g, ''); }
+        function qrEscape(v) { return encodeURIComponent(String(v)); }
         const qrData = `RECEIPT:${qrEscape(receiptSerial)}|DATE:${qrEscape(purchaseDate)}|TAX:${qrEscape(vatAmount.toFixed(2))}|TOTAL:${qrEscape(grossTotal.toFixed(2))}|SELLER:${qrEscape(taxId)}|SHOP_ID:${qrEscape(receipt.shop_id)}|SIG:${qrEscape(receipt.fiscal_hash)}`;
 
         let y = 0;

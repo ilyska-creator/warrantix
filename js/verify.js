@@ -99,6 +99,10 @@ function showLoading(btn, loading) {
     }
 }
 
+function safeDecode(v) {
+    try { return decodeURIComponent(v); } catch { return v; }
+}
+
 function parseQRData(text) {
     const parts = text.split('|');
     const map = {};
@@ -108,11 +112,11 @@ function parseQRData(text) {
         map[part.slice(0, idx)] = part.slice(idx + 1);
     }
     return {
-        serial: map['RECEIPT'] || '',
-        date: map['DATE'] || '',
+        serial: safeDecode(map['RECEIPT'] || ''),
+        date: safeDecode(map['DATE'] || ''),
         vat: parseFloat(map['TAX']) || 0,
         total: parseFloat(map['TOTAL']) || 0,
-        taxId: map['SELLER'] || '',
+        taxId: safeDecode(map['SELLER'] || ''),
         shopId: map['SHOP_ID'] || '',
         signature: map['SIG'] || '',
     };
