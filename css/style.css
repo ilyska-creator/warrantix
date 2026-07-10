@@ -1492,3 +1492,7 @@ ul {
     content: ' *';
     color: var(--error);
 }
+
+body.modal-open {
+    overflow: hidden;
+}

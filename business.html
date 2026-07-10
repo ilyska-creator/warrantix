@@ -62,21 +62,21 @@
 
                     <form id="create-shop-form" class="mt-6">
                         <div class="input-group">
-                            <label for="shop_name">Название бизнеса *</label>
+                            <label for="shop_name">Название бизнеса</label>
                             <input type="text" id="shop_name" name="shop_name" required placeholder="My Awesome Store"
                                 autocomplete="organization">
                             <small class="field-hint">Как вас знают клиенты</small>
                         </div>
 
                         <div class="input-group">
-                            <label for="tax_id">Налоговый номер (Tax ID / INN) *</label>
+                            <label for="tax_id">Налоговый номер (Tax ID / INN)</label>
                             <input type="text" id="tax_id" name="tax_id" required placeholder="1234567890"
                                 autocomplete="off">
                             <small class="field-hint">Основной идентификатор для налоговой отчетности</small>
                         </div>
 
                         <div class="input-group">
-                            <label for="address">Юридический адрес *</label>
+                            <label for="address">Юридический адрес</label>
                             <textarea id="address" name="address" rows="3" required
                                 placeholder="ул. Примерная, д. 1, офис 101" autocomplete="street-address"></textarea>
                             <small class="field-hint">Адрес регистрации компании</small>
@@ -99,7 +99,7 @@
                     <i class="fa-solid fa-plus"></i> Создать чек
                 </button>
                 <a href="verify.html" class="btn btn-outline verify-btn">
-                    <i class="fa-solid fa-qrcode"></i> Проверить чек
+                    <i class="fa-solid fa-qrcode"></i> <span data-i18n="verify_btn">Проверить чек</span>
                 </a>
             </div>
 
@@ -140,7 +140,8 @@
                 <div class="chart-header">
                     <h2 class="section-title" data-i18n="chart_title">📊 Динамика выписки чеков</h2>
                     <div class="chart-controls">
-                        <button class="chart-period-btn active" data-period="week" data-i18n="chart_week">Неделя</button>
+                        <button class="chart-period-btn active" data-period="week"
+                            data-i18n="chart_week">Неделя</button>
                         <button class="chart-period-btn" data-period="month" data-i18n="chart_month">Месяц</button>
                         <button class="chart-period-btn" data-period="year" data-i18n="chart_year">Год</button>
                     </div>
@@ -174,47 +175,72 @@
                 </div>
                 <form id="issue-receipt-form" class="modal-form">
                     <div class="input-group">
-                        <label>Email покупателя *</label>
+                        <label>Email покупателя</label>
                         <input type="email" name="customer_email" placeholder="client@example.com" required>
                         <small>Если клиент зарегистрирован, чек привяжется автоматически</small>
                     </div>
 
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>Товар *</label>
-                            <input type="text" name="item_name" placeholder="MacBook Air M2" required>
-                        </div>
-                        <div class="input-group small">
-                            <label>Кол-во *</label>
-                            <input type="number" name="qty" value="1" min="1" required>
-                        </div>
-                    </div>
+                    <div id="receipt-items-list"></div>
 
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>Цена за ед. *</label>
-                            <input type="number" name="price" step="0.01" min="0" placeholder="0.00" required>
+                    <template id="receipt-item-template">
+                        <div class="receipt-item-row" data-item-row>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label data-i18n="item_name_label">Товар</label>
+                                    <input type="text" data-field="item_name"
+                                        data-i18n-placeholder="item_name_placeholder" placeholder="MacBook Air M2"
+                                        required>
+                                </div>
+                                <div class="input-group small">
+                                    <label data-i18n="qty_label">Кол-во</label>
+                                    <input type="number" data-field="qty" value="1" min="1" step="1" required>
+                                </div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label data-i18n="price_label">Цена за ед.</label>
+                                    <input type="number" data-field="price" step="0.01" min="0"
+                                        data-i18n-placeholder="price_placeholder" placeholder="0.00" required>
+                                </div>
+                                <div class="input-group">
+                                    <label data-i18n="vat_rate_label">Налог (%)</label>
+                                    <input type="number" data-field="vat_rate" step="0.1" min="0" max="100" value="0"
+                                        placeholder="0" required>
+                                </div>
+                                <div class="input-group small">
+                                    <label data-i18n="warranty_months_label">Гарантия, мес.</label>
+                                    <input type="number" data-field="warranty_months" min="1" max="600" step="1"
+                                        data-i18n-placeholder="warranty_months_placeholder" placeholder="12" required>
+                                </div>
+                                <button type="button" class="btn-action delete btn-remove-item"
+                                    data-i18n-title="remove_item_title" title="Удалить товар">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label>Налог (%) *</label>
-                            <input type="number" name="vat_rate" step="0.1" min="0" max="100" value="0" placeholder="0"
-                                required>
-                            <small class="field-hint">Укажите ставку налога в вашем регионе</small>
-                        </div>
-                    </div>
+                    </template>
 
-                    <div class="input-row">
+                    <button type="button" id="add-item-row-btn" class="btn btn-outline mt-2">
+                        <i class="fa-solid fa-plus"></i> <span data-i18n="add_item_btn">Добавить товар</span>
+                    </button>
+
+                    <div class="input-row mt-4">
                         <div class="input-group">
-                            <label>Дата покупки *</label>
+                            <label>Дата покупки</label>
                             <input type="datetime-local" name="purchase_date" required>
                         </div>
                         <div class="input-group">
                             <label>Оплата</label>
                             <select name="payment_method">
-                                <option value="Card">Карта</option>
-                                <option value="Cash">Наличные</option>
+                                <option value="card">Карта</option>
+                                <option value="cash">Наличные</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div class="receipt-total-preview">
+                        <span data-i18n="total_label">Итого:</span>
+                        <strong id="receipt-total-preview-value">$0.00</strong>
                     </div>
 
                     <div class="modal-actions">

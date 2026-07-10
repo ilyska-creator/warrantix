@@ -1301,3 +1301,126 @@
         height: 200px;
     }
 }
+/* --- Мультистрочный чек (позиции товара) -------------------------- */
+
+.receipt-item-row {
+    padding: 0.85rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-body);
+}
+
+.receipt-item-row .input-row:first-child {
+    grid-template-columns: 1fr 100px;
+}
+
+.receipt-item-row .input-row:last-child {
+    grid-template-columns: 1fr 120px 140px 40px;
+    align-items: flex-end;
+    gap: var(--space-3);
+}
+
+.receipt-item-row .btn-remove-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin: 0;
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.receipt-item-row .btn-remove-item:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--danger);
+    transform: translateY(-1px);
+}
+
+.receipt-item-row .btn-remove-item:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#add-item-row-btn {
+    width: 100%;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.receipt-total-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    margin-top: 1rem;
+    border-radius: 10px;
+    background: rgba(59, 130, 246, 0.06);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.receipt-total-preview strong {
+    font-size: 1.15rem;
+    color: var(--text-heading, var(--text-main));
+}
+
+.receipt-card-items {
+    margin: 4px 0 0;
+    padding: 12px;
+    background: rgba(59, 130, 246, 0.04);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.receipt-card-item.single {
+    display: flex;
+    gap: 8px;
+    font-size: 0.88rem;
+    align-items: center;
+}
+
+.receipt-card-items-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.receipt-card-items-list li {
+    font-size: 0.85rem;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.receipt-card-items-list li:last-child {
+    border-bottom: none;
+}
+
+.receipt-card-items .item-name {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.receipt-card-items .item-qty {
+    color: var(--secondary);
+}
+
+.receipt-card-items .item-warranty {
+    color: var(--primary);
+    font-size: 0.8rem;
+    margin-left: auto;
+}

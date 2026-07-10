@@ -152,31 +152,64 @@ export default Ed25519Signer;
 // crypto-verification.js) теперь обязаны использовать эту функцию, чтобы
 // собирать данные для подписи в одном и том же каноническом виде,
 // независимо от того, откуда пришли значения — из формы или из БД.
-export function buildSignaturePayload({ taxId, itemName, netTotal, vatAmount, purchaseDate }) {
-    const canonicalAmount = (value) => {
-        const num = typeof value === 'number' ? value : parseFloat(value);
-        return Number.isFinite(num) ? num.toFixed(2) : '0.00';
-    };
+const canonicalAmount = (value) => {
+    const num = typeof value === 'number' ? value : parseFloat(value);
+    return Number.isFinite(num) ? num.toFixed(2) : '0.00';
+};
 
-    // Берём только дату (YYYY-MM-DD), без времени и часового пояса —
-    // это единственная часть значения, которая гарантированно совпадает
-    // и на входе из формы (datetime-local), и на выходе из Postgres
-    // (date/timestamp/timestamptz), какой бы формат сериализации ни
-    // использовался.
-    const canonicalDate = (value) => {
-        if (!value) return '';
-        const str = String(value);
-        const isoLike = str.match(/^\d{4}-\d{2}-\d{2}/);
-        if (isoLike) return isoLike[0];
-        const parsed = new Date(str);
-        return Number.isNaN(parsed.getTime()) ? str : parsed.toISOString().slice(0, 10);
-    };
+// Берём только дату (YYYY-MM-DD), без времени и часового пояса —
+// это единственная часть значения, которая гарантированно совпадает
+// и на входе из формы (datetime-local), и на выходе из Postgres
+// (date/timestamp/timestamptz), какой бы формат сериализации ни
+// использовался.
+const canonicalDate = (value) => {
+    if (!value) return '';
+    const str = String(value);
+    const isoLike = str.match(/^\d{4}-\d{2}-\d{2}/);
+    if (isoLike) return isoLike[0];
+    const parsed = new Date(str);
+    return Number.isNaN(parsed.getTime()) ? str : parsed.toISOString().slice(0, 10);
+};
+
+// Товар — свободный текст (продавец может вписать что угодно, включая
+// "|" и ";", которые мы используем как разделители в канонической строке).
+// Если не экранировать, два разных набора позиций могут дать одинаковую
+// строку для подписи (например, товар "A|1|10" в одной позиции против
+// "A" и "1|10" в двух) — это ослабляет подпись ровно так же, как
+// неэкранированный qrEscape в receipt-generator.js (см. аудит M8).
+// encodeURIComponent убирает "|" и ";" из результата, так что подмена
+// границ позиций внутри одной строки невозможна.
+const canonicalItemName = (value) => encodeURIComponent(String(value ?? '').trim());
+
+// Одна позиция чека -> одна каноническая подстрока. Срок гарантии входит
+// в подпись: это коммерческое обязательство продавца, и если его не
+// защитить подписью, кто угодно с доступом к БД (или сам продавец задним
+// числом) мог бы "продлить" или обнулить гарантию без следа.
+const canonicalItemLine = (item) => [
+    canonicalItemName(item.itemName),
+    String(item.qty ?? ''),
+    canonicalAmount(item.unitPrice),
+    canonicalAmount(item.vatRate ?? 0),
+    String(item.warrantyMonths ?? 0),
+    canonicalAmount(item.netTotal),
+    canonicalAmount(item.vatAmount),
+].join('~');
+
+/**
+ * Строит каноническую строку для подписи/проверки чека с одной или
+ * несколькими позициями. Порядок позиций в массиве `items` — часть
+ * подписанных данных: и при выписке, и при проверке позиции должны идти
+ * в одном и том же порядке (сортировка по sort_order на обеих сторонах).
+ */
+export function buildSignaturePayload({ taxId, purchaseDate, items, netTotal, vatAmount, grossTotal }) {
+    const itemsPart = (items || []).map(canonicalItemLine).join(';');
 
     return [
         String(taxId ?? ''),
-        String(itemName ?? '').trim(),
+        itemsPart,
         canonicalAmount(netTotal),
         canonicalAmount(vatAmount),
+        canonicalAmount(grossTotal),
         canonicalDate(purchaseDate),
     ].join('|');
 }

@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Valuon — Верификация чека</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <script>
@@ -18,6 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 </head>
+
 <body class="verify-body">
 
     <div class="verify-container">
@@ -31,9 +34,10 @@
             </div>
             <div class="verify-logo" data-animate="zoom">
                 <div class="shield-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <path d="M9 12l2 2 4-4"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <path d="M9 12l2 2 4-4" />
                     </svg>
                 </div>
                 <h1 data-i18n="title">Верификация чека</h1>
@@ -98,8 +102,13 @@
                     <p id="result-desc">Данные чека совпадают с записью в реестре.</p>
                     <div id="result-badge" class="verify-badge verified">Подлинный</div>
                     <dl id="result-details" class="result-details">
-                        <dt data-i18n="detail_name">Товар</dt>
-                        <dd id="result-receipt-name">—</dd>
+                        <dt data-i18n="detail_receipt_number">Номер чека</dt>
+                        <dd id="result-receipt-number">—</dd>
+                        <dt id="result-items-row" class="result-items-row" data-i18n="detail_items"
+                            style="display:none">Состав чека</dt>
+                        <dd id="result-items-wrap" style="display:none">
+                            <ul id="result-items-list" class="verify-items-list"></ul>
+                        </dd>
                         <dt data-i18n="detail_date">Дата покупки</dt>
                         <dd id="result-receipt-date">—</dd>
                         <dt data-i18n="detail_amount">Сумма</dt>
@@ -131,4 +140,5 @@
     <script type="module" src="js/verify.js"></script>
     <div id="toast-container" class="toast-container"></div>
 </body>
+
 </html>

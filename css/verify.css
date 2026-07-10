@@ -546,6 +546,29 @@
     margin-bottom: 0;
 }
 
+.result-items-row {
+    margin-top: 0;
+}
+
+.verify-items-list {
+    list-style: none;
+    margin: 0 0 var(--space-3);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.verify-items-list li {
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    background: var(--bg-body);
+    border: 1px solid var(--border);
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--text-main);
+}
+
 .copy-btn {
     margin: var(--space-4) auto 0;
     display: inline-flex;

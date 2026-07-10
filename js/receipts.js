@@ -3,7 +3,7 @@ import { requireAuth, setupLogout } from './dashboard-auth.js';
 let pendingDeleteId = null;
 let pendingDeletePath = null;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const SIGNED_URL_TTL = 60 * 60; 
+const SIGNED_URL_TTL = 60 * 60;
 
 
 let currentUserId = null;
@@ -80,9 +80,10 @@ async function loadAllReceipts(userEmail, userId, client) {
     try {
         const { data: businessData, error: bizError } = await client
             .from('business_receipts')
-            .select('*')
+            .select('*, receipt_items(*)')
             .eq('customer_email', userEmail)
-            .order('purchase_date', { ascending: false });
+            .order('purchase_date', { ascending: false })
+            .order('sort_order', { referencedTable: 'receipt_items', ascending: true });
 
         if (bizError) console.error('business_receipts error:', bizError);
 
@@ -179,9 +180,26 @@ function renderSplitReceipts(businessReceipts, personalReceipts, client, userId)
 
 function renderBusinessCard(r, t) {
     const dateStr = new Date(r.purchase_date).toLocaleDateString(getLang() === 'ru' ? 'ru-RU' : 'en-US');
-    const shopBadge = r.shop_name
-        ? `<div class="shop-badge"><i class="fa-solid fa-store"></i> ${escapeHtml(r.shop_name)}</div>`
-        : '';
+    const receiptNum = r.receipt_number ? `#RCP-${r.receipt_number}` : `#${String(r.id).slice(0, 8).toUpperCase()}`;
+
+    const lineItems = Array.isArray(r.receipt_items) ? r.receipt_items : [];
+    const itemsCount = lineItems.length;
+
+    const itemsListHtml = itemsCount > 0 ? `
+        <div class="receipt-card-items">
+            ${itemsCount === 1
+            ? `<div class="receipt-card-item single">
+                       <span class="item-name">${escapeHtml(lineItems[0].item_name)}</span>
+                       <span class="item-qty">×${lineItems[0].qty}</span>
+                       ${lineItems[0].warranty_months ? ` <span class="item-warranty">${lineItems[0].warranty_months} ${t.months_short || 'mo'}.</span>` : ''}
+                   </div>`
+            : `<ul class="receipt-card-items-list">${lineItems.map(it =>
+                `<li><span class="item-name">${escapeHtml(it.item_name)}</span> <span class="item-qty">×${it.qty}</span>${it.warranty_months ? ` <span class="item-warranty">${it.warranty_months} ${t.months_short || 'mo'}.</span>` : ''}</li>`
+            ).join('')}</ul>`
+        }
+        </div>` : '';
+
+    const maxWarranty = lineItems.reduce((max, it) => Math.max(max, it.warranty_months || 0), 0);
 
     return `
         <div class="receipt-card business-card">
@@ -189,16 +207,18 @@ function renderBusinessCard(r, t) {
                 <div class="receipt-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
                 <div class="item-status-badge active" data-i18n="status_business_verified">${t.status_business_verified || 'Verified'}</div>
             </div>
-            ${shopBadge}
+            <div class="shop-badge"><i class="fa-solid fa-store"></i> ${escapeHtml(r.shop_name || '')}</div>
             <div class="receipt-info">
-                <h3>${escapeHtml(r.item_name || 'Digital Receipt')}</h3>
+                <h3>${escapeHtml(receiptNum)}</h3>
                 <p>${escapeHtml(r.customer_email)}</p>
             </div>
             <div class="receipt-meta">
                 <span class="tag"><i class="fa-solid fa-tag"></i> $${parseFloat(r.gross_total || 0).toFixed(2)}</span>
                 <span class="tag"><i class="fa-regular fa-calendar"></i> ${dateStr}</span>
-                <span class="tag"><i class="fa-solid fa-hashtag"></i> ${escapeHtml(String(r.id).slice(0, 8).toUpperCase())}</span>
+                ${maxWarranty > 0 ? `<span class="tag"><i class="fa-solid fa-shield-halved"></i> ${maxWarranty} ${t.months_short || 'mo'}.</span>` : ''}
+                ${itemsCount > 1 ? `<span class="tag"><i class="fa-solid fa-boxes-stacked"></i> ${itemsCount}</span>` : ''}
             </div>
+            ${itemsListHtml}
             <div class="receipt-actions">
                 <button class="btn-action primary btn-download-biz" data-receipt-id="${escapeHtml(r.id)}" title="${t.btn_download || 'Скачать'}">
                     <i class="fa-solid fa-download"></i> <span>${t.btn_download || 'Скачать'}</span>
@@ -301,9 +321,10 @@ function restoreListeners(client, userId) {
                 const { downloadReceiptPDF } = await import('./receipt-generator.js');
                 const { data: receipt, error } = await client
                     .from('business_receipts')
-                    .select('*')
+                    .select('*, receipt_items(*)')
                     .eq('id', btn.dataset.receiptId)
                     .eq('customer_email', currentUserEmail)
+                    .order('sort_order', { referencedTable: 'receipt_items', ascending: true })
                     .single();
 
                 if (error || !receipt) throw error || new Error('Receipt not found');

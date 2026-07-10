@@ -313,7 +313,7 @@ function renderWarrantyCalendar(items) {
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-    
+
     const warrantyMap = {};
     (items || []).forEach(item => {
         if (!item.purchase_date || !item.warranty_months) return;
@@ -327,7 +327,7 @@ function renderWarrantyCalendar(items) {
         endDate.setMonth(endDate.getMonth() + parseInt(item.warranty_months));
         if (endDate.getDate() !== day) endDate.setDate(0);
 
-        
+
         function addDateDot(date, status) {
             const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
             if (!warrantyMap[key]) warrantyMap[key] = [];

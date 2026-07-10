@@ -16,18 +16,36 @@ class ReceiptVerifier {
                 return { valid: false, error: 'Shop public key not found' };
             }
 
+            if (!Array.isArray(receipt.items) || receipt.items.length === 0) {
+                // Чек без позиций не мог быть подписан текущей схемой —
+                // либо повреждённые данные, либо старый формат, который
+                // ещё не мигрировал в receipt_items.
+                return { valid: false, error: 'Receipt has no line items to verify' };
+            }
 
             const publicKey = await this.signer.importPublicKey(shop.public_key);
 
+            // RPC отдаёт позиции в snake_case (как в БД) — приводим к тем же
+            // именам полей, которые buildSignaturePayload использовал при
+            // подписи в business-panel.js (там объекты собираются в camelCase).
+            const items = receipt.items.map(it => ({
+                itemName: it.item_name,
+                qty: it.qty,
+                unitPrice: it.unit_price,
+                vatRate: it.vat_rate,
+                warrantyMonths: it.warranty_months,
+                netTotal: it.net_total,
+                vatAmount: it.vat_amount,
+            }));
 
             const signData = buildSignaturePayload({
                 taxId: shop.tax_id,
-                itemName: receipt.item_name,
+                purchaseDate: receipt.purchase_date,
+                items,
                 netTotal: receipt.net_total,
                 vatAmount: receipt.vat_amount,
-                purchaseDate: receipt.purchase_date,
+                grossTotal: receipt.gross_total,
             });
-
 
             const isValid = await this.signer.verify(signData, receipt.fiscal_hash, publicKey);
 

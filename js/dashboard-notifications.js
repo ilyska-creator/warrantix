@@ -32,7 +32,7 @@ function formatDate(dateStr) {
     const lang = getNotifLang();
     const locale = lang === 'ru' ? 'ru-RU' : 'en-US';
     const date = new Date(dateStr);
-    return date.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+    return date.toLocaleDateString(locale, { day: 'numeric', month: 'numeric', year: 'numeric' });
 }
 
 async function loadNotifications(userId, client) {

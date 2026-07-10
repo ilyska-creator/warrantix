@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
 
-                
+
                 const rateLimitCheck = checkSignupRateLimit(email);
                 if (!rateLimitCheck.allowed) {
                     throw new Error(lang === 'ru'
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const displayName = `${firstName} ${lastName}`;
 
-                
+
                 const { data, error } = await supabase.auth.signUp({
                     email,
                     password,
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (error) throw error;
 
                 if (data.user) {
-                    
+
                     const { error: profileError } = await supabase.from('profiles').upsert({
                         id: data.user.id,
                         email: email.toLowerCase().trim(),
@@ -150,8 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             .select('id', { count: 'exact' });
 
                         if (lazyBindError) {
-                            
-                            
+
+
                             console.error('❌ Ошибка привязки бизнес-чеков (lazy binding):', lazyBindError);
                         } else {
                             console.log(`✅ Привязано бизнес-чеков: ${count ?? 0}`);

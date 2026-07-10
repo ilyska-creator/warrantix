@@ -22,11 +22,14 @@ const resultTitle = document.getElementById('result-title');
 const resultDesc = document.getElementById('result-desc');
 const resultBadge = document.getElementById('result-badge');
 const resultDetails = document.getElementById('result-details');
-const resultReceiptName = document.getElementById('result-receipt-name');
+const resultReceiptNumber = document.getElementById('result-receipt-number');
 const resultReceiptDate = document.getElementById('result-receipt-date');
 const resultReceiptAmount = document.getElementById('result-receipt-amount');
 const resultReceiptStore = document.getElementById('result-receipt-store');
 const resultSellerStatus = document.getElementById('result-seller-status');
+const resultItemsRow = document.getElementById('result-items-row');
+const resultItemsWrap = document.getElementById('result-items-wrap');
+const resultItemsList = document.getElementById('result-items-list');
 const uploadZone = document.getElementById('upload-zone');
 const fileInput = document.getElementById('receipt-file');
 const uploadPreview = document.getElementById('upload-preview');
@@ -117,8 +120,8 @@ function parseQRData(text) {
         vat: parseFloat(map['TAX']) || 0,
         total: parseFloat(map['TOTAL']) || 0,
         taxId: safeDecode(map['SELLER'] || ''),
-        shopId: map['SHOP_ID'] || '',
-        signature: map['SIG'] || '',
+        shopId: safeDecode(map['SHOP_ID'] || ''),
+        signature: safeDecode(map['SIG'] || ''),
     };
 }
 
@@ -201,13 +204,37 @@ function showResult(status, data) {
 
         if (data) {
             resultDetails.style.display = 'block';
-            resultReceiptName.textContent = data.name || '—';
+            resultReceiptNumber.textContent = data.receiptNumber || '—';
             resultReceiptDate.textContent = data.date || '—';
             resultReceiptAmount.textContent = data.amount || '—';
             resultReceiptStore.textContent = data.store || '—';
             resultSellerStatus.textContent = data.sellerStatus || '—';
+
+            const lineItems = Array.isArray(data.items) ? data.items : [];
+            if (resultItemsList && resultItemsRow && resultItemsWrap) {
+                resultItemsList.innerHTML = '';
+                if (lineItems.length > 1) {
+                    lineItems.forEach(it => {
+                        const li = document.createElement('li');
+                        const qty = it.qty ?? 1;
+                        let text = `${it.item_name} × ${qty}`;
+                        if (it.warranty_months) {
+                            text += ` — ${it.warranty_months} ${t('items_warranty_suffix')}`;
+                        }
+                        li.textContent = text;
+                        resultItemsList.appendChild(li);
+                    });
+                    resultItemsRow.style.display = '';
+                    resultItemsWrap.style.display = '';
+                } else {
+                    resultItemsRow.style.display = 'none';
+                    resultItemsWrap.style.display = 'none';
+                }
+            }
         } else {
             resultDetails.style.display = 'none';
+            if (resultItemsRow) resultItemsRow.style.display = 'none';
+            if (resultItemsWrap) resultItemsWrap.style.display = 'none';
         }
     } else {
         resultBlock.classList.add('failure');
@@ -288,7 +315,7 @@ async function verifyReceiptFromQRData(qrRaw) {
         if (result.valid) {
             const dateStr = receipt.purchase_date
                 ? new Date(receipt.purchase_date).toLocaleDateString(getVerifyLocale(), {
-                    day: 'numeric', month: 'long', year: 'numeric'
+                    day: 'numeric', month: 'numeric', year: 'numeric'
                 })
                 : '—';
             const gross = parseFloat(receipt.gross_total);
@@ -297,8 +324,12 @@ async function verifyReceiptFromQRData(qrRaw) {
                 ? t('seller_verified')
                 : t('seller_pending');
 
+            const items = Array.isArray(receipt.items) ? receipt.items : [];
+            const receiptNum = receipt.receipt_number ? `#RCP-${receipt.receipt_number}` : null;
+
             showResult('success', {
-                name: receipt.item_name || '—',
+                receiptNumber: receiptNum || '—',
+                items,
                 date: dateStr,
                 amount,
                 store: shop.shop_name || '—',
@@ -365,10 +396,17 @@ function stopCamera() {
 }
 
 function startScanLoop() {
+    if (!mediaStream) return;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     scanInterval = setInterval(() => {
-        if (!mediaStream || video.readyState < 2 || document.hidden) return;
+        if (!mediaStream || video.readyState < 2 || document.hidden) {
+            if (!mediaStream) {
+                clearInterval(scanInterval);
+                scanInterval = null;
+            }
+            return;
+        }
 
         const w = video.videoWidth;
         const h = video.videoHeight;
@@ -424,6 +462,8 @@ function startScanLoop() {
 
             navigator.vibrate?.(100);
 
+            if (scanHint) scanHint.textContent = t('scanning');
+
             setTimeout(() => {
                 stopCamera();
                 verifyReceiptFromQRData(code.data).catch(err => {
@@ -449,6 +489,10 @@ uploadZone?.addEventListener('click', () => {
 if (uploadZone && !('ontouchstart' in window)) {
     let dragCounter = 0;
 
+    uploadZone.addEventListener('dragenter', () => {
+        dragCounter++;
+    });
+
     uploadZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -458,9 +502,8 @@ if (uploadZone && !('ontouchstart' in window)) {
     uploadZone.addEventListener('dragleave', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        dragCounter--;
-        if (dragCounter <= 0) {
-            dragCounter = 0;
+        dragCounter = Math.max(0, dragCounter - 1);
+        if (dragCounter === 0) {
             uploadZone.classList.remove('drag-over');
         }
     });
@@ -475,6 +518,11 @@ if (uploadZone && !('ontouchstart' in window)) {
         if (!files?.length) return;
 
         const file = files[0];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+        if (!allowedTypes.includes(file.type)) {
+            alert(t('file_type_not_supported') || 'Unsupported file type. Please upload an image or PDF.');
+            return;
+        }
         if (file.size > 10 * 1024 * 1024) {
             alert(t('file_too_big'));
             return;
@@ -484,10 +532,6 @@ if (uploadZone && !('ontouchstart' in window)) {
         dt.items.add(file);
         fileInput.files = dt.files;
         fileInput.dispatchEvent(new Event('change'));
-    });
-
-    uploadZone.addEventListener('dragenter', () => {
-        dragCounter++;
     });
 }
 
@@ -502,7 +546,7 @@ scanBtn?.addEventListener('click', () => {
 copyBtn?.addEventListener('click', async () => {
     if (!lastResultData) return;
     const text = [
-        t('detail_name') + ': ' + lastResultData.name,
+        t('detail_receipt_number') + ': ' + lastResultData.receiptNumber,
         t('detail_date') + ': ' + lastResultData.date,
         t('detail_amount') + ': ' + lastResultData.amount,
         t('detail_store') + ': ' + lastResultData.store,
@@ -655,6 +699,6 @@ if (backBtn) {
             if (['/dashboard.html', '/business.html', '/receipts.html', '/index.html'].includes(refUrl.pathname)) {
                 backBtn.href = document.referrer;
             }
-        } catch (_) {}
+        } catch (_) { }
     }
 }

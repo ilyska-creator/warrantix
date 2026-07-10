@@ -16,6 +16,75 @@ async function initBusinessPanel() {
     let receiptsChartInstance = null;
     let chartPeriod = 'week';
 
+    function renderReceiptCards(gridEl, receiptsList) {
+        const currentLang = localStorage.getItem('valuon-lang') || window.businessCurrentLang || 'ru';
+        const bt = window.businessTranslations || {};
+        const warrantySuffix = bt[currentLang]?.warranty_suffix || 'мес.';
+        const payMethodMap = {
+            card: bt[currentLang]?.payment_card || 'Card',
+            cash: bt[currentLang]?.payment_cash || 'Cash',
+        };
+
+        gridEl.grid.innerHTML = receiptsList.map(r => {
+
+            const isVerified = r.status === 'verified';
+            const statusClass = isVerified ? 'active' : 'warning';
+            const statusKey = isVerified ? 'status_verified' : 'status_pending';
+            const dateStr = new Date(r.purchase_date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US');
+
+            const lineItems = Array.isArray(r.receipt_items) ? r.receipt_items : [];
+            const receiptNum = r.receipt_number ? `#RCP-${r.receipt_number}` : `#${r.id.slice(0, 8).toUpperCase()}`;
+            const itemsCount = lineItems.length;
+            const payMethodVal = r.payment_method ? r.payment_method.toLowerCase() : '';
+            const payMethod = payMethodMap[payMethodVal] || r.payment_method || '—';
+
+            const itemsHtml = itemsCount > 0 ? `
+                <div class="receipt-card-items">
+                    ${itemsCount === 1
+                    ? `<div class="receipt-card-item single">
+                               <span class="item-name">${escapeHtml(lineItems[0].item_name)}</span>
+                               <span class="item-qty">×${lineItems[0].qty}</span>
+                               <span class="item-warranty">${lineItems[0].warranty_months ? `${lineItems[0].warranty_months} ${warrantySuffix}` : ''}</span>
+                           </div>`
+                    : `<ul class="receipt-card-items-list">${lineItems.map(it =>
+                        `<li><span class="item-name">${escapeHtml(it.item_name)}</span> <span class="item-qty">×${it.qty}</span>${it.warranty_months ? ` <span class="item-warranty">${it.warranty_months} ${warrantySuffix}</span>` : ''}</li>`
+                    ).join('')}</ul>`
+                }
+                </div>` : '';
+
+            return `
+        <div class="item-card status-${r.status}" data-receipt-id="${r.id}" data-receipt-status="${r.status}" data-receipt-date="${r.purchase_date}">
+            <div class="item-header">
+                <div class="item-icon"><i class="fa-solid fa-receipt"></i></div>
+                <span class="item-status-badge ${statusClass}" data-i18n="${statusKey}"></span>
+            </div>
+            <div class="item-body">
+                <h3 class="item-title" title="${escapeHtml(receiptNum)}">${escapeHtml(receiptNum)}</h3>
+                <div class="item-brand">
+                    <i class="fa-regular fa-envelope"></i> ${escapeHtml(r.customer_email)}
+                </div>
+                <div class="item-tags">
+                    <span class="tag"><i class="fa-solid fa-tag"></i> $${parseFloat(r.gross_total).toFixed(2)}</span>
+                    <span class="tag"><i class="fa-solid fa-calendar-days"></i> <span class="receipt-date">${escapeHtml(dateStr)}</span></span>
+                    <span class="tag"><i class="fa-solid fa-credit-card"></i> ${escapeHtml(payMethod)}</span>
+                    ${itemsCount > 1 ? `<span class="tag"><i class="fa-solid fa-boxes-stacked"></i> ${itemsCount}</span>` : ''}
+                </div>
+
+                ${itemsHtml}
+
+                <div class="item-actions">
+                    <button class="btn-action download btn-download-receipt" data-id="${r.id}" data-i18n-title="download_receipt_title">
+                        <i class="fa-solid fa-download"></i> <span data-i18n="download_btn"></span>
+                    </button>
+                    <button class="btn-action delete btn-delete-receipt" data-id="${r.id}" data-i18n-title="delete_btn_tooltip">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>`;
+        }).join('');
+    }
+
     const auth = await requireAuth();
     if (!auth) return;
 
@@ -47,6 +116,75 @@ async function initBusinessPanel() {
         closeBtn: document.getElementById('close-receipt-modal'),
         cancelBtn: document.getElementById('cancel-receipt-modal')
     };
+    const itemsList = document.getElementById('receipt-items-list');
+    const itemTemplate = document.getElementById('receipt-item-template');
+    const addItemBtn = document.getElementById('add-item-row-btn');
+    const totalPreviewEl = document.getElementById('receipt-total-preview-value');
+
+    // --- Динамические позиции чека ---------------------------------
+
+    function addItemRow() {
+        if (!itemsList || !itemTemplate) return;
+        const node = itemTemplate.content.firstElementChild.cloneNode(true);
+        itemsList.appendChild(node);
+        updateRemoveButtonsState();
+        updateTotalPreview();
+    }
+
+    function updateRemoveButtonsState() {
+        if (!itemsList) return;
+        const rows = itemsList.querySelectorAll('[data-item-row]');
+        rows.forEach(row => {
+            const btn = row.querySelector('.btn-remove-item');
+            if (btn) btn.disabled = rows.length <= 1;
+        });
+    }
+
+    function resetItemRows() {
+        if (!itemsList) return;
+        itemsList.innerHTML = '';
+        addItemRow();
+    }
+
+    function readItemRows() {
+        if (!itemsList) return [];
+        return [...itemsList.querySelectorAll('[data-item-row]')].map((row, index) => {
+            const itemName = row.querySelector('[data-field="item_name"]').value.trim();
+            const qty = parseFloat(row.querySelector('[data-field="qty"]').value) || 0;
+            const unitPrice = parseFloat(row.querySelector('[data-field="price"]').value) || 0;
+            let vatRate = parseFloat(row.querySelector('[data-field="vat_rate"]').value);
+            if (isNaN(vatRate) || vatRate < 0) vatRate = 0;
+            let warrantyMonths = parseInt(row.querySelector('[data-field="warranty_months"]').value, 10);
+            if (isNaN(warrantyMonths) || warrantyMonths < 1) warrantyMonths = 0;
+
+            const netTotal = qty * unitPrice;
+            const vatAmount = netTotal * (vatRate / 100);
+            const grossTotal = netTotal + vatAmount;
+
+            return { itemName, qty, unitPrice, vatRate, warrantyMonths, netTotal, vatAmount, grossTotal, sortOrder: index };
+        });
+    }
+
+    function updateTotalPreview() {
+        if (!totalPreviewEl) return;
+        const items = readItemRows();
+        const gross = items.reduce((sum, it) => sum + it.grossTotal, 0);
+        totalPreviewEl.textContent = `$${gross.toFixed(2)}`;
+    }
+
+    itemsList?.addEventListener('input', updateTotalPreview);
+    addItemBtn?.addEventListener('click', addItemRow);
+    itemsList?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-remove-item');
+        if (!btn) return;
+        const row = btn.closest('[data-item-row]');
+        if (row && itemsList.querySelectorAll('[data-item-row]').length > 1) {
+            row.remove();
+            updateRemoveButtonsState();
+            updateTotalPreview();
+        }
+    });
+
     const stats = {
         total: document.getElementById('total-receipts'),
         pending: document.getElementById('pending-receipts')
@@ -194,7 +332,9 @@ async function initBusinessPanel() {
                 return;
             }
 
+            resetItemRows();
             modal.el.classList.remove('is-hidden');
+            document.body.classList.add('modal-open');
             const now = new Date();
             if (forms.receipt?.purchase_date) {
                 const y = now.getFullYear();
@@ -205,13 +345,10 @@ async function initBusinessPanel() {
                 forms.receipt.purchase_date.value = `${y}-${m}-${d}T${h}:${min}`;
             }
         } else {
-            const emailField = forms.receipt?.querySelector('[name="customer_email"]');
-            const itemField = forms.receipt?.querySelector('[name="item_name"]');
-            const hasData = (emailField?.value && emailField.value.trim() !== '') ||
-                (itemField?.value && itemField.value.trim() !== '');
-
             modal.el.classList.add('is-hidden');
+            document.body.classList.remove('modal-open');
             forms.receipt?.reset();
+            resetItemRows();
         }
     }
 
@@ -244,14 +381,21 @@ async function initBusinessPanel() {
                     return;
                 }
 
-                const qty = parseFloat(fd.get('qty')) || 1;
-                const price = parseFloat(fd.get('price')) || 0;
-                let vatRate = parseFloat(fd.get('vat_rate'));
-                if (isNaN(vatRate) || vatRate < 0) vatRate = 0;
-                const net = qty * price;
-                const vat = net * (vatRate / 100);
-                const gross = net + vat;
+                const items = readItemRows();
+                if (items.length === 0 || items.some(it => !it.itemName || it.qty <= 0 || it.warrantyMonths <= 0)) {
+                    const valLang = localStorage.getItem('valuon-lang') || 'ru';
+                    window.showToast(
+                        valLang === 'en'
+                            ? 'Fill in every line item (product, quantity and warranty term)'
+                            : 'Заполните все позиции чека (товар, количество и срок гарантии)',
+                        'warning'
+                    );
+                    return;
+                }
 
+                const net = items.reduce((sum, it) => sum + it.netTotal, 0);
+                const vat = items.reduce((sum, it) => sum + it.vatAmount, 0);
+                const gross = net + vat;
 
                 const { data: keyData } = await client
                     .from('shops')
@@ -270,17 +414,13 @@ async function initBusinessPanel() {
 
                 const signData = buildSignaturePayload({
                     taxId: currentShop.tax_id,
-                    itemName: fd.get('item_name'),
+                    purchaseDate: fd.get('purchase_date'),
+                    items,
                     netTotal: net,
                     vatAmount: vat,
-                    purchaseDate: fd.get('purchase_date'),
+                    grossTotal: gross,
                 });
                 const fiscalSignature = await signer.sign(signData, privateKey);
-
-
-
-
-
 
                 const { data: emailIsRegistered, error: checkError } = await client
                     .rpc('check_profile_exists', { p_email: email });
@@ -289,14 +429,11 @@ async function initBusinessPanel() {
                     console.error('Ошибка проверки email покупателя:', checkError);
                 }
 
-
                 const status = emailIsRegistered ? 'verified' : 'pending';
 
                 const payload = {
                     shop_id: currentShop.id,
                     customer_email: email,
-                    item_name: fd.get('item_name'),
-                    qty, unit_price: price, vat_rate: vatRate,
                     net_total: net, vat_amount: vat, gross_total: gross,
                     purchase_date: fd.get('purchase_date'),
                     payment_method: fd.get('payment_method'),
@@ -307,7 +444,12 @@ async function initBusinessPanel() {
                     address: currentShop.address
                 };
 
-                const { error } = await client.from('business_receipts').insert([payload]);
+                const { data: inserted, error } = await client
+                    .from('business_receipts')
+                    .insert([payload])
+                    .select('id, receipt_number')
+                    .single();
+
                 if (error) {
                     const errLang = localStorage.getItem('valuon-lang') || 'ru';
                     window.showToast(errLang === 'en' ? 'Receipt issue error' : 'Ошибка выписки чека', 'error');
@@ -315,8 +457,34 @@ async function initBusinessPanel() {
                     return;
                 }
 
+                const itemRows = items.map(it => ({
+                    receipt_id: inserted.id,
+                    item_name: it.itemName,
+                    qty: it.qty,
+                    unit_price: it.unitPrice,
+                    vat_rate: it.vatRate,
+                    warranty_months: it.warrantyMonths,
+                    net_total: it.netTotal,
+                    vat_amount: it.vatAmount,
+                    gross_total: it.grossTotal,
+                    sort_order: it.sortOrder,
+                }));
+
+                const { error: itemsError } = await client.from('receipt_items').insert(itemRows);
+                if (itemsError) {
+                    // Шапка уже создана и подписана по этим items — без строк в
+                    // receipt_items подпись потом невозможно будет перепроверить.
+                    // Откатываем шапку, чтобы не оставлять "чек без товаров".
+                    console.error('Ошибка сохранения позиций чека:', itemsError);
+                    await client.from('business_receipts').delete().eq('id', inserted.id);
+                    const errLang = localStorage.getItem('valuon-lang') || 'ru';
+                    window.showToast(errLang === 'en' ? 'Receipt issue error' : 'Ошибка выписки чека', 'error');
+                    return;
+                }
+
                 const succLang = localStorage.getItem('valuon-lang') || 'ru';
-                window.showToast(succLang === 'en' ? 'Receipt issued!' : 'Чек выписан!', 'success');
+                const receiptLabel = inserted?.receipt_number ? ` #RCP-${inserted.receipt_number}` : '';
+                window.showToast(succLang === 'en' ? `Receipt${receiptLabel} issued!` : `Чек${receiptLabel} выписан!`, 'success');
                 toggleModal(false);
                 await refreshDashboard(client, currentShop.id, stats, list);
             } finally {
@@ -329,8 +497,8 @@ async function initBusinessPanel() {
     async function refreshDashboard(client, shopId, statsEl, listEl) {
         if (!shopId) return;
 
-        statsEl.total.textContent = '...';
-        statsEl.pending.textContent = '...';
+        if (statsEl.total) statsEl.total.textContent = '...';
+        if (statsEl.pending) statsEl.pending.textContent = '...';
         listEl.grid.innerHTML = '<div class="loading-spinner" style="text-align:center;padding:2rem;"><i class="fa-solid fa-circle-notch fa-spin fa-2x"></i></div>';
 
         const emptyMsg = document.getElementById('no-receipts-msg');
@@ -340,7 +508,7 @@ async function initBusinessPanel() {
             const [totalRes, pendingRes, receiptsRes] = await Promise.all([
                 client.from('business_receipts').select('*', { count: 'exact', head: true }).eq('shop_id', shopId),
                 client.from('business_receipts').select('*', { count: 'exact', head: true }).eq('shop_id', shopId).eq('status', 'pending'),
-                client.from('business_receipts').select('id, status, purchase_date, item_name, customer_email, gross_total, net_total, vat_amount, fiscal_hash, shop_id, created_at, shop_name, payment_method, qty, unit_price').eq('shop_id', shopId).order('created_at', { ascending: false })
+                client.from('business_receipts').select('id, receipt_number, status, purchase_date, customer_email, gross_total, net_total, vat_amount, fiscal_hash, shop_id, created_at, shop_name, payment_method, receipt_items(item_name, qty, unit_price, vat_rate, warranty_months, net_total, vat_amount, gross_total, sort_order)').eq('shop_id', shopId).order('created_at', { ascending: false }).order('sort_order', { referencedTable: 'receipt_items', ascending: true })
             ]);
 
             if (statsEl.total) statsEl.total.textContent = totalRes.count || 0;
@@ -358,41 +526,7 @@ async function initBusinessPanel() {
 
             if (emptyMsg) emptyMsg.style.display = 'none';
 
-            listEl.grid.innerHTML = receipts.map(r => {
-
-                const isVerified = r.status === 'verified';
-                const statusClass = isVerified ? 'active' : 'warning';
-                const statusKey = isVerified ? 'status_verified' : 'status_pending';
-                const dateStr = new Date(r.purchase_date).toLocaleDateString(localStorage.getItem('valuon-lang') === 'ru' ? 'ru-RU' : 'en-US');
-
-                return `
-            <div class="item-card status-${r.status}" data-receipt-id="${r.id}" data-receipt-status="${r.status}" data-receipt-date="${r.purchase_date}">
-                <div class="item-header">
-                    <div class="item-icon"><i class="fa-solid fa-receipt"></i></div>
-                    <span class="item-status-badge ${statusClass}" data-i18n="${statusKey}"></span>
-                </div>
-                <div class="item-body">
-                    <h3 class="item-title" title="${escapeHtml(r.item_name)}">${escapeHtml(r.item_name)}</h3>
-                    <div class="item-brand">
-                        <i class="fa-regular fa-envelope"></i> ${escapeHtml(r.customer_email)}
-                    </div>
-                    <div class="item-tags">
-                        <span class="tag"><i class="fa-solid fa-tag"></i> $${parseFloat(r.gross_total).toFixed(2)}</span>
-                        <span class="tag"><i class="fa-solid fa-calendar-days"></i> <span class="receipt-date">${escapeHtml(dateStr)}</span></span>
-                        <span class="tag"><i class="fa-solid fa-hashtag"></i> ${escapeHtml(r.id.slice(0, 8).toUpperCase())}</span>
-                    </div>
-
-                    <div class="item-actions">
-                        <button class="btn-action download btn-download-receipt" data-id="${r.id}" data-i18n-title="download_receipt_title">
-                            <i class="fa-solid fa-download"></i> <span data-i18n="download_btn"></span>
-                        </button>
-                        <button class="btn-action delete btn-delete-receipt" data-id="${r.id}" data-i18n-title="delete_receipt_title">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-            }).join('');
+            renderReceiptCards(listEl, receipts);
 
 
 
@@ -488,8 +622,8 @@ async function initBusinessPanel() {
         } catch (e) {
             console.error('Dashboard refresh failed:', e);
             window.showToast('Не удалось обновить данные. Попробуйте позже.', 'error');
-            statsEl.total.textContent = '—';
-            statsEl.pending.textContent = '—';
+            if (statsEl.total) statsEl.total.textContent = '—';
+            if (statsEl.pending) statsEl.pending.textContent = '—';
             listEl.grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">Ошибка загрузки данных</p>';
         }
     }
@@ -503,7 +637,7 @@ async function initBusinessPanel() {
             .replace(/"/g, '&quot;');
     }
 
-    
+
     const themeBtn = document.getElementById('theme-toggle-btn');
     if (themeBtn) {
         let themeTimer = null;
@@ -663,7 +797,7 @@ async function initBusinessPanel() {
         renderChart(chartPeriod);
     }
 
-    
+
     const periodBtns = document.querySelectorAll('.chart-period-btn');
     periodBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -675,6 +809,7 @@ async function initBusinessPanel() {
     });
 
     window.addEventListener('business-lang-changed', () => {
+        if (currentShop) refreshDashboard(client, currentShop.id, stats, list);
         setTimeout(updateChart, 50);
     });
 }

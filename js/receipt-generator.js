@@ -17,14 +17,14 @@ export function generateQRDataURL(text, size = 80) {
     canvas.height = actualSize + 10;
     const ctx = canvas.getContext('2d');
 
-    
+
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = '#e5e7eb';
     ctx.lineWidth = 1;
     ctx.strokeRect(0.5, 0.5, canvas.width - 1, canvas.height - 1);
 
-    
+
     ctx.fillStyle = '#000000';
     for (let row = 0; row < moduleCount; row++) {
         for (let col = 0; col < moduleCount; col++) {
@@ -53,22 +53,32 @@ export function downloadReceiptPDF(receipt, shop) {
         const taxId = shop?.tax_id || '';
         const registerSerial = `CR-${new Date().getFullYear()}-001`;
 
-        const purchaseDate = new Date(receipt.purchase_date).toLocaleString('ru-RU');
-        const receiptSerial = `RCP-${receipt.id.slice(0, 8).toUpperCase()}`;
+        const purchaseDate = new Date(receipt.purchase_date);
+        const pdfDate = purchaseDate.toLocaleString('ru-RU', {
+            day: 'numeric', month: 'numeric', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+        const qrDate = purchaseDate.toISOString();
+        const receiptSerial = receipt.receipt_number
+            ? `RCP-${receipt.receipt_number}`
+            : `RCP-${receipt.id.slice(0, 8).toUpperCase()}`;
 
         const netTotal = receipt.net_total;
         const vatAmount = receipt.vat_amount;
         const grossTotal = receipt.gross_total;
+        const items = Array.isArray(receipt.receipt_items) && receipt.receipt_items.length > 0
+            ? receipt.receipt_items
+            : [{ item_name: 'Digital Receipt', qty: 1, unit_price: 0, vat_rate: 0, net_total: receipt.net_total || 0 }];
 
-        
+
         function qrEscape(v) { return encodeURIComponent(String(v)); }
-        const qrData = `RECEIPT:${qrEscape(receiptSerial)}|DATE:${qrEscape(purchaseDate)}|TAX:${qrEscape(vatAmount.toFixed(2))}|TOTAL:${qrEscape(grossTotal.toFixed(2))}|SELLER:${qrEscape(taxId)}|SHOP_ID:${qrEscape(receipt.shop_id)}|SIG:${qrEscape(receipt.fiscal_hash)}`;
+        const qrData = `RECEIPT:${qrEscape(receiptSerial)}|DATE:${qrEscape(qrDate)}|TAX:${qrEscape(vatAmount.toFixed(2))}|TOTAL:${qrEscape(grossTotal.toFixed(2))}|SELLER:${qrEscape(taxId)}|SHOP_ID:${qrEscape(receipt.shop_id)}|SIG:${qrEscape(receipt.fiscal_hash)}`;
 
         let y = 0;
         const leftCol = 20;
         const rightCol = 120;
 
-        
+
         doc.setFillColor(59, 130, 246);
         doc.rect(0, 0, 210, 18, 'F');
         doc.setTextColor(255, 255, 255);
@@ -79,7 +89,7 @@ export function downloadReceiptPDF(receipt, shop) {
         y = 28;
         doc.setTextColor(0, 0, 0);
 
-        
+
         doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
         doc.text(sellerName, leftCol, y);
@@ -88,8 +98,9 @@ export function downloadReceiptPDF(receipt, shop) {
         doc.setFontSize(9);
         doc.setFont(undefined, 'normal');
         doc.setTextColor(60, 60, 60);
-        doc.text(sellerAddress, leftCol, y);
-        y += 5;
+        const addressLines = doc.splitTextToSize(sellerAddress, 170);
+        doc.text(addressLines, leftCol, y);
+        y += addressLines.length * 4 + 2;
         doc.text(`Tax ID: ${taxId}   |   Reg. S/N: ${registerSerial}`, leftCol, y);
         y += 10;
 
@@ -98,7 +109,7 @@ export function downloadReceiptPDF(receipt, shop) {
         doc.line(leftCol, y, 190, y);
         y += 8;
 
-        
+
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
         doc.setFont(undefined, 'bold');
@@ -109,7 +120,7 @@ export function downloadReceiptPDF(receipt, shop) {
         doc.setFont(undefined, 'bold');
         doc.text(`Date:`, rightCol, y);
         doc.setFont(undefined, 'normal');
-        doc.text(purchaseDate, rightCol + 15, y);
+        doc.text(pdfDate, rightCol + 15, y);
         y += 6;
 
         if (receipt.customer_email) {
@@ -126,7 +137,7 @@ export function downloadReceiptPDF(receipt, shop) {
         doc.text(receipt.payment_method || '—', leftCol + 25, y);
         y += 10;
 
-        
+
         doc.setDrawColor(180, 180, 180);
         doc.setLineDashPattern([1, 1], 0);
         doc.line(leftCol, y, 190, y);
@@ -137,9 +148,10 @@ export function downloadReceiptPDF(receipt, shop) {
         doc.setFont(undefined, 'bold');
         doc.setTextColor(100, 100, 100);
         doc.text("ITEM DESCRIPTION", leftCol, y);
-        doc.text("QTY", 100, y);
-        doc.text("PRICE", 135, y);
-        doc.text("TOTAL", 165, y);
+        doc.text("QTY", 95, y);
+        doc.text("PRICE", 125, y);
+        doc.text("TAX", 150, y);
+        doc.text("TOTAL", 170, y);
         y += 2;
 
         doc.setDrawColor(220, 220, 220);
@@ -149,22 +161,29 @@ export function downloadReceiptPDF(receipt, shop) {
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
         doc.setTextColor(0, 0, 0);
-        doc.text(receipt.item_name.substring(0, 38), leftCol, y);
 
-        doc.setFont("courier", "normal");
-        doc.text(receipt.qty.toString(), 100, y);
-        doc.text(`$${receipt.unit_price.toFixed(2)}`, 135, y);
-        doc.text(`$${netTotal.toFixed(2)}`, 165, y);
-        doc.setFont("helvetica", "normal");
+        const rates = new Set();
+        items.forEach((item) => {
+            const rate = item.vat_rate;
+            if (rate !== undefined && rate !== null) rates.add(Number(rate));
+            const warrantyNote = item.warranty_months ? ` (warranty: ${item.warranty_months}mo)` : '';
+            doc.text((String(item.item_name || '') + warrantyNote).substring(0, 46), leftCol, y);
 
-        y += 6;
+            doc.setFont("courier", "normal");
+            doc.text(String(item.qty ?? ''), 95, y);
+            doc.text(`$${Number(item.unit_price ?? 0).toFixed(2)}`, 125, y);
+            doc.text(rate !== undefined && rate !== null ? `${Number(rate)}%` : '—', 150, y);
+            doc.text(`$${Number(item.net_total ?? 0).toFixed(2)}`, 170, y);
+            doc.setFont("helvetica", "normal");
+            y += 6;
+        });
         doc.setDrawColor(180, 180, 180);
         doc.setLineDashPattern([1, 1], 0);
         doc.line(leftCol, y, 190, y);
         doc.setLineDashPattern([], 0);
         y += 8;
 
-        
+
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
         doc.text(`Net Amount:`, rightCol, y);
@@ -173,7 +192,11 @@ export function downloadReceiptPDF(receipt, shop) {
         y += 6;
 
         doc.setFont("helvetica", "normal");
-        doc.text(`Tax (${receipt.vat_rate}%):`, rightCol, y);
+        const vatRatesList = [...rates].sort((a, b) => a - b);
+        const vatLabel = vatRatesList.length === 1
+            ? `Tax (${vatRatesList[0]}%):`
+            : `Tax (${vatRatesList.join('/')}%):`;
+        doc.text(vatLabel, rightCol, y);
         doc.setFont("courier", "normal");
         doc.text(`$${vatAmount.toFixed(2)}`, 165, y);
         y += 8;
@@ -194,7 +217,7 @@ export function downloadReceiptPDF(receipt, shop) {
         doc.line(rightCol - 5, y + 1.5, 190, y + 1.5);
         y += 15;
 
-        
+
         const qrImg = generateQRDataURL(qrData, 70);
         if (qrImg) {
             doc.addImage(qrImg, 'PNG', leftCol, y, 35, 35);
@@ -207,7 +230,7 @@ export function downloadReceiptPDF(receipt, shop) {
         }
         y += 45;
 
-        
+
         doc.setDrawColor(220, 220, 220);
         doc.setLineWidth(0.3);
         doc.line(leftCol, y, 190, y);

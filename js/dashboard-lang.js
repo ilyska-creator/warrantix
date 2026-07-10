@@ -4,6 +4,8 @@ const dashboardTranslations = {
         nav_items: "Мои вещи",
         nav_receipts: "Чеки и документы",
         nav_business: "Для бизнеса",
+        months_short: "мес",
+        warranty_label: "гарантии",
         nav_notifications: "Уведомления",
         nav_verify: "Проверить чек",
         nav_settings: "Настройки",
@@ -26,7 +28,7 @@ const dashboardTranslations = {
         msg_save_success: "Данные успешно сохранены",
 
 
-        status_active: 'Покупка',
+        status_active: 'Активно',
         status_expiring: 'Заканчивается',
         status_warning: 'Заканчивается',
         status_expired: 'Истекла',
@@ -130,7 +132,7 @@ const dashboardTranslations = {
         msg_item_exists: "Эта вещь уже добавлена!",
         msg_item_save_failed: "Ошибка сохранения. Попробуйте снова.",
 
-        
+
         calendar_title: "Календарь гарантий",
         calendar_active: "Покупка",
         calendar_expiring: "Истекает",
@@ -143,6 +145,8 @@ const dashboardTranslations = {
         nav_items: "My Items",
         nav_receipts: "Receipts & Docs",
         nav_business: "For Business",
+        months_short: "mo",
+        warranty_label: "warranty",
         nav_notifications: "Notifications",
         nav_verify: "Verify Receipt",
         nav_settings: "Settings",
@@ -269,7 +273,7 @@ const dashboardTranslations = {
         msg_item_exists: "This item already exists!",
         msg_item_save_failed: "Save failed. Try again.",
 
-        
+
         calendar_title: "Warranty Calendar",
         calendar_active: "Purchase",
         calendar_expiring: "Expiring",

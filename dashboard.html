@@ -13,6 +13,7 @@
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <script>(function () { var t = localStorage.getItem('valuon-theme'); if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); })();</script>
 </head>
 
 <body class="dashboard-body">
@@ -139,15 +140,19 @@
                     <div class="calendar-nav">
                         <button class="calendar-nav-btn" id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
                         <span class="calendar-month-label" id="cal-month-label"></span>
-                        <button class="calendar-nav-btn" id="cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+                        <button class="calendar-nav-btn" id="cal-next"><i
+                                class="fa-solid fa-chevron-right"></i></button>
                     </div>
                     <div class="calendar-weekdays" id="cal-weekdays"></div>
                     <div class="calendar-days" id="cal-days"></div>
                 </div>
                 <div class="calendar-legend">
-                    <span class="legend-item"><span class="legend-dot active"></span> <span data-i18n="calendar_active">Активна</span></span>
-                    <span class="legend-item"><span class="legend-dot warning"></span> <span data-i18n="calendar_expiring">Истекает</span></span>
-                    <span class="legend-item"><span class="legend-dot expired"></span> <span data-i18n="calendar_expired">Истекла</span></span>
+                    <span class="legend-item"><span class="legend-dot active"></span> <span
+                            data-i18n="calendar_active">Активна</span></span>
+                    <span class="legend-item"><span class="legend-dot warning"></span> <span
+                            data-i18n="calendar_expiring">Истекает</span></span>
+                    <span class="legend-item"><span class="legend-dot expired"></span> <span
+                            data-i18n="calendar_expired">Истекла</span></span>
                 </div>
             </section>
         </section>
