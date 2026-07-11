@@ -53,8 +53,8 @@ const translations = {
         proc_1_desc: "Добавьте покупку вручную: название, дата, срок гарантии. Прикрепите фото чека для подтверждения.",
         proc_2_title: "Расчёт", proc_2_desc: "Система рассчитывает точную дату окончания гарантии и добавляет товар в ваш личный кабинет.",
         proc_3_title: "Мониторинг", proc_3_desc: "Получайте уведомления об окончании срока и контролируйте статус всех ваших покупок в одном месте.",
-        vision_title: "Каждая покупка заслуживает цифровой памяти",
-        vision_desc: "Мы начинаем с простого: чек и гарантия всегда под рукой, для любой вещи и в любой стране. Дальше — растим Valuon в общее пространство доверия между покупателем и магазином, шаг за шагом, вместе с первыми пользователями.",
+        vision_title: "Единая система электронных чеков — что дальше?",
+        vision_desc: "Единая платформа, где каждый чек подписан цифровой подписью, а гарантия отслеживается автоматически. Сейчас — работающий MVP. Дальше — международные рынки, интеграция с кассами и доверие между покупателем и магазином.",
         vision_btn: "Читать Roadmap", footer_tagline: "Управляйте гарантиями умнее.",
         footer_prod: "Продукт", footer_sec: "Безопасность", footer_biz: "Для бизнеса",
         footer_comp: "Компания", footer_about: "О нас", footer_career: "Карьера", footer_contact: "Контакты", footer_social: "Соцсети",
@@ -108,8 +108,8 @@ const translations = {
         proc_1_desc: "Enter purchase details manually: name, date, warranty period. Attach a receipt photo for proof.",
         proc_2_title: "Calculation", proc_2_desc: "The system calculates the exact warranty expiry date and adds the item to your dashboard.",
         proc_3_title: "Monitoring", proc_3_desc: "Receive expiry notifications and track the status of all your purchases in one place.",
-        vision_title: "Every purchase deserves a digital memory",
-        vision_desc: "We're starting simple: your receipt and warranty, always at hand, for any item, in any country. From there, we're growing Valuon into shared ground for trust between shoppers and stores — one step at a time, with our first users.",
+        vision_title: "A unified system for digital receipts — what's next?",
+        vision_desc: "A unified platform where every receipt is cryptographically signed and every warranty is tracked automatically. Today — a working MVP. Next — international markets, POS integrations, and trust between buyers and stores.",
         vision_btn: "Read Roadmap", footer_tagline: "Manage warranties smarter.",
         footer_prod: "Product", footer_sec: "Security", footer_biz: "For Business",
         footer_comp: "Company", footer_about: "About Us", footer_career: "Careers", footer_contact: "Contact", footer_social: "Socials",
@@ -223,11 +223,11 @@ async function checkAuthOnHome() {
 
         if (startBtn) {
             startBtn.href = 'dashboard.html';
-            startBtn.innerHTML = currentLang === 'ru' ? 'Мой кабинет' : 'My Dashboard';
+            startBtn.innerHTML = '<span>' + t.hero_btn_start + '</span> <i class="fa-solid fa-arrow-right"></i>';
         }
         if (loginBtn) {
             loginBtn.href = 'dashboard.html';
-            loginBtn.innerHTML = currentLang === 'ru' ? 'Кабинет' : 'Dashboard';
+            loginBtn.innerHTML = t.hero_btn_login;
         }
     }
 }

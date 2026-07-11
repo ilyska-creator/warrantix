@@ -1,272 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Valuon — Дорожная карта продукта</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-                rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="icon" type="image/png" href="assets/favicon.png">
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="css/roadmap.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valuon — Дорожная карта продукта</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/roadmap.css">
 </head>
 
 <body>
-        <nav class="navbar">
-                <div class="container nav-wrapper">
-                        <a href="index.html" class="brand">
-                                <svg width="32" height="32" viewBox="0 0 40 40" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M20 4L5 10V20C5 29.5 11.5 37.5 20 39C28.5 37.5 35 29.5 35 20V10L20 4Z"
-                                                fill="#3b82f6" stroke="#2563eb" stroke-width="1.5"
-                                                stroke-linejoin="round" />
-                                        <path d="M13 20L18 25L27 15" stroke="white" stroke-width="3"
-                                                stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                Valuon
-                        </a>
-                        <div class="nav-actions">
-                                <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme"><i
-                                                class="fa-solid fa-moon"></i></button>
-                                <button id="lang-toggle" class="icon-btn"
-                                        aria-label="Toggle Language"><span>RU</span></button>
-                                <a href="index.html" class="btn btn-outline small" data-i18n="roadmap_back">← На
-                                        главную</a>
-                        </div>
+    <nav class="navbar">
+        <div class="container nav-wrapper">
+            <a href="index.html" class="brand">
+                <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 4L5 10V20C5 29.5 11.5 37.5 20 39C28.5 37.5 35 29.5 35 20V10L20 4Z" fill="#3b82f6" stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round"/>
+                    <path d="M13 20L18 25L27 15" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Valuon
+            </a>
+            <div class="nav-actions">
+                <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme"><i class="fa-solid fa-moon"></i></button>
+                <button id="lang-toggle" class="icon-btn" aria-label="Toggle Language"><span>RU</span></button>
+                <a href="index.html" class="btn btn-outline small" data-i18n="roadmap_back">← На главную</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="roadmap-header section">
+        <div class="container">
+            <h1 class="fade-in-up" data-i18n="roadmap_title">Дорожная карта Valuon: единая платформа официальных чеков</h1>
+            <p class="fade-in-up delay-1" data-i18n="roadmap_desc">План развития от рабочего MVP до единой платформы доступа к официальным чекам в разных странах.</p>
+        </div>
+    </header>
+
+    <section class="roles-section section">
+        <div class="container">
+            <h2 class="roles-heading fade-in-up" data-i18n="roles_section_title">Две роли Valuon, а не одна универсальная</h2>
+            <div class="role-grid">
+                <div class="role-card role-card-a fade-in-up" data-animate="up">
+                    <div class="role-icon role-icon-a"><i class="fa-solid fa-stamp"></i></div>
+                    <span class="role-tag role-tag-a" data-i18n="role_a_tag">Роль А</span>
+                    <h3 data-i18n="role_a_title">Первичный эмитент</h3>
+                    <p data-i18n="role_a_desc">Эстония, Ирландия, Мальта, Финляндия, Лихтенштейн, США — там, где нет обязательной фискализации, чек Valuon может быть настоящим официальным цифровым чеком, а не имитацией.</p>
                 </div>
-        </nav>
-
-        <header class="roadmap-header section">
-                <div class="container">
-                        <h1 class="fade-in-up" data-i18n="roadmap_title">Дорожная карта Valuon: единая платформа
-                                официальных чеков</h1>
-                        <p class="fade-in-up delay-1" data-i18n="roadmap_desc">План развития от рабочего MVP до единой
-                                точки доступа к официальным чекам в разных странах. Гарантии и перепродажа — полезная
-                                надстройка поверх этого ядра, а не самоцель.</p>
+                <div class="role-card role-card-b fade-in-up" data-animate="up">
+                    <div class="role-icon role-icon-b"><i class="fa-solid fa-layer-group"></i></div>
+                    <span class="role-tag role-tag-b" data-i18n="role_b_tag">Роль Б</span>
+                    <h3 data-i18n="role_b_title">Реестр поверх официального</h3>
+                    <p data-i18n="role_b_desc">Германия, Франция, Италия, Испания и другие — чек уже подписан государственно сертифицированной кассой. Valuon подключается к этим данным и даёт чеку вторую жизнь у покупателя.</p>
                 </div>
-        </header>
-
-        <section class="roles-section section">
-                <div class="container">
-                        <h2 class="roles-heading fade-in-up" data-i18n="roles_section_title">Две роли Valuon, а не одна
-                                универсальная</h2>
-                        <div class="role-grid">
-                                <div class="role-card role-card-a fade-in-up" data-animate="up">
-                                        <div class="role-icon role-icon-a"><i class="fa-solid fa-stamp"></i></div>
-                                        <span class="role-tag role-tag-a" data-i18n="role_a_tag">Роль А</span>
-                                        <h3 data-i18n="role_a_title">Первичный эмитент</h3>
-                                        <p data-i18n="role_a_desc">Эстония, Ирландия, Мальта, Финляндия, Лихтенштейн,
-                                                США — там, где нет обязательной фискализации, чек Valuon может быть
-                                                настоящим официальным цифровым чеком, а не имитацией.</p>
-                                </div>
-                                <div class="role-card role-card-b fade-in-up" data-animate="up">
-                                        <div class="role-icon role-icon-b"><i class="fa-solid fa-layer-group"></i></div>
-                                        <span class="role-tag role-tag-b" data-i18n="role_b_tag">Роль Б</span>
-                                        <h3 data-i18n="role_b_title">Реестр поверх официального</h3>
-                                        <p data-i18n="role_b_desc">Германия, Франция, Италия, Испания и другие — чек
-                                                уже подписан государственно сертифицированной кассой. Valuon
-                                                подключается к этим данным и даёт чеку вторую жизнь у покупателя.</p>
-                                </div>
-                                <div class="role-card role-card-c fade-in-up" data-animate="up">
-                                        <div class="role-icon role-icon-c"><i class="fa-solid fa-hourglass-half"></i>
-                                        </div>
-                                        <span class="role-tag role-tag-c" data-i18n="role_c_tag">Роль В —
-                                                отложено</span>
-                                        <h3 data-i18n="role_c_title">Собственная сертификация</h3>
-                                        <p data-i18n="role_c_desc">Стать сертифицированным фискальным провайдером
-                                                самим (как fiskaly/efsta) — дорогой многолетний путь. Решение
-                                                принимается не раньше 2028 года, под подтверждённый масштаб.</p>
-                                </div>
-                        </div>
-                        <p class="roles-note" data-i18n="roles_note">Гарантии, история владения и перепродажа техники
-                                работают поверх обеих ролей как надстройка — они делают возврат в приложение
-                                осмысленным, но не являются целью сами по себе.</p>
+                <div class="role-card role-card-c fade-in-up" data-animate="up">
+                    <div class="role-icon role-icon-c"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <span class="role-tag role-tag-c" data-i18n="role_c_tag">Роль В — отложено</span>
+                    <h3 data-i18n="role_c_title">Собственная сертификация</h3>
+                    <p data-i18n="role_c_desc">Стать сертифицированным фискальным провайдером самим (как fiskaly/efsta) — дорогой многолетний путь. Решение принимается не раньше 2028 года, под подтверждённый масштаб.</p>
                 </div>
-        </section>
+            </div>
+            <p class="roles-note" data-i18n="roles_note">Гарантии, история владения и перепродажа техники работают поверх обеих ролей как надстройка — они делают возврат в приложение осмысленным, но не являются целью сами по себе.</p>
+        </div>
+    </section>
 
-        <section class="roadmap-section">
-                <div class="container timeline-container">
+    <section class="roadmap-section">
+        <div class="container timeline-container">
 
-                        <div class="timeline-card" data-animate="left">
-                                <div class="card-status current" data-i18n="step0_badge"><i
-                                                class="fa-solid fa-rocket"></i> Ближайшие 30 дней</div>
-                                <span class="role-tag role-tag-neutral" data-i18n="step0_role_tag">Роль А + Роль Б —
-                                        основа</span>
-                                <h2 data-i18n="step0_title">Шаг 0: техническая база под честное «официально»</h2>
-                                <ul class="feature-list">
-                                        <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_1">Исправлена
-                                                        ошибка: статус чека при создании и при импорте теперь
-                                                        отображается сразу, без переключения языка</span></li>
-                                        <li><i class="fa-solid fa-spinner fa-spin"></i> <span
-                                                        data-i18n="step0_item_2">Настоящая криптографическая подпись
-                                                        чека (Ed25519/WebCrypto) вместо обычного хеша</span></li>
-                                        <li><i class="fa-solid fa-spinner fa-spin"></i> <span
-                                                        data-i18n="step0_item_3">Полный аудит RLS-политик Supabase по
-                                                        всем таблицам</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step0_item_4">Явное
-                                                        разделение статусов: чек, выпущенный Valuon, и чек,
-                                                        импортированный из государственной системы — не одно поле
-                                                        «verified» на оба случая</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step0_item_5">Воронка
-                                                        аналитики: активация → первый чек → возврат на 7-й и 30-й
-                                                        день</span></li>
-                                </ul>
-                        </div>
+            <div class="timeline-card" data-animate="left">
+                <div class="card-status current" data-i18n="step0_badge"><i class="fa-solid fa-rocket"></i> Уже готово</div>
+                <span class="role-tag role-tag-neutral" data-i18n="step0_role_tag">Роль А + Роль Б — основа</span>
+                <h2 data-i18n="step0_title">Этап 0: текущий MVP — что уже сделано</h2>
+                <p class="stage-context" data-i18n="step0_context">Рабочий продукт, который можно открыть, зарегистрироваться и начать использовать. Дальнейшие этапы строятся поверх этой базы.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_1">Регистрация с email/паролем, подтверждение email, восстановление пароля</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_2">Проверка от ботов при входе и регистрации</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_3">Смена email, редактирование имени/фамилии в настройках</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_4">Добавление вещи вручную: название, тип, бренд, цена, серийный номер, дата покупки, срок гарантии</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_5">Автоматический расчёт даты окончания гарантии</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_6">Календарь гарантий с переключением месяцев</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_7">Раздел уведомлений: гарантия ≤30 дней или истекла</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_8">Загрузка фото/PDF чека, drag&drop, привязка к вещи</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_9">Бизнес: создание магазина, генерация Ed25519 ключей</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_10">Бизнес: выписка чека с несколькими позициями и цифровой подписью</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_11">Бизнес: PDF с QR-кодом, график продаж</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_12">Верификация: сканирование QR камерой, загрузка PDF, проверка Ed25519</span></li>
+                    <li><i class="fa-solid fa-check"></i> <span data-i18n="step0_item_13">Тёмная/светлая тема, мультиязычность RU/EN</span></li>
+                </ul>
+            </div>
 
-                        <div class="timeline-card" data-animate="right">
-                                <div class="card-status upcoming" data-i18n="step1_badge"><i
-                                                class="fa-solid fa-flag"></i> Месяцы 1–3</div>
-                                <span class="role-tag role-tag-a" data-i18n="step1_role_tag">Роль А</span>
-                                <h2 data-i18n="step1_title">Шаг 1: доказать Роль А на одном рынке</h2>
-                                <ul class="feature-list">
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_1">Пилот в
-                                                        Эстонии: 5–10 малых продавцов/мастерских без собственной
-                                                        кассовой системы — Valuon как их единственная система цифровых
-                                                        чеков</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span
-                                                        data-i18n="step1_item_2">Параллельный
-                                                        точечный пилот в США — там нет даже федерального требования
-                                                        просто выдавать чек</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span
-                                                        data-i18n="step1_item_3">Событийные
-                                                        уведомления: истечение гарантии и её продление на 12 месяцев
-                                                        после ремонта по Праву на ремонт (действует с 31.07.2026)</span>
-                                        </li>
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_4">Метрика:
-                                                        Retention D30 ≥ 25% — а не число выпущенных чеков</span></li>
-                                </ul>
-                                <div class="decision-gate">
-                                        <i class="fa-solid fa-signs-post"></i>
-                                        <span data-i18n="step1_gate">Точка решения (день 90): если retention низкий —
-                                                рассмотреть встраиваемый виджет вместо отдельного приложения, прежде
-                                                чем продолжать инвестировать в B2C.</span>
-                                </div>
-                        </div>
-
-                        <div class="timeline-card" data-animate="left">
-                                <div class="card-status future" data-i18n="step2_badge"><i class="fa-solid fa-plug"></i>
-                                        Месяцы 3–6</div>
-                                <span class="role-tag role-tag-b" data-i18n="step2_role_tag">Роль Б</span>
-                                <h2 data-i18n="step2_title">Шаг 2: первая интеграция для Роли Б</h2>
-                                <ul class="feature-list">
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_1">Один
-                                                        интеграционный коннектор к POS/кассовому API в фискализированной
-                                                        стране (например, TSE-приложение Shopify для Германии)</span>
-                                        </li>
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_2">Импорт
-                                                        уже
-                                                        подписанного государством чека — с явной пометкой источника
-                                                        подписи, без выдачи его за собственную подпись Valuon</span>
-                                        </li>
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_3">3–5
-                                                        пилотных магазинов на этой интеграции — не 50 сразу, цель шага
-                                                        чисто техническая</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span
-                                                        data-i18n="step2_item_4">Юридическая
-                                                        консультация по конкретному вопросу: можно ли называть
-                                                        импортированный чек «официальным» на стороне Valuon</span></li>
-                                </ul>
-                        </div>
-
-                        <div class="timeline-card" data-animate="right">
-                                <div class="card-status future" data-i18n="step3_badge"><i
-                                                class="fa-solid fa-earth-europe"></i> Месяцы 6–12</div>
-                                <span class="role-tag role-tag-both" data-i18n="step3_role_tag">Роль А + Роль Б</span>
-                                <h2 data-i18n="step3_title">Шаг 3: расширение и решение о географии</h2>
-                                <ul class="feature-list">
-                                        <li><i class="fa-regular fa-circle"></i> <span
-                                                        data-i18n="step3_item_1">Расширение
-                                                        Роли А на Ирландию или Финляндию — только если Эстония
-                                                        показала повторное использование чека пользователем</span>
-                                        </li>
-                                        <li><i class="fa-regular fa-circle"></i> <span
-                                                        data-i18n="step3_item_2">Расширение
-                                                        Роли Б на Францию — обязательная сертификация касс с сентября
-                                                        2026 форсирует продавцов пересматривать системы именно
-                                                        сейчас</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_3">Выбор
-                                                        одной основной юрисдикции для юрлица (Эстония)</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_4">Платные
-                                                        тарифы Merchant Starter/Bridge — только после того, как
-                                                        пилотные магазины подтвердят готовность платить</span></li>
-                                </ul>
-                                <div class="decision-gate">
-                                        <i class="fa-solid fa-signs-post"></i>
-                                        <span data-i18n="step3_gate">Точка решения: платный тариф запускается по
-                                                предзаказу или письменному подтверждению магазина, а не одновременно с
-                                                самим пилотом.</span>
-                                </div>
-                        </div>
-
-                        <div class="timeline-card" data-animate="left">
-                                <div class="card-status vision" data-i18n="step4_badge"><i
-                                                class="fa-solid fa-earth-americas"></i> Год 2</div>
-                                <span class="role-tag role-tag-both" data-i18n="step4_role_tag">Роль А + Роль Б →
-                                        решение по Роли В</span>
-                                <h2 data-i18n="step4_title">Шаг 4: масштабирование и решение по Роли В</h2>
-                                <ul class="feature-list">
-                                        <li><i class="fa-regular fa-circle"></i> <span
-                                                        data-i18n="step4_item_1">Измеримая
-                                                        функция реестра: у пользователя — чеки из нескольких магазинов
-                                                        и стран в одном месте</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step4_item_2">Решение
-                                                        об
-                                                        инвестициях в сертификацию Роли В в одной стране — только под
-                                                        подтверждённый спрос, не заранее</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span
-                                                        data-i18n="step4_item_3">Расширение
-                                                        на новые категории товаров и страны — только после измеримого
-                                                        эффекта в уже проверенных нишах</span></li>
-                                        <li><i class="fa-regular fa-circle"></i> <span data-i18n="step4_item_4">Более
-                                                        сложная инфраструктура (Merkle-дерево, DID, ZK-proofs) — только
-                                                        под запрос конкретного партнёра (страховая, площадка
-                                                        перепродажи)</span></li>
-                                </ul>
-                        </div>
-
+            <div class="timeline-card" data-animate="right">
+                <div class="card-status upcoming" data-i18n="step1_badge"><i class="fa-solid fa-shield"></i> Текущая работа</div>
+                <span class="role-tag role-tag-neutral" data-i18n="step1_role_tag">Инфраструктура</span>
+                <h2 data-i18n="step1_title">Этап 1: доработка технической базы</h2>
+                <p class="stage-context" data-i18n="step1_context">Прежде чем звать больше магазинов и пользователей — нужно укрепить то, что уже построено.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_3">Выгрузить и закоммитить RLS-политики в SQL-миграции</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_4">Подключить проверку сложности пароля на регистрации и сбросе</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_5">Добавить CSP-заголовки (vercel.json)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_7">Настроить проверку MIME-типа файлов в Storage bucket</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_8">Добавить версию формата в подписываемые данные чека</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_9">«Заморозить» данные магазина на чеке при проверке подписи</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_10">Починить округление сумм в PDF</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step1_item_11">Ограничения CHECK на значения позиций чека в БД</span></li>
+                </ul>
+                <div class="decision-gate">
+                    <i class="fa-solid fa-signs-post"></i>
+                    <span data-i18n="step1_gate">Без этого этапа масштабировать нельзя — рост числа магазинов и чеков увеличит ущерб от уже найденных проблем.</span>
                 </div>
-        </section>
+            </div>
 
-        <section class="out-of-scope-section section">
-                <div class="container">
-                        <div class="out-of-scope-card fade-in-up">
-                                <div class="out-of-scope-header">
-                                        <i class="fa-solid fa-ban"></i>
-                                        <h3 data-i18n="out_of_scope_title">Что мы сознательно не обещаем сейчас</h3>
-                                </div>
-                                <p data-i18n="out_of_scope_desc">Раньше в планах Valuon фигурировали формулировки,
-                                        которые опережали то, что реально построено. Здесь мы явно проговариваем, что
-                                        отложено — и почему.</p>
-                                <ul class="out-of-scope-list">
-                                        <li><i class="fa-solid fa-xmark"></i> <span
-                                                        data-i18n="out_of_scope_item_1">Единый глобальный реестр и
-                                                        лоббирование стандарта ISO/CEN — раньше Шага 4 и без
-                                                        подтверждённого спроса партнёров это преждевременно</span></li>
-                                        <li><i class="fa-solid fa-xmark"></i> <span
-                                                        data-i18n="out_of_scope_item_2">Кросс-граничный паспорт покупки
-                                                        (например, из Китая для сервиса в Германии) — интересная идея
-                                                        на будущее, не задача ближайших 12 месяцев</span></li>
-                                        <li><i class="fa-solid fa-xmark"></i> <span
-                                                        data-i18n="out_of_scope_item_4">Замена фискальных систем
-                                                        (TSE/RKSV/NF525 и др.) — Valuon встраивается поверх них, а не
-                                                        конкурирует с ними за подпись чека</span></li>
-                                </ul>
-                        </div>
+            <div class="timeline-card" data-animate="left">
+                <div class="card-status upcoming" data-i18n="step2_badge"><i class="fa-solid fa-user-plus"></i> Месяцы 1–3</div>
+                <span class="role-tag role-tag-a" data-i18n="step2_role_tag">Роль А + активация</span>
+                <h2 data-i18n="step2_title">Этап 2: активация покупателя — retention D30</h2>
+                <p class="stage-context" data-i18n="step2_context">Ручной ввод чека — главный барьер возврата. OCR, импорт из почты и push-уведомления должны сделать приложение привычкой, а не одноразовым экспериментом.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_1">Автозаполнение полей вещи по фото чека (OCR)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_2">Импорт чеков из почты (Amazon, Ozon, AliExpress и др.)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_3">Push-уведомления об истечении гарантии</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_4">Фактическая отправка еженедельной рассылки (cron / Edge Function)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_5">Добавление даты окончания гарантии в Google/Apple Calendar</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_6">Журнал сервисного обслуживания вещи (ремонты, даты, стоимость)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_7">Мастер гарантийного обращения: письмо продавцу со ссылкой на чек</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_9">Передача вещи новому владельцу при перепродаже (QR с историей)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step2_item_10">PWA-версия с камерой в один тап</span></li>
+                </ul>
+            </div>
+
+            <div class="timeline-card" data-animate="right">
+                <div class="card-status future" data-i18n="step3_badge"><i class="fa-solid fa-store"></i> Месяцы 3–6</div>
+                <span class="role-tag role-tag-b" data-i18n="step3_role_tag">Роль Б + бизнес-инструменты</span>
+                <h2 data-i18n="step3_title">Этап 3: инструменты для бизнеса</h2>
+                <p class="stage-context" data-i18n="step3_context">Магазины не будут выписывать чеки вручную. Нужны интеграции с кассами, API и бесшовный онбординг — только тогда выписка чека станет естественной частью продажи.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_1">Плагины к кассам и e-commerce (Shopify, WooCommerce, Lightspeed)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_2">Публичный REST API для программной выписки чеков</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_3">Вебхуки на события (чек выписан, чек верифицирован)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_4">Мультипользовательские аккаунты магазина (роли сотрудников)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_5">Кастомный брендинг чека и страницы верификации</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_6">Массовый импорт исторических чеков через CSV</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_7">Workflow возврата/обмена/аннулирования чека</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_8">Ротация и отзыв криптоключей магазина</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_9">Экспорт чеков для бухгалтерии (CSV/XML под 1С, DATEV)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step3_item_10">Расширенная аналитика: LTV, средний чек, доля гарантийных обращений</span></li>
+                </ul>
+            </div>
+
+            <div class="timeline-card" data-animate="left">
+                <div class="card-status future" data-i18n="step4_badge"><i class="fa-solid fa-chart-line"></i> Месяцы 6–12</div>
+                <span class="role-tag role-tag-both" data-i18n="step4_role_tag">B2B2C-инфраструктура</span>
+                <h2 data-i18n="step4_title">Этап 4: монетизация и сетевой эффект</h2>
+                <p class="stage-context" data-i18n="step4_context">Сейчас в продукте нет платёжного функционала вообще. Первые тарифы — только после того, как пилотные магазины подтвердят готовность платить.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step4_item_1">Тарифные планы и биллинг (сейчас платёжного функционала нет)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step4_item_2">Публичный виджет «Verified by Valuon» для сайта магазина</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step4_item_3">Платный API верификации для страховых и площадок перепродажи</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step4_item_4">Продажа расширенной гарантии в момент выписки чека (комиссия)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step4_item_5">Онбординг-чеклист для нового магазина в дашборде</span></li>
+                </ul>
+                <div class="decision-gate">
+                    <i class="fa-solid fa-signs-post"></i>
+                    <span data-i18n="step4_gate">Платный тариф запускается только после письменного подтверждения магазинов, а не одновременно с пилотом.</span>
                 </div>
-        </section>
+            </div>
 
-        <footer class="footer">
-                <div class="container copyright">
-                        <p data-i18n="footer_copyright">&copy; 2026 Valuon. Все права защищены.</p>
+            <div class="timeline-card" data-animate="right">
+                <div class="card-status vision" data-i18n="step5_badge"><i class="fa-solid fa-earth-europe"></i> Год 2</div>
+                <span class="role-tag role-tag-both" data-i18n="step5_role_tag">А + Б → решение по В</span>
+                <h2 data-i18n="step5_title">Этап 5: географическое и юридическое расширение</h2>
+                <p class="stage-context" data-i18n="step5_context">Из одной страны и одной роли — в несколько юрисдикций. Каждый новый рынок запускается только после измеримого успеха на предыдущем.</p>
+                <ul class="feature-list">
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step5_item_1">Пилот Роли А в Эстонии (5–10 продавцов) — Valuon как их единственная система чеков</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step5_item_2">Параллельный точечный пилот Роли А в США</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step5_item_3">Первая интеграция Роли Б: коннектор к TSE/кассовому API (Германия)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step5_item_4">Юридическая консультация: можно ли называть импортированный чек «официальным»</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step5_item_7">Выбор основной юрисдикции для юрлица (Эстония)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step5_item_5">Расширение Роли А на Ирландию/Финляндию при успехе Эстонии</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step5_item_6">Расширение Роли Б на Францию (сертификация касс с сентября 2026)</span></li>
+                    <li><i class="fa-regular fa-circle"></i> <span data-i18n="step5_item_8">Решение по Роли В — только под подтверждённый спрос, не раньше 2028</span></li>
+                </ul>
+                <div class="decision-gate">
+                    <i class="fa-solid fa-signs-post"></i>
+                    <span data-i18n="step5_gate">Ключевая метрика: Retention D30 ≥ 25%. Если retention низкий — рассмотреть встраиваемый виджет вместо отдельного приложения.</span>
                 </div>
-        </footer>
+            </div>
 
-        <script src="js/roadmap-lang.js"></script>
-        <script src="js/animations.js"></script>
+        </div>
+    </section>
+
+
+
+    <footer class="footer">
+        <div class="container copyright">
+            <p data-i18n="footer_copyright">© 2026 Valuon. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="js/roadmap-lang.js"></script>
+    <script src="js/animations.js"></script>
 </body>
 
 </html>
