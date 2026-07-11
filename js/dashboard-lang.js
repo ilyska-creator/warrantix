@@ -60,7 +60,7 @@ const dashboardTranslations = {
         upload_select_hint: "Нажмите для выбора файла (Макс. 10 МБ)",
         label_amount: "Сумма ($)",
         label_purchase_date: "Дата покупки",
-        label_store: "Магазин",
+        label_store_name: "Магазин",
         label_linked_item: "Привязать к товару",
         option_no_link: "Не привязывать",
         link_hint_manual: "Ручной ввод данных",
@@ -90,6 +90,13 @@ const dashboardTranslations = {
         setting_expiry_desc: "За 30, 7 и 1 день до окончания",
         setting_email_digest: "Еженедельная сводка",
         setting_digest_desc: "Обзор ваших активов каждый понедельник",
+        settings_appearance: "Вид",
+        setting_theme: "Тёмная тема",
+        setting_theme_desc: "Переключить оформление",
+        setting_dark_theme: "Тёмная",
+        setting_light_theme: "Светлая",
+        setting_language: "Язык",
+        setting_language_desc: "Русский / English",
         settings_danger: "Опасная зона",
         setting_delete_all: "Удалить все мои данные",
         setting_delete_disabled_desc: "Функция появится в следующем обновлении",
@@ -200,7 +207,7 @@ const dashboardTranslations = {
         upload_select_hint: "Click to select file (Max 10 MB)",
         label_amount: "Amount ($)",
         label_purchase_date: "Purchase Date",
-        label_store: "Store",
+        label_store_name: "Store",
         label_linked_item: "Link to Item",
         option_no_link: "Don't link",
         link_hint_manual: "Manual data entry",
@@ -231,6 +238,13 @@ const dashboardTranslations = {
         setting_expiry_desc: "30, 7 and 1 day before expiration",
         setting_email_digest: "Weekly digest",
         setting_digest_desc: "Overview of your assets every Monday",
+        settings_appearance: "Appearance",
+        setting_theme: "Dark Theme",
+        setting_theme_desc: "Toggle appearance",
+        setting_dark_theme: "Dark",
+        setting_light_theme: "Light",
+        setting_language: "Language",
+        setting_language_desc: "Русский / English",
         settings_danger: "Danger Zone",
         setting_delete_all: "Delete all my data",
         setting_delete_disabled_desc: "Feature coming in the next update",
@@ -331,6 +345,9 @@ function applyDashboardLang(lang) {
         const span = langBtn.querySelector('span');
         if (span) span.textContent = lang.toUpperCase();
     }
+
+    const settingsLangLabel = document.getElementById('settings-lang-label');
+    if (settingsLangLabel) settingsLangLabel.textContent = lang.toUpperCase();
 
     localStorage.setItem('valuon-lang', lang);
     window.dispatchEvent(new CustomEvent('lang-changed', { detail: { lang } }));

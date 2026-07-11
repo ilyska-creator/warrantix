@@ -137,7 +137,6 @@ async function loadNotifications(userId, client) {
     }
 }
 
-const notifLink = document.querySelector('[data-view="notifications"]');
 let notifInitialized = false;
 
 let cachedUserId = null;
@@ -153,9 +152,9 @@ async function ensureNotifLoaded() {
     notifInitialized = true;
 }
 
-if (notifLink) {
-    notifLink.addEventListener('click', ensureNotifLoaded);
-}
+document.querySelectorAll('[data-view="notifications"]').forEach(el => {
+    el.addEventListener('click', ensureNotifLoaded);
+});
 
 if (window.location.hash === '#view-notifications') {
     ensureNotifLoaded();

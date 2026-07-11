@@ -97,6 +97,33 @@
         </section>
     </main>
 
+    <nav class="bottom-nav">
+        <a href="dashboard.html#view-items" class="bottom-nav-item">
+            <i class="fa-solid fa-box-open"></i>
+            <span data-i18n="nav_items">Мои вещи</span>
+        </a>
+        <a href="receipts.html" class="bottom-nav-item active">
+            <i class="fa-solid fa-receipt"></i>
+            <span data-i18n="nav_receipts">Чеки</span>
+        </a>
+        <a href="business.html" class="bottom-nav-item">
+            <i class="fa-solid fa-store"></i>
+            <span data-i18n="nav_business">Бизнес</span>
+        </a>
+        <a href="verify.html" class="bottom-nav-item">
+            <i class="fa-solid fa-qrcode"></i>
+            <span data-i18n="nav_verify">QR</span>
+        </a>
+        <a href="dashboard.html#view-notifications" class="bottom-nav-item">
+            <i class="fa-solid fa-bell"></i>
+            <span data-i18n="nav_notifications">Уведомления</span>
+        </a>
+        <a href="dashboard.html#view-settings" class="bottom-nav-item">
+            <i class="fa-solid fa-gear"></i>
+            <span data-i18n="nav_settings">Настройки</span>
+        </a>
+    </nav>
+
     <div id="upload-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -147,7 +174,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label data-i18n="label_store">Магазин</label>
+                    <label data-i18n="label_store_name">Магазин</label>
                     <div class="input-with-lock">
                         <input type="text" name="store_name" data-i18n-placeholder="ph_store" required>
                         <i class="fa-solid fa-lock lock-icon hidden"></i>

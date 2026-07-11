@@ -28,10 +28,7 @@
 
 <body class="business-body">
     <header class="business-top-bar">
-        <a href="dashboard.html" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i>
-            <span>Вернуться в личный кабинет</span>
-        </a>
+
         <a href="index.html" class="brand-small">
             <svg width="20" height="20" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 4L5 10V20C5 29.5 11.5 37.5 20 39C28.5 37.5 35 29.5 35 20V10L20 4Z" fill="#3b82f6"
@@ -94,7 +91,7 @@
         </section>
         <section id="shop-dashboard-view" class="view is-active">
             <div class="content-header" data-animate>
-                <h1>Мои чеки</h1>
+                <h1>Мой магазин</h1>
                 <button id="open-create-receipt-btn" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i> Создать чек
                 </button>
@@ -269,6 +266,33 @@
             </div>
         </div>
     </main>
+
+    <nav class="bottom-nav">
+        <a href="dashboard.html#view-items" class="bottom-nav-item">
+            <i class="fa-solid fa-box-open"></i>
+            <span data-i18n="nav_items">Мои вещи</span>
+        </a>
+        <a href="receipts.html" class="bottom-nav-item">
+            <i class="fa-solid fa-receipt"></i>
+            <span data-i18n="nav_receipts">Чеки</span>
+        </a>
+        <a href="business.html" class="bottom-nav-item active">
+            <i class="fa-solid fa-store"></i>
+            <span data-i18n="nav_business">Бизнес</span>
+        </a>
+        <a href="verify.html" class="bottom-nav-item">
+            <i class="fa-solid fa-qrcode"></i>
+            <span data-i18n="nav_verify">QR</span>
+        </a>
+        <a href="dashboard.html#view-notifications" class="bottom-nav-item">
+            <i class="fa-solid fa-bell"></i>
+            <span data-i18n="nav_notifications">Уведомления</span>
+        </a>
+        <a href="dashboard.html#view-settings" class="bottom-nav-item">
+            <i class="fa-solid fa-gear"></i>
+            <span data-i18n="nav_settings">Настройки</span>
+        </a>
+    </nav>
 
     <div id="toast-container" class="toast-container"></div>
 

@@ -263,9 +263,56 @@ async function initSettings() {
             }
         });
     }
+
+    const themeBtn = document.getElementById('settings-theme-toggle');
+    const langBtn = document.getElementById('settings-lang-toggle');
+
+    if (themeBtn) {
+        const updateThemeBtn = () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const icon = themeBtn.querySelector('i');
+            const label = document.getElementById('settings-theme-label');
+            if (icon) icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            const t = getSettingsT();
+            if (label) label.textContent = isDark ? (t.setting_light_theme || 'Светлая') : (t.setting_dark_theme || 'Тёмная');
+        };
+
+        updateThemeBtn();
+
+        themeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('valuon-theme', newTheme);
+            updateThemeBtn();
+        });
+
+        document.addEventListener('themeChange', updateThemeBtn);
+    }
+
+    if (langBtn) {
+        const updateLangBtn = () => {
+            const lang = localStorage.getItem('valuon-lang') || 'ru';
+            const label = document.getElementById('settings-lang-label');
+            if (label) label.textContent = lang.toUpperCase();
+        };
+
+        updateLangBtn();
+
+        langBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const currentLang = localStorage.getItem('valuon-lang') || 'ru';
+            const newLang = currentLang === 'ru' ? 'en' : 'ru';
+            if (window.applyDashboardLang) {
+                window.applyDashboardLang(newLang);
+            }
+        });
+
+        document.addEventListener('lang-changed', updateLangBtn);
+    }
 }
 
-const settingsLink = document.querySelector('[data-view="settings"]');
 let settingsInitialized = false;
 
 function ensureSettingsLoaded() {
@@ -275,9 +322,9 @@ function ensureSettingsLoaded() {
     }
 }
 
-if (settingsLink) {
-    settingsLink.addEventListener('click', ensureSettingsLoaded);
-}
+document.querySelectorAll('[data-view="settings"]').forEach(el => {
+    el.addEventListener('click', ensureSettingsLoaded);
+});
 
 if (window.location.hash === '#view-settings') {
     ensureSettingsLoaded();

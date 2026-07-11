@@ -19,9 +19,6 @@
 <body class="dashboard-body">
 
     <header class="mobile-top-bar">
-        <button id="mobile-menu-btn" class="menu-trigger">
-            <i class="fa-solid fa-bars"></i>
-        </button>
         <a href="index.html" class="brand-mobile">
             <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 4L5 10V20C5 29.5 11.5 37.5 20 39C28.5 37.5 35 29.5 35 20V10L20 4Z" fill="#3b82f6"
@@ -31,10 +28,7 @@
             </svg>
             <span>Valuon</span>
         </a>
-        <div class="top-bar-spacer"></div>
     </header>
-
-    <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -260,6 +254,30 @@
                     </div>
                 </div>
 
+                <div class="settings-section" data-animate>
+                    <h2><i class="fa-solid fa-palette"></i> <span data-i18n="settings_appearance">Вид</span></h2>
+
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <span class="setting-label" data-i18n="setting_theme">Тёмная тема</span>
+                            <span class="setting-desc" data-i18n="setting_theme_desc">Переключить оформление</span>
+                        </div>
+                        <button class="btn btn-outline btn-sm" id="settings-theme-toggle">
+                            <i class="fa-solid fa-moon"></i> <span id="settings-theme-label">Тёмная</span>
+                        </button>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <span class="setting-label" data-i18n="setting_language">Язык</span>
+                            <span class="setting-desc" data-i18n="setting_language_desc">Русский / English</span>
+                        </div>
+                        <button class="btn btn-outline btn-sm" id="settings-lang-toggle">
+                            <span id="settings-lang-label">RU</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="settings-section danger-zone disabled-section" data-animate>
                     <h2><i class="fa-solid fa-triangle-exclamation"></i> <span data-i18n="settings_danger">Опасная
                             зона</span></h2>
@@ -284,6 +302,33 @@
             </div>
         </section>
     </main>
+
+    <nav class="bottom-nav">
+        <a href="#view-items" class="bottom-nav-item active" data-view="items">
+            <i class="fa-solid fa-box-open"></i>
+            <span data-i18n="nav_items">Мои вещи</span>
+        </a>
+        <a href="receipts.html" class="bottom-nav-item">
+            <i class="fa-solid fa-receipt"></i>
+            <span data-i18n="nav_receipts">Чеки</span>
+        </a>
+        <a href="business.html" class="bottom-nav-item">
+            <i class="fa-solid fa-store"></i>
+            <span data-i18n="nav_business">Бизнес</span>
+        </a>
+        <a href="verify.html" class="bottom-nav-item">
+            <i class="fa-solid fa-qrcode"></i>
+            <span data-i18n="nav_verify">QR</span>
+        </a>
+        <a href="#view-notifications" class="bottom-nav-item" data-view="notifications">
+            <i class="fa-solid fa-bell"></i>
+            <span data-i18n="nav_notifications">Уведомления</span>
+        </a>
+        <a href="#view-settings" class="bottom-nav-item" data-view="settings">
+            <i class="fa-solid fa-gear"></i>
+            <span data-i18n="nav_settings">Настройки</span>
+        </a>
+    </nav>
 
     <div id="add-modal" class="modal-overlay">
         <div class="modal-content">

@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const theme = themeOverride || document.documentElement.getAttribute('data-theme') || 'light';
         icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+
+        window.dispatchEvent(new CustomEvent('themeChange'));
     }
 
     window.addEventListener('storage', (e) => {

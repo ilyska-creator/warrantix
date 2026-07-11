@@ -936,7 +936,8 @@
 
     .content-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        text-align: center;
         gap: 1rem;
     }
 
@@ -962,10 +963,8 @@
     }
 
     .modal-overlay {
-        padding: 0.5rem;
-        align-items: flex-start;
-
-        padding-top: 2rem;
+        padding: 1rem;
+        align-items: center;
     }
 
     .modal-content {
@@ -1423,4 +1422,97 @@
     color: var(--primary);
     font-size: 0.8rem;
     margin-left: auto;
+}
+
+/* Bottom nav — mobile */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 16px;
+    left: 12px;
+    right: 12px;
+    z-index: 9999;
+    height: 56px;
+    padding-bottom: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-radius: 28px;
+    border: 1px solid transparent;
+    box-shadow:
+        0px 2px 4px rgba(0, 0, 0, 0.02),
+        0px 8px 24px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(0, 0, 0, 0.03) inset;
+}
+
+[data-theme="light"] .bottom-nav,
+:not([data-theme="dark"]) .bottom-nav {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .bottom-nav {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0px 2px 4px rgba(0, 0, 0, 0.1),
+        0px 8px 24px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+.bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+    transition: color 0.2s;
+    padding: 4px 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-item i {
+    font-size: 20px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.bottom-nav-item span {
+    font-size: 9px;
+    line-height: 1;
+    margin-top: 1px;
+}
+
+.bottom-nav-item.active {
+    color: var(--primary);
+}
+
+.bottom-nav-item:hover {
+    color: var(--primary);
+}
+
+@media (max-width: 480px) {
+    .bottom-nav-item span {
+        display: none;
+    }
+
+    .bottom-nav-item i {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 900px) {
+    .bottom-nav {
+        display: flex;
+    }
+
+    .business-main {
+        padding: 1.5rem 1rem;
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0));
+    }
 }

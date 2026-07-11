@@ -1,6 +1,13 @@
 const businessTranslations = {
     ru: {
 
+        nav_items: 'Мои вещи',
+        nav_receipts: 'Чеки',
+        nav_business: 'Бизнес',
+        nav_verify: 'QR',
+        nav_notifications: 'Уведомления',
+        nav_settings: 'Настройки',
+
         back_to_dashboard: 'Вернуться в личный кабинет',
 
 
@@ -22,7 +29,7 @@ const businessTranslations = {
         register_shop_btn: 'Зарегистрировать магазин',
 
 
-        my_receipts: 'Мои чеки',
+        my_shop: 'Мой магазин',
         create_receipt_btn: 'Создать чек',
         verify_btn: 'Проверить чек',
 
@@ -100,6 +107,13 @@ const businessTranslations = {
     },
     en: {
 
+        nav_items: 'My Items',
+        nav_receipts: 'Receipts',
+        nav_business: 'Business',
+        nav_verify: 'QR',
+        nav_notifications: 'Notifications',
+        nav_settings: 'Settings',
+
         back_to_dashboard: 'Back to Dashboard',
 
 
@@ -121,7 +135,7 @@ const businessTranslations = {
         register_shop_btn: 'Register Shop',
 
 
-        my_receipts: 'My Receipts',
+        my_shop: 'My Shop',
         create_receipt_btn: 'Create Receipt',
         verify_btn: 'Verify Receipt',
 
@@ -271,7 +285,7 @@ function applyBusinessTranslations() {
 
 
     const dashboardH1 = document.querySelector('#shop-dashboard-view .content-header h1');
-    if (dashboardH1) dashboardH1.textContent = t.my_receipts;
+    if (dashboardH1) dashboardH1.textContent = t.my_shop;
 
     const createBtn = document.getElementById('open-create-receipt-btn');
     if (createBtn) createBtn.innerHTML = `<i class="fa-solid fa-plus"></i> ${t.create_receipt_btn}`;

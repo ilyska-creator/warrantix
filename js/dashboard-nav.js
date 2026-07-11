@@ -1,9 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-item[data-view]');
+    const sidebarLinks = document.querySelectorAll('.sidebar-nav .nav-item[data-view]');
+    const bottomLinks = document.querySelectorAll('.bottom-nav-item[data-view]');
     const views = document.querySelectorAll('.dashboard-view');
 
-    const menuBtn = document.getElementById('mobile-menu-btn');
-    const closeBtn = document.getElementById('close-sidebar-btn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
 
@@ -25,57 +24,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function openSidebar() {
-        sidebar?.classList.add('active');
-        overlay?.classList.add('active');
-        lockScroll();
-    }
-
-    function closeSidebar() {
-        sidebar?.classList.remove('active');
-        overlay?.classList.remove('active');
-        setTimeout(unlockScroll, 450);
-    }
-
-    function toggleSidebar() {
-        if (sidebar?.classList.contains('active')) {
-            closeSidebar();
-        } else {
-            openSidebar();
-        }
-    }
-
     function activateView(targetId) {
-        navLinks.forEach(l => l.classList.remove('active'));
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        bottomLinks.forEach(l => l.classList.remove('active'));
+
         views.forEach(view => view.classList.remove('active'));
 
-        document.querySelector(`.sidebar-nav .nav-item[href="#${targetId}"]`)?.classList.add('active');
-        document.getElementById(targetId)?.classList.add('active');
+        const sidebarLink = document.querySelector(`.sidebar-nav .nav-item[href="#${targetId}"]`);
+        if (sidebarLink) sidebarLink.classList.add('active');
+
+        const bottomLink = document.querySelector(`.bottom-nav-item[href="#${targetId}"]`);
+        if (bottomLink) bottomLink.classList.add('active');
+
+        const view = document.getElementById(targetId);
+        if (view) view.classList.add('active');
     }
 
-    menuBtn?.addEventListener('click', toggleSidebar);
-    closeBtn?.addEventListener('click', closeSidebar);
-    overlay?.addEventListener('click', closeSidebar);
+    function handleNavClick(e, link) {
+        e.preventDefault();
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && sidebar?.classList.contains('active')) {
-            closeSidebar();
+        const targetId = link.getAttribute('href').replace('#', '');
+        activateView(targetId);
+
+        if (window.innerWidth <= 900 && sidebar?.classList.contains('active')) {
+            sidebar.classList.remove('active');
+            overlay?.classList.remove('active');
+            setTimeout(unlockScroll, 450);
+        } else {
+            window.scrollTo({ top: 0, behavior: 'instant' });
         }
+    }
+
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', (e) => handleNavClick(e, link));
     });
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            const targetId = link.getAttribute('href').replace('#', '');
-            activateView(targetId);
-
-            if (window.innerWidth <= 900 && sidebar?.classList.contains('active')) {
-                closeSidebar();
-            } else {
-                window.scrollTo({ top: 0, behavior: 'instant' });
-            }
-        });
+    bottomLinks.forEach(link => {
+        link.addEventListener('click', (e) => handleNavClick(e, link));
     });
 
     const hash = window.location.hash.replace('#', '');
