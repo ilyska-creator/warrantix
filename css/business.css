@@ -535,7 +535,7 @@
 .modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 10000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -544,6 +544,7 @@
     visibility: visible;
     transition: opacity 0.25s ease, visibility 0.25s ease;
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 .modal-overlay.is-hidden {
@@ -958,7 +959,7 @@
     }
 
     .modal-overlay {
-        padding: 1rem;
+        padding: 2rem 1rem;
         align-items: center;
     }
 
@@ -967,7 +968,7 @@
 
         padding: 1.5rem;
         border-radius: 16px;
-        margin-bottom: 2rem;
+        margin-bottom: 0;
 
     }
 
@@ -1509,5 +1510,17 @@
     .business-main {
         padding: 1.5rem 1rem;
         padding-bottom: calc(72px + env(safe-area-inset-bottom, 0));
+    }
+
+    .receipt-item-row .input-row:first-child {
+        grid-template-columns: 1fr 80px;
+    }
+
+    .receipt-item-row .input-row:last-child {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .receipt-item-row .input-row:last-child .input-group:last-of-type {
+        grid-column: 1 / -1;
     }
 }

@@ -563,10 +563,11 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 10000;
     opacity: 0;
     visibility: hidden;
     transition: 0.3s;
@@ -898,7 +899,7 @@
     .modal-overlay {
         overflow-y: auto;
         align-items: flex-start;
-        padding: 40px 20px;
+        padding: 40px 20px calc(72px + env(safe-area-inset-bottom, 0));
         box-sizing: border-box;
     }
 

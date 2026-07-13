@@ -998,7 +998,7 @@ ul {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 10000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1007,6 +1007,7 @@ ul {
     visibility: hidden;
     transition: opacity var(--transition-base), visibility var(--transition-base);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 .modal-overlay.active,
