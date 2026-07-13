@@ -64,7 +64,7 @@ async function initBusinessPanel() {
                     <i class="fa-regular fa-envelope"></i> ${escapeHtml(r.customer_email)}
                 </div>
                 <div class="item-tags">
-                    <span class="tag"><i class="fa-solid fa-tag"></i> $${parseFloat(r.gross_total).toFixed(2)}</span>
+                    <span class="tag"><i class="fa-solid fa-tag"></i> $${Number.isFinite(parseFloat(r.gross_total)) ? parseFloat(r.gross_total).toFixed(2) : '0.00'}</span>
                     <span class="tag"><i class="fa-solid fa-calendar-days"></i> <span class="receipt-date">${escapeHtml(dateStr)}</span></span>
                     <span class="tag"><i class="fa-solid fa-credit-card"></i> ${escapeHtml(payMethod)}</span>
                     ${itemsCount > 1 ? `<span class="tag"><i class="fa-solid fa-boxes-stacked"></i> ${itemsCount}</span>` : ''}

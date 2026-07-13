@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         : 'Too many signup attempts from this email. Try again later.');
                 }
 
-                const captchaToken = typeof turnstile !== 'undefined' ? turnstile.getResponse() : null;
+                const captchaToken = typeof window.turnstile !== 'undefined' ? window.turnstile.getResponse() : null;
                 if (!captchaToken) {
                     throw new Error(lang === 'ru' ? 'Подтвердите, что вы не робот' : 'Please complete the captcha');
                 }
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast(errorMsg, 'error');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-                if (typeof turnstile !== 'undefined') turnstile.reset();
+                if (typeof window.turnstile !== 'undefined') window.turnstile.reset();
             }
         });
     }

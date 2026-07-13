@@ -94,7 +94,8 @@ export function calculateDaysLeft(purchaseDate, months) {
     endDate.setHours(0, 0, 0, 0);
 
     const diffTime = endDate.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Number.isFinite(days) ? days : -999;
 }
 
 function getStatusInfo(daysLeft) {

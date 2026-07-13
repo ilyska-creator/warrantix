@@ -203,7 +203,7 @@ function showResult(status, data) {
         resultBadge.textContent = t('result_success_badge');
 
         if (data) {
-            resultDetails.style.display = 'block';
+            if (resultDetails) resultDetails.style.display = 'block';
             resultReceiptNumber.textContent = data.receiptNumber || '—';
             resultReceiptDate.textContent = data.date || '—';
             resultReceiptAmount.textContent = data.amount || '—';
@@ -229,7 +229,7 @@ function showResult(status, data) {
                 }
             }
         } else {
-            resultDetails.style.display = 'none';
+            if (resultDetails) resultDetails.style.display = 'none';
             if (resultItemsRow) resultItemsRow.style.display = 'none';
             if (resultItemsWrap) resultItemsWrap.style.display = 'none';
         }
@@ -260,7 +260,7 @@ function showResult(status, data) {
             resultDesc.textContent = data || t('result_error_desc');
             resultBadge.textContent = t('result_error_badge');
         }
-        resultDetails.style.display = 'none';
+        if (resultDetails) resultDetails.style.display = 'none';
     }
     if (status !== 'success') {
         copyBtn && (copyBtn.style.display = 'none');
@@ -597,7 +597,7 @@ scanFileInput?.addEventListener('change', async () => {
         console.error('[verify] scan error:', err);
         showResult('error', t('scan_error'));
     } finally {
-        scanFileInput.value = '';
+        if (scanFileInput) scanFileInput.value = '';
     }
 });
 
