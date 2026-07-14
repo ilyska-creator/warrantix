@@ -717,7 +717,7 @@
 
 @media (max-width: 768px) {
     .business-top-bar {
-        position: sticky;
+        position: fixed;
         top: 0;
         left: 0;
         width: 100%;
@@ -754,6 +754,7 @@
 
     .business-main {
         padding: 1.5rem 1rem;
+        padding-top: 100px;
     }
 
     .content-header {
