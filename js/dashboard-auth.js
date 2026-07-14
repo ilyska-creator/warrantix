@@ -22,9 +22,8 @@ export async function getAuthSession() {
 }
 
 export function setupLogout(currentClient) {
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
+    document.querySelectorAll('#logout-btn, #logout-btn-mobile').forEach(btn => {
+        btn.addEventListener('click', async () => {
             try {
                 await currentClient.auth.signOut();
                 localStorage.removeItem('valuon-remember-email');
@@ -37,7 +36,7 @@ export function setupLogout(currentClient) {
                 window.location.href = 'index.html';
             }
         });
-    }
+    });
 }
 
 export async function requireAuth() {
