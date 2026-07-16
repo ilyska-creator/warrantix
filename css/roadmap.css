@@ -133,13 +133,6 @@
     gap: var(--space-4);
 }
 
-.feature-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-}
-
 .feature-list li {
     display: flex;
     align-items: center;
@@ -213,6 +206,10 @@
     .timeline-card:last-child::after {
         display: none !important;
     }
+}
+
+.navbar {
+    height: 88px;
 }
 
 .nav-wrapper {
@@ -518,6 +515,10 @@
 }
 
 @media (max-width: 768px) {
+    .navbar {
+        height: 72px;
+    }
+
     .nav-actions .icon-btn {
         display: none;
     }

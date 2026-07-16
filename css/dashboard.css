@@ -22,7 +22,7 @@
     height: 56px;
     padding-bottom: 0;
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 28px;
     border: 1px solid transparent;
     box-shadow:
@@ -122,7 +122,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 1000;
 }
 
 .close-sidebar-btn {
@@ -267,6 +266,7 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 95;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -600,10 +600,6 @@
 [data-theme="dark"] .modal-content {
     background: var(--card-bg);
     border: 1px solid var(--border);
-}
-
-.modal-overlay.active .modal-content {
-    transform: translateY(0);
 }
 
 .modal-header {
@@ -1042,13 +1038,14 @@
 
         top: 0;
         left: 0;
+        height: 72px;
         will-change: transform;
     }
 
     .main-content {
         margin-left: 0;
         padding: 24px;
-        padding-top: 88px;
+        padding-top: calc(72px + 24px);
         padding-bottom: calc(72px + env(safe-area-inset-bottom, 0));
         position: relative;
     }
@@ -1654,6 +1651,7 @@
     inset: 0;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     display: flex;
     align-items: center;
     justify-content: center;

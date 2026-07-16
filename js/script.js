@@ -114,6 +114,7 @@ const translations = {
         footer_prod: "Product", footer_sec: "Security", footer_biz: "For Business",
         footer_comp: "Company", footer_about: "About Us", footer_career: "Careers", footer_contact: "Contact", footer_social: "Socials",
         footer_copyright: "© 2026 Valuon. All rights reserved.",
+        msg_success: "Thank you! You're on the waitlist.",
         msg_duplicate: "This email is already registered.",
         msg_error: "Error. Please try again later."
     }
