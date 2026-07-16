@@ -280,9 +280,13 @@ async function verifyReceiptFromQRData(qrRaw) {
         // verify-receipt). Клиент отправляет только сырую подпись из QR и
         // получает уже готовый вердикт — приватный ключ, публичный ключ
         // магазина и сырые данные чека клиенту больше не передаются.
-        const { data, error } = await supabase.functions.invoke('verify-receipt', {
-            body: { fiscal_hash: parsed.signature },
+        const resp = await fetch('https://qjnzawjivqvgupbgxdao.supabase.co/functions/v1/verify-receipt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fiscal_hash: parsed.signature }),
         });
+        const data = await resp.json();
+        const error = resp.ok ? null : { message: `HTTP ${resp.status}` };
 
         if (error) {
             showResult('error', t('rpc_error') + ': ' + error.message);
