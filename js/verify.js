@@ -1,5 +1,3 @@
-import ReceiptVerifier from './crypto-verification.js';
-import Ed25519Signer from './crypto-signature.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 import { t, getVerifyLocale, applyVerifyTranslations, initVerifyLang } from './verify-lang.js';
 
@@ -278,64 +276,65 @@ async function verifyReceiptFromQRData(qrRaw) {
             return;
         }
 
-        const { data, error } = await supabase
-            .rpc('verify_get_receipt', { p_fiscal_hash: parsed.signature })
-            .maybeSingle();
+        // Вся проверка подписи теперь происходит на сервере (Edge Function
+        // verify-receipt). Клиент отправляет только сырую подпись из QR и
+        // получает уже готовый вердикт — приватный ключ, публичный ключ
+        // магазина и сырые данные чека клиенту больше не передаются.
+        const { data, error } = await supabase.functions.invoke('verify-receipt', {
+            body: { fiscal_hash: parsed.signature },
+        });
 
         if (error) {
             showResult('error', t('rpc_error') + ': ' + error.message);
             return;
         }
 
-        if (!data?.found) {
+        if (data?.error === 'not_found') {
             showResult('not-found');
+            return;
+        }
+
+        if (data?.error === 'rate_limited') {
+            showResult('error', t('rate_limited'));
+            return;
+        }
+
+        if (data?.error === 'shop_key_missing') {
+            showResult('error', t('shop_not_found'));
+            return;
+        }
+
+        if (!data?.valid) {
+            console.error('[verify] Signature invalid:', data?.error || 'no error detail');
+            showResult('invalid');
             return;
         }
 
         const receipt = data.receipt;
         const shop = data.shop;
 
-        if (!shop) {
-            showResult('error', t('shop_not_found') || 'Магазин не найден');
-            return;
-        }
+        const dateStr = receipt.purchaseDate
+            ? new Date(receipt.purchaseDate).toLocaleDateString(getVerifyLocale(), {
+                day: 'numeric', month: 'numeric', year: 'numeric'
+            })
+            : '—';
+        const gross = parseFloat(receipt.grossTotal);
+        const amount = Number.isFinite(gross) ? '$' + gross.toFixed(2) : '—';
+        const sellerStatus = receipt.status === 'verified'
+            ? t('seller_verified')
+            : t('seller_pending');
 
-        if (!Ed25519Signer.isSupported()) {
-            console.error('[verify] Ed25519 not supported in this browser');
-            showResult('error', t('crypto_error'));
-            return;
-        }
+        const items = Array.isArray(receipt.items) ? receipt.items : [];
+        const receiptNum = receipt.receiptNumber ? `#RCP-${receipt.receiptNumber}` : null;
 
-        const verifier = new ReceiptVerifier();
-        const result = await verifier.verifyReceipt(receipt, shop);
-
-        if (result.valid) {
-            const dateStr = receipt.purchase_date
-                ? new Date(receipt.purchase_date).toLocaleDateString(getVerifyLocale(), {
-                    day: 'numeric', month: 'numeric', year: 'numeric'
-                })
-                : '—';
-            const gross = parseFloat(receipt.gross_total);
-            const amount = Number.isFinite(gross) ? '$' + gross.toFixed(2) : '—';
-            const sellerStatus = receipt.status === 'verified'
-                ? t('seller_verified')
-                : t('seller_pending');
-
-            const items = Array.isArray(receipt.items) ? receipt.items : [];
-            const receiptNum = receipt.receipt_number ? `#RCP-${receipt.receipt_number}` : null;
-
-            showResult('success', {
-                receiptNumber: receiptNum || '—',
-                items,
-                date: dateStr,
-                amount,
-                store: shop.shop_name || '—',
-                sellerStatus,
-            });
-        } else {
-            console.error('[verify] Signature invalid:', result.error || 'no error detail');
-            showResult('invalid');
-        }
+        showResult('success', {
+            receiptNumber: receiptNum || '—',
+            items,
+            date: dateStr,
+            amount,
+            store: shop.shopName || '—',
+            sellerStatus,
+        });
     } catch (err) {
         console.error('[verify] Unexpected error:', err);
         showResult('error', t('internal_error'));
