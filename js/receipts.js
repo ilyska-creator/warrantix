@@ -168,6 +168,7 @@ function renderSplitReceipts(businessReceipts, personalReceipts, client, userId)
 
     mainContent.innerHTML = html;
     restoreListeners(client, userId);
+    setupUploadListeners(uploadModal);
 
     if (typeof window.applyDashboardLang === 'function') {
         window.applyDashboardLang(lang);
