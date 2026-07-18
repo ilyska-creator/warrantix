@@ -141,12 +141,13 @@ const dashboardTranslations = {
         msg_item_save_failed: "Ошибка сохранения. Попробуйте снова.",
 
 
-        calendar_title: "Календарь гарантий",
-        calendar_active: "Покупка",
-        calendar_expiring: "Истекает",
-        calendar_expired: "Истекла",
-        calendar_today: "Сегодня",
-        calendar_item_count: "Вещей: {count}",
+        items_tab_mine: "Мои вещи",
+        items_tab_verified: "Подтвержденные товары",
+        verified_empty_title: "Пока нет подтвержденных товаров",
+        verified_empty_text: "Товары из чеков от партнёров появятся здесь автоматически.",
+        verified_locked: "Подтверждено продавцом — нельзя изменить",
+        verified_badge: "Подтверждено",
+        item_name_unknown: "Товар",
     },
     en: {
         page_title: "Valuon — Dashboard",
@@ -290,12 +291,13 @@ const dashboardTranslations = {
         msg_item_save_failed: "Save failed. Try again.",
 
 
-        calendar_title: "Warranty Calendar",
-        calendar_active: "Purchase",
-        calendar_expiring: "Expiring",
-        calendar_expired: "Expired",
-        calendar_today: "Today",
-        calendar_item_count: "Items: {count}",
+        items_tab_mine: "My Items",
+        items_tab_verified: "Confirmed Items",
+        verified_empty_title: "No confirmed items yet",
+        verified_empty_text: "Items from partner receipts will appear here automatically.",
+        verified_locked: "Confirmed by seller — cannot be edited",
+        verified_badge: "Confirmed",
+        item_name_unknown: "Item",
     }
 };
 window.dashboardTranslations = dashboardTranslations;

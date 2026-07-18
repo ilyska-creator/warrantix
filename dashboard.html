@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Valuon — Dashboard</title>
-    <meta name="description" content="Valuon — Личный кабинет. Управляйте гарантиями, отслеживайте чеки и получайте напоминания об окончании срока.">
+    <meta name="description"
+        content="Valuon — Личный кабинет. Управляйте гарантиями, отслеживайте чеки и получайте напоминания об окончании срока.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
@@ -129,30 +130,24 @@
                 </div>
             </div>
             <section class="items-section" data-animate>
-                <h2 data-i18n="section_recent">Недавние покупки</h2>
-                <div class="items-grid"></div>
-            </section>
-
-            <section class="calendar-section" data-animate>
-                <h2><i class="fa-solid fa-calendar"></i> <span data-i18n="calendar_title">Календарь гарантий</span></h2>
-                <div class="warranty-calendar" id="warranty-calendar">
-                    <div class="calendar-nav">
-                        <button class="calendar-nav-btn" id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
-                        <span class="calendar-month-label" id="cal-month-label"></span>
-                        <button class="calendar-nav-btn" id="cal-next"><i
-                                class="fa-solid fa-chevron-right"></i></button>
+                <div class="items-section-header">
+                    <h2 data-i18n="section_recent">Недавние покупки</h2>
+                    <div class="items-tabs" id="items-tabs" role="tablist">
+                        <span class="items-tab-indicator" id="items-tab-indicator" aria-hidden="true"></span>
+                        <button class="items-tab active" data-items-tab="verified" role="tab" aria-selected="true">
+                            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                            <span data-i18n="items_tab_verified">Подтвержденные товары</span>
+                            <span class="items-tab-count" id="items-count-verified">0</span>
+                        </button>
+                        <button class="items-tab" data-items-tab="mine" role="tab" aria-selected="false">
+                            <i class="fa-solid fa-house" aria-hidden="true"></i>
+                            <span data-i18n="items_tab_mine">Мои вещи</span>
+                            <span class="items-tab-count" id="items-count-mine">0</span>
+                        </button>
                     </div>
-                    <div class="calendar-weekdays" id="cal-weekdays"></div>
-                    <div class="calendar-days" id="cal-days"></div>
                 </div>
-                <div class="calendar-legend">
-                    <span class="legend-item"><span class="legend-dot active"></span> <span
-                            data-i18n="calendar_active">Активна</span></span>
-                    <span class="legend-item"><span class="legend-dot warning"></span> <span
-                            data-i18n="calendar_expiring">Истекает</span></span>
-                    <span class="legend-item"><span class="legend-dot expired"></span> <span
-                            data-i18n="calendar_expired">Истекла</span></span>
-                </div>
+                <div class="items-grid hidden" id="items-grid-mine"></div>
+                <div class="items-grid" id="items-grid-verified"></div>
             </section>
         </section>
 

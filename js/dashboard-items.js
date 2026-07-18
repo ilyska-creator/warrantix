@@ -24,18 +24,24 @@ async function initDashboardItems() {
     currentClient = auth.client;
     currentUserId = auth.user.id;
 
-    loadItems(auth.user.id, auth.client);
+    setupItemsTabs(auth.user.id, auth.user.email, auth.client);
+    await loadItems(auth.user.id, auth.client);
+    await loadVerifiedItems(auth.user.email, auth.client);
     setupModal(auth.client);
     setupEditModal(auth.client, auth.user.id);
     setupDeleteItemModal(auth.client, auth.user.id);
     setupLogout(auth.client);
 }
 
+function skeletonCards(count = 3) {
+    return Array.from({ length: count }, () => '<div class="item-card-skeleton"></div>').join('');
+}
+
 async function loadItems(userId, client) {
-    const grid = document.querySelector('.items-grid');
+    const grid = document.querySelector('#items-grid-mine');
     if (!grid) return;
 
-    grid.innerHTML = '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Загрузка...</div>';
+    grid.innerHTML = skeletonCards();
 
     const { data: items, error } = await client
         .from('items')
@@ -53,8 +59,6 @@ async function loadItems(userId, client) {
 
     renderItems(safeItems);
     updateStats(safeItems);
-    renderWarrantyCalendar(safeItems);
-    window._lastLoadedItems = safeItems;
 
     if (typeof window.applyDashboardLang === 'function') {
         window.applyDashboardLang(localStorage.getItem('valuon-lang') || 'ru');
@@ -97,11 +101,14 @@ function getStatusInfo(daysLeft) {
 }
 
 function renderItems(items) {
-    const grid = document.querySelector('.items-grid');
+    const grid = document.querySelector('#items-grid-mine');
     if (!grid) return;
 
     const lang = localStorage.getItem('valuon-lang') || 'ru';
     const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
+
+    const countEl = document.getElementById('items-count-mine');
+    if (countEl) countEl.textContent = String(items.length);
 
     if (items.length === 0) {
         const emptyTitle = t.empty_state_title || (lang === 'ru' ? 'Пока нет добавленных вещей' : 'No items yet');
@@ -210,6 +217,181 @@ function renderItems(items) {
     }
 }
 
+function renderVerifiedItems(receipts, t) {
+    const grid = document.querySelector('#items-grid-verified');
+    if (!grid) return;
+
+    const lang = localStorage.getItem('valuon-lang') || 'ru';
+    const allItems = [];
+    (receipts || []).forEach(r => {
+        (r.receipt_items || []).forEach(it => {
+            allItems.push({ ...it, shop_name: r.shop_name, purchase_date: r.purchase_date });
+        });
+    });
+
+    const countEl = document.getElementById('items-count-verified');
+    if (countEl) countEl.textContent = String(allItems.length);
+
+    if (allItems.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state" data-animate="zoom">
+                <div class="empty-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3>${escapeHtml(t.verified_empty_title || 'Пока нет подтвержденных товаров')}</h3>
+                <p>${escapeHtml(t.verified_empty_text || 'Товары из чеков от партнёров появятся здесь автоматически.')}</p>
+            </div>`;
+        return;
+    }
+
+    const statusKeyMap = {
+        active: 'status_active',
+        warning: 'status_expiring',
+        expired: 'status_expired'
+    };
+
+    grid.innerHTML = allItems.map(item => {
+        const daysLeft = calculateDaysLeft(item.purchase_date, item.warranty_months);
+        const status = getStatusInfo(daysLeft);
+        const statusTextKey = statusKeyMap[status.class] || 'status_active';
+        const dateStr = item.purchase_date
+            ? new Date(item.purchase_date).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')
+            : '—';
+        const qty = parseInt(item.qty, 10) || 1;
+
+        const totalDays = (item.warranty_months || 12) * 30;
+        const progress = totalDays > 0 ? Math.max(0, Math.min(100, (daysLeft / totalDays) * 100)) : 0;
+        const progressTextKey = daysLeft > 0 ? 'days_left' : 'warranty_expired_text';
+
+        return `
+            <div class="item-card verified-item-card">
+                <div class="verified-ribbon"><i class="fa-solid fa-check"></i> <span data-i18n="verified_badge">${escapeHtml(t.verified_badge || 'Confirmed')}</span></div>
+                <div class="item-header">
+                    <div class="item-icon verified"><i class="fa-solid fa-box-open"></i></div>
+                    <div class="item-header-badges">
+                        <div class="item-status-badge ${status.class}" data-i18n="${statusTextKey}">${escapeHtml(t[statusTextKey] || '')}</div>
+                    </div>
+                </div>
+
+                <div class="item-body">
+                    <h3 class="item-title">${escapeHtml(item.item_name || (t.item_name_unknown || 'Товар'))}</h3>
+                    <div class="item-brand"><i class="fa-solid fa-store"></i> ${escapeHtml(item.shop_name || '—')}</div>
+
+                    <div class="item-tags">
+                        ${qty > 1 ? `<span class="tag"><i class="fa-solid fa-layer-group"></i> ×${escapeHtml(String(qty))}</span>` : ''}
+                        <span class="tag"><i class="fa-solid fa-tag"></i> $${escapeHtml(parseFloat(item.gross_total || 0).toFixed(2))}</span>
+                        <span class="tag"><i class="fa-solid fa-shield-halved"></i> ${escapeHtml(String(item.warranty_months || 0))} ${escapeHtml(t.months_short || 'mo')}.</span>
+                        <span class="tag"><i class="fa-regular fa-calendar"></i> ${escapeHtml(dateStr)}</span>
+                    </div>
+                </div>
+
+                <div class="item-footer">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill ${status.class}" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="days-left-text ${status.class}" 
+                         data-i18n="${progressTextKey}" 
+                         data-i18n-count="${daysLeft > 0 ? daysLeft : ''}">
+                    </div>
+                    <div class="verified-lock-note"><i class="fa-solid fa-lock"></i> <span data-i18n="verified_locked">${escapeHtml(t.verified_locked || 'Подтверждено продавцом — нельзя изменить')}</span></div>
+                </div>
+            </div>`;
+    }).join('');
+
+    if (typeof window.applyDashboardLang === 'function') {
+        window.applyDashboardLang(lang);
+    }
+}
+
+async function loadVerifiedItems(userEmail, client) {
+    const grid = document.querySelector('#items-grid-verified');
+    if (!grid) return;
+    grid.innerHTML = skeletonCards();
+
+    const { data, error } = await client
+        .from('business_receipts')
+        .select('purchase_date, shop_name, receipt_items(item_name, qty, gross_total, warranty_months)')
+        .eq('customer_email', userEmail)
+        .order('purchase_date', { ascending: false });
+
+    if (error) {
+        console.error(error);
+        grid.innerHTML = '<p class="empty-state error">Ошибка загрузки данных.</p>';
+        return;
+    }
+
+    const lang = localStorage.getItem('valuon-lang') || 'ru';
+    const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
+    renderVerifiedItems(data || [], t);
+
+    let verifiedActive = 0, verifiedExpiring = 0, verifiedExpired = 0, verifiedTotal = 0;
+    (data || []).forEach(r => {
+        (r.receipt_items || []).forEach(it => {
+            verifiedTotal++;
+            const days = calculateDaysLeft(it.purchase_date || r.purchase_date, it.warranty_months);
+            if (days > 30) verifiedActive++;
+            else if (days > 0 && days <= 30) verifiedExpiring++;
+            else verifiedExpired++;
+        });
+    });
+
+    const totalEl = document.getElementById('stat-total');
+    const activeEl = document.getElementById('stat-active');
+    const expiringEl = document.getElementById('stat-expiring');
+    const expiredEl = document.getElementById('stat-expired');
+    if (totalEl) totalEl.textContent = (parseInt(totalEl.textContent) || 0) + verifiedTotal;
+    if (activeEl) activeEl.textContent = (parseInt(activeEl.textContent) || 0) + verifiedActive;
+    if (expiringEl) expiringEl.textContent = (parseInt(expiringEl.textContent) || 0) + verifiedExpiring;
+    if (expiredEl) expiredEl.textContent = (parseInt(expiredEl.textContent) || 0) + verifiedExpired;
+}
+
+function playGridEnterAnimation(grid) {
+    if (!grid) return;
+    grid.classList.remove('items-grid-anim');
+    // Force reflow so the animation restarts every time the tab is switched.
+    void grid.offsetWidth;
+    grid.classList.add('items-grid-anim');
+}
+
+function moveItemsTabIndicator() {
+    const tabsWrap = document.getElementById('items-tabs');
+    const indicator = document.getElementById('items-tab-indicator');
+    const activeTab = tabsWrap?.querySelector('.items-tab.active');
+    if (!tabsWrap || !indicator || !activeTab) return;
+
+    indicator.style.width = `${activeTab.offsetWidth}px`;
+    indicator.style.transform = `translateX(${activeTab.offsetLeft - 4}px)`;
+}
+
+function setupItemsTabs(userId, userEmail, client) {
+    const tabs = document.querySelectorAll('.items-tab');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            if (tab.classList.contains('active')) return;
+
+            tabs.forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            tab.classList.add('active');
+            tab.setAttribute('aria-selected', 'true');
+            moveItemsTabIndicator();
+
+            const target = tab.dataset.itemsTab;
+            const mineGrid = document.querySelector('#items-grid-mine');
+            const verifiedGrid = document.querySelector('#items-grid-verified');
+            mineGrid?.classList.toggle('hidden', target !== 'mine');
+            verifiedGrid?.classList.toggle('hidden', target !== 'verified');
+            playGridEnterAnimation(target === 'mine' ? mineGrid : verifiedGrid);
+        });
+    });
+
+    // Position the sliding indicator once layout has settled, and keep it
+    // aligned when the viewport or the tab label language changes.
+    requestAnimationFrame(moveItemsTabIndicator);
+    window.addEventListener('resize', moveItemsTabIndicator);
+    window.addEventListener('lang-changed', () => requestAnimationFrame(moveItemsTabIndicator));
+}
+
 function updateStats(items) {
     const totalEl = document.getElementById('stat-total');
     const activeEl = document.getElementById('stat-active');
@@ -273,141 +455,6 @@ async function openEditModal(itemId, client, userId) {
     modal.classList.add('active');
     document.body.classList.add('modal-open');
 }
-
-let calendarCurrentMonth = new Date().getMonth();
-let calendarCurrentYear = new Date().getFullYear();
-
-function renderWarrantyCalendar(items) {
-    const container = document.getElementById('warranty-calendar');
-    if (!container) return;
-
-    const monthLabel = document.getElementById('cal-month-label');
-    const weekdaysEl = document.getElementById('cal-weekdays');
-    const daysEl = document.getElementById('cal-days');
-    if (!monthLabel || !weekdaysEl || !daysEl) return;
-
-    const lang = localStorage.getItem('valuon-lang') || 'ru';
-    const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
-
-    const monthNames = lang === 'ru'
-        ? ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
-        : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-    const weekdays = lang === 'ru'
-        ? ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
-        : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-
-    monthLabel.textContent = `${monthNames[calendarCurrentMonth]} ${calendarCurrentYear}`;
-
-    weekdaysEl.innerHTML = weekdays.map(d => `<span>${d}</span>`).join('');
-
-    const firstDay = new Date(calendarCurrentYear, calendarCurrentMonth, 1).getDay();
-    const daysInMonth = new Date(calendarCurrentYear, calendarCurrentMonth + 1, 0).getDate();
-    const daysInPrevMonth = new Date(calendarCurrentYear, calendarCurrentMonth, 0).getDate();
-
-    const today = new Date();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-
-    const warrantyMap = {};
-    (items || []).forEach(item => {
-        if (!item.purchase_date || !item.warranty_months) return;
-        const parts = item.purchase_date.split('-');
-        if (parts.length !== 3) return;
-        const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1;
-        const day = parseInt(parts[2], 10);
-        const startDate = new Date(year, month, day);
-        const endDate = new Date(year, month, day);
-        endDate.setMonth(endDate.getMonth() + parseInt(item.warranty_months));
-        if (endDate.getDate() !== day) endDate.setDate(0);
-
-
-        function addDateDot(date, status) {
-            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-            if (!warrantyMap[key]) warrantyMap[key] = [];
-            warrantyMap[key].push({ name: item.name, status });
-        }
-
-        const daysLeft = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        let status = daysLeft > 30 ? 'active' : daysLeft > 0 ? 'warning' : 'expired';
-
-        addDateDot(startDate, 'active');
-        if (endDate.getTime() !== startDate.getTime()) {
-            addDateDot(endDate, status);
-        }
-    });
-
-    const sundayOffset = firstDay === 0 ? 6 : firstDay - 1;
-    const totalSlots = Math.ceil((sundayOffset + daysInMonth) / 7) * 7;
-
-    let html = '';
-    for (let i = 0; i < totalSlots; i++) {
-        let dayNum, isOtherMonth = false, dateStr;
-
-        if (i < sundayOffset) {
-            dayNum = daysInPrevMonth - sundayOffset + i + 1;
-            isOtherMonth = true;
-            const prevMonth = calendarCurrentMonth === 0 ? 11 : calendarCurrentMonth - 1;
-            const prevYear = calendarCurrentMonth === 0 ? calendarCurrentYear - 1 : calendarCurrentYear;
-            dateStr = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-        } else if (i >= sundayOffset + daysInMonth) {
-            dayNum = i - sundayOffset - daysInMonth + 1;
-            isOtherMonth = true;
-            const nextMonth = calendarCurrentMonth === 11 ? 0 : calendarCurrentMonth + 1;
-            const nextYear = calendarCurrentMonth === 11 ? calendarCurrentYear + 1 : calendarCurrentYear;
-            dateStr = `${nextYear}-${String(nextMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-        } else {
-            dayNum = i - sundayOffset + 1;
-            dateStr = `${calendarCurrentYear}-${String(calendarCurrentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-        }
-
-        const isToday = dateStr === todayStr;
-        const dayWarranties = warrantyMap[dateStr] || [];
-        const statusCounts = { active: 0, warning: 0, expired: 0 };
-        dayWarranties.forEach(w => { if (statusCounts[w.status] !== undefined) statusCounts[w.status]++; });
-
-        const hasDot = dayWarranties.length > 0;
-        const dotClass = hasDot
-            ? (statusCounts.expired > 0 ? 'expired' : statusCounts.warning > 0 ? 'warning' : 'active')
-            : '';
-
-        const tooltipText = dayWarranties.length > 0
-            ? dayWarranties.map(w => `${w.name} (${t[w.status === 'active' ? 'status_active' : w.status === 'warning' ? 'status_expiring' : 'status_expired'] || w.status})`).join(', ')
-            : '';
-
-        html += `<div class="calendar-day${isOtherMonth ? ' other-month' : ''}${isToday ? ' today' : ''}" title="${escapeHtml(tooltipText)}">
-            <span>${dayNum}</span>
-            ${hasDot ? `<span class="day-dot ${dotClass}"></span>` : ''}
-            ${dayWarranties.length > 1 ? `<span class="day-count">+${dayWarranties.length - 1}</span>` : ''}
-        </div>`;
-    }
-
-    daysEl.innerHTML = html;
-}
-
-function setupCalendarNav() {
-    const prevBtn = document.getElementById('cal-prev');
-    const nextBtn = document.getElementById('cal-next');
-
-    prevBtn?.addEventListener('click', () => {
-        calendarCurrentMonth--;
-        if (calendarCurrentMonth < 0) { calendarCurrentMonth = 11; calendarCurrentYear--; }
-        renderWarrantyCalendar(window._lastLoadedItems || []);
-    });
-
-    nextBtn?.addEventListener('click', () => {
-        calendarCurrentMonth++;
-        if (calendarCurrentMonth > 11) { calendarCurrentMonth = 0; calendarCurrentYear++; }
-        renderWarrantyCalendar(window._lastLoadedItems || []);
-    });
-}
-
-window.addEventListener('lang-changed', () => {
-    renderWarrantyCalendar(window._lastLoadedItems || []);
-});
-
-setupCalendarNav();
 
 function setupEditModal(client, userId) {
     const modal = document.getElementById('edit-modal');
