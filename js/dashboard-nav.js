@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function unlockScroll() {
         document.body.classList.remove('scroll-locked');
         document.body.style.top = '';
-        window.scrollTo(0, scrollPosition);
+        window.scrollTo({ top: scrollPosition, behavior: 'instant' });
     }
 
     function activateView(targetId) {
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', (e) => handleNavClick(e, link));
     });
 
-    const hash = window.location.hash.replace('#', '');
+    const hash = window.__targetView || window.location.hash.replace('#', '');
     if (hash && document.getElementById(hash)) {
         activateView(hash);
     }

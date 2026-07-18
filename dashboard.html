@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/toast.css">
     <script>(function () { var t = localStorage.getItem('valuon-theme'); if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); })();</script>
+    <script>if (location.hash) { window.__targetView = location.hash.replace('#', ''); history.replaceState(null, '', location.pathname); }</script>
 </head>
 
 <body class="dashboard-body">

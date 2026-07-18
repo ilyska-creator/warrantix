@@ -129,19 +129,19 @@ ul {
     line-height: 1;
 }
 
-.btn-primary {
+.btn.btn-primary {
     background: var(--primary);
     color: var(--white);
     box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
 }
 
-.btn-primary:hover {
+.btn.btn-primary:hover {
     background: var(--primary-dark);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
 }
 
-.btn-primary:active {
+.btn.btn-primary:active {
     transform: translateY(0) scale(0.97);
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
 }

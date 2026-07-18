@@ -1336,7 +1336,8 @@
     }
 
     .business-main {
-        padding: 1.5rem 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
         padding-bottom: calc(72px + env(safe-area-inset-bottom, 0));
     }
 
