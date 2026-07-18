@@ -9,8 +9,20 @@ let currentShop = null;
 
 async function initBusinessPanel() {
     if (typeof window.showToast !== 'function') {
-        console.warn('Toast system not loaded');
-        window.showToast = (msg) => console.log(`[TOAST] ${msg}`);
+        window.showToast = (msg, type = 'error') => {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = escapeHtml(msg);
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        };
     }
 
     let currentReceiptsList = [];

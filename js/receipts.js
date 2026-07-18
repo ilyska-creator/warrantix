@@ -105,7 +105,10 @@ function renderSplitReceipts(businessReceipts, personalReceipts, client, userId)
     const lang = getLang();
     const t = window.dashboardTranslations?.[lang] || window.dashboardTranslations?.ru || {};
 
-    let html = `
+    const personalGridHTML = buildPersonalGridHTML(personalReceipts, t, lang);
+    const businessGridHTML = buildBusinessGridHTML(businessReceipts, t, lang);
+
+    const html = `
         <header class="content-header">
             <h1 data-i18n="nav_receipts">Чеки и документы</h1>
             <button class="btn btn-primary" id="upload-receipt-btn">
@@ -117,62 +120,111 @@ function renderSplitReceipts(businessReceipts, personalReceipts, client, userId)
             <p data-i18n="upload_title">Перетащите фото чека сюда</p>
             <span data-i18n="upload_hint">или нажмите для выбора файла • JPG, PNG, PDF • Макс. 10 МБ</span>
         </div>
+        <section class="items-section" data-animate>
+            <div class="items-section-header">
+                <h2 data-i18n="section_documents">Чеки и документы</h2>
+                <div class="items-tabs" id="receipts-tabs" role="tablist">
+                    <span class="items-tab-indicator" id="receipts-tab-indicator" aria-hidden="true"></span>
+                    <button class="items-tab active" data-receipts-tab="personal" role="tab" aria-selected="true">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span data-i18n="receipts_tab_personal">${t.receipts_tab_personal || 'Ваши чеки'}</span>
+                    </button>
+                    <button class="items-tab" data-receipts-tab="business" role="tab" aria-selected="false">
+                        <i class="fa-solid fa-store"></i>
+                        <span data-i18n="receipts_tab_business">${t.receipts_tab_business || 'Чеки от партнеров'}</span>
+                    </button>
+                </div>
+            </div>
+            <div class="receipts-grid" id="receipts-grid-personal">
+                ${personalGridHTML}
+            </div>
+            <div class="receipts-grid hidden" id="receipts-grid-business">
+                ${businessGridHTML}
+            </div>
+        </section>
     `;
 
-    html += `<section class="items-section business-section">`;
-    html += `<h2><i class="fa-solid fa-store" style="color: var(--primary); margin-right: 8px;"></i> ${t.section_business_receipts || 'Чеки от партнеров'}</h2>`;
-
-    if (businessReceipts.length === 0) {
-        html += `<div class="empty-state" data-animate="zoom">
-            <div class="empty-icon"><i class="fa-solid fa-store"></i></div>
-            <h3>${lang === 'ru' ? 'Пока нет чеков от партнёров' : 'No business receipts yet'}</h3>
-            <p>${lang === 'ru' ? 'Как только магазин-партнёр Valuon выпишет чек на ваш email, он появится здесь автоматически.' : 'Once a Valuon partner store issues a receipt to your email, it will appear here automatically.'}</p>
-        </div>`;
-    } else {
-        html += `<div class="receipts-grid">`;
-        businessReceipts.forEach(r => { html += renderBusinessCard(r, t); });
-        html += `</div>`;
-    }
-    html += `</section>`;
-
-    html += `<div class="section-divider"></div>`;
-
-    html += `<section class="items-section personal-section">`;
-    html += `<h2 data-i18n="section_documents">Ваши документы</h2>`;
-
-    if (personalReceipts.length === 0) {
-        html += `<div class="empty-state" data-animate="zoom">
-            <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
-            <h3>${lang === 'ru' ? 'Пока нет загруженных чеков' : 'No personal receipts yet'}</h3>
-            <p>${lang === 'ru' ? 'Сфотографируйте или загрузите первый чек — он останется здесь навсегда.' : 'Photograph or upload your first receipt — it will stay here for good.'}</p>
-            <button type="button" class="btn btn-outline empty-state-cta" id="empty-upload-receipt-btn">
-                <i class="fa-solid fa-upload"></i> ${lang === 'ru' ? 'Загрузить чек' : 'Upload receipt'}
-            </button>
-        </div>`;
-    } else {
-        html += `<div class="receipts-grid">`;
-        const flatData = personalReceipts.map(r => ({
-            ...r,
-            item_name: r.items?.name || null,
-            display_name: r.items?.name || r.receipt_name || r.store_name || 'Untitled Receipt',
-            display_amount: r.items?.price || r.amount,
-            display_date: r.items?.purchase_date || r.purchase_date,
-            display_store: r.items?.store_name || r.store_name,
-            is_linked: !!r.items
-        }));
-
-        flatData.forEach(r => { html += renderPersonalCard(r, t); });
-        html += `</div>`;
-    }
-    html += `</section>`;
-
     mainContent.innerHTML = html;
+    setupReceiptsTabs();
     restoreListeners(client, userId);
     setupUploadListeners(uploadModal);
 
     if (typeof window.applyDashboardLang === 'function') {
         window.applyDashboardLang(lang);
     }
+}
+
+function buildPersonalGridHTML(receipts, t, lang) {
+    if (receipts.length === 0) {
+        return `
+            <div class="empty-state" data-animate="zoom">
+                <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
+                <h3>${lang === 'ru' ? 'Пока нет загруженных чеков' : 'No personal receipts yet'}</h3>
+                <p>${lang === 'ru' ? 'Сфотографируйте или загрузите первый чек — он останется здесь навсегда.' : 'Photograph or upload your first receipt — it will stay here for good.'}</p>
+                <button type="button" class="btn btn-outline empty-state-cta" id="empty-upload-receipt-btn">
+                    <i class="fa-solid fa-upload"></i> ${lang === 'ru' ? 'Загрузить чек' : 'Upload receipt'}
+                </button>
+            </div>`;
+    }
+
+    const flatData = receipts.map(r => ({
+        ...r,
+        item_name: r.items?.name || null,
+        display_name: r.items?.name || r.receipt_name || r.store_name || 'Untitled Receipt',
+        display_amount: r.items?.price || r.amount,
+        display_date: r.items?.purchase_date || r.purchase_date,
+        display_store: r.items?.store_name || r.store_name,
+        is_linked: !!r.items
+    }));
+
+    return flatData.map(r => renderPersonalCard(r, t)).join('');
+}
+
+function buildBusinessGridHTML(receipts, t, lang) {
+    if (receipts.length === 0) {
+        return `
+            <div class="empty-state" data-animate="zoom">
+                <div class="empty-icon"><i class="fa-solid fa-store"></i></div>
+                <h3>${lang === 'ru' ? 'Пока нет чеков от партнёров' : 'No business receipts yet'}</h3>
+                <p>${lang === 'ru' ? 'Как только магазин-партнёр Valuon выпишет чек на ваш email, он появится здесь автоматически.' : 'Once a Valuon partner store issues a receipt to your email, it will appear here automatically.'}</p>
+            </div>`;
+    }
+
+    return receipts.map(r => renderBusinessCard(r, t)).join('');
+}
+
+function setupReceiptsTabs() {
+    const tabs = document.querySelectorAll('#receipts-tabs .items-tab');
+    const indicator = document.getElementById('receipts-tab-indicator');
+
+    function moveIndicator() {
+        const active = document.querySelector('#receipts-tabs .items-tab.active');
+        if (!indicator || !active) return;
+        indicator.style.width = `${active.offsetWidth}px`;
+        indicator.style.transform = `translateX(${active.offsetLeft - 4}px)`;
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            if (tab.classList.contains('active')) return;
+
+            tabs.forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            tab.classList.add('active');
+            tab.setAttribute('aria-selected', 'true');
+            moveIndicator();
+
+            const target = tab.dataset.receiptsTab;
+            const personalGrid = document.getElementById('receipts-grid-personal');
+            const businessGrid = document.getElementById('receipts-grid-business');
+            personalGrid?.classList.toggle('hidden', target !== 'personal');
+            businessGrid?.classList.toggle('hidden', target !== 'business');
+        });
+    });
+
+    requestAnimationFrame(moveIndicator);
 }
 
 function renderBusinessCard(r, t) {
@@ -663,7 +715,7 @@ function createUploadModal(client, userId) {
             const storeName = form.querySelector('[name="store_name"]').value.trim();
             const rawItemId = form.querySelector('[name="item_id"]').value;
             const itemId = rawItemId || null;
-            const parsedAmount = parseFloat(amount);
+            const parsedAmount = Math.max(0, parseFloat(amount) || 0);
 
             const { error: dbError } = await client.from('receipts').insert({
                 user_id: userId,
@@ -672,13 +724,16 @@ function createUploadModal(client, userId) {
                 file_url: signedData.signedUrl,
                 file_path: filePath,
                 file_type: file.type,
-                amount: isNaN(parsedAmount) ? null : parsedAmount,
+                amount: parsedAmount || null,
                 purchase_date: purchaseDate,
                 store_name: storeName,
                 status: 'pending'
             });
 
-            if (dbError) throw dbError;
+            if (dbError) {
+                await client.storage.from('receipts').remove([filePath]).catch(() => {});
+                throw dbError;
+            }
 
             showToast(lang === 'ru' ? 'Чек успешно загружен!' : 'Receipt uploaded successfully!', 'success');
             close();

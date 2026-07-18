@@ -66,7 +66,7 @@ async function loadItems(userId, client) {
 }
 
 export function calculateDaysLeft(purchaseDate, months) {
-    if (!purchaseDate || !months) return -999;
+    if (!purchaseDate || months == null || months === '') return -999;
 
     const parts = purchaseDate.split('-');
     if (parts.length !== 3) return -999;
@@ -492,7 +492,7 @@ function setupEditModal(client, userId) {
                 name: form.querySelector('[name="name"]').value.trim(),
                 type: form.querySelector('[name="type"]').value,
                 brand: form.querySelector('[name="brand"]').value.trim(),
-                price: parseFloat(form.querySelector('[name="price"]').value) || 0,
+                price: Math.max(0, parseFloat(form.querySelector('[name="price"]').value) || 0),
                 store_name: form.querySelector('[name="store_name"]').value.trim(),
                 serial_number: form.querySelector('[name="serial_number"]').value.trim(),
                 purchase_date: form.querySelector('[name="purchase_date"]').value,

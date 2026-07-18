@@ -54,7 +54,8 @@ async function initSettings() {
                 display_name: `${metaFirstName} ${metaLastName}`.trim(),
                 birthdate: metaBirthdate,
                 expiry_alerts: true,
-                weekly_digest: false
+                weekly_digest: false,
+                updated_at: new Date().toISOString()
             });
 
             if (firstNameInput) firstNameInput.value = metaFirstName;
@@ -290,7 +291,7 @@ async function initSettings() {
             window.dispatchEvent(new CustomEvent('themeChange'));
         });
 
-        document.addEventListener('themeChange', updateThemeBtn);
+        window.addEventListener('themeChange', updateThemeBtn);
     }
 
     if (langBtn) {
@@ -311,7 +312,7 @@ async function initSettings() {
             }
         });
 
-        document.addEventListener('lang-changed', updateLangBtn);
+        window.addEventListener('lang-changed', updateLangBtn);
     }
 }
 

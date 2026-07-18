@@ -19,9 +19,10 @@
 
 ## 1. Критические
 
-### 1.1 CustomEvents на `window`, слушатели на `document`
-**Файлы:** `js/dashboard-settings.js:290-293,314`, `js/dashboard-lang.js:359`
-**Описание:** Событие `lang-changed` диспатчится через `window.dispatchEvent(...)`, но слушатель в dashboard-settings.js висит на `document`. Custom events не всплывают между `window` и `document`. Обработчики `updateLangBtn` и `updateThemeBtn` **никогда не срабатывают**. UI в настройках не обновляется при смене языка/темы до перезагрузки страницы.
+### ~~1.1 CustomEvents на `window`, слушатели на `document`~~ **FIXED**
+**Файлы:** `js/dashboard-settings.js:293,314`
+**Было:** Слушатели `themeChange` и `lang-changed` висели на `document`, а диспатчились на `window` — никогда не срабатывали.
+**Фикс:** `document.addEventListener` → `window.addEventListener`.
 
 ### 1.2 Приватные ключи Ed25519 через анонимный Supabase-клиент
 **Файл:** `js/business-panel.js:288-295`
@@ -37,8 +38,8 @@
 
 ## 2. Безопасность
 
-### 2.1 XSS — escapeHtml используется последовательно
-**Статус:** ✅ Хорошо. Все точки вставки пользовательских данных через `innerHTML` экранируются функцией `escapeHtml()` из `js/security.js:92-101`.
+### ~~2.1 XSS — escapeHtml используется последовательно~~ **НЕ ПРОБЛЕМА**
+**Статус:** ✅ Все точки вставки пользовательских данных через `innerHTML` экранируются функцией `escapeHtml()` из `js/security.js:92-101`.
 
 ### 2.2 Open redirect через `?from=`
 **Файл:** `js/verify.js:691-702`
@@ -228,40 +229,41 @@
 
 ## 7. Функциональные баги
 
-### 7.1 Нет валидации отрицательных цен
+### ~~7.1 Нет валидации отрицательных цен~~ **FIXED**
 
-**Файлы:** `receipts.js:666`, `dashboard-items.js:495`
-`parseFloat(amount) || 0` — ввод `-100` превращается в `0` (через `||`). Не падает, но цена молча сбрасывается.
+**Файлы:** `receipts.js:718`, `dashboard-items.js:495`
+**Было:** `parseFloat(amount) || 0` — отрицательное значение проходило.
+**Фикс:** `Math.max(0, parseFloat(...) || 0)` — отрицательные обрезаются до 0.
 
-### 7.2 Orphaned-файлы в storage при ошибке БД
+### ~~7.2 Orphaned-файлы в storage при ошибке БД~~ **FIXED**
 
-**Файл:** `receipts.js:688-693`
-Если загрузка файла в Supabase Storage прошла успешно, но вставка записи в таблицу `receipts` упала — файл остаётся в storage orphaned. Нет cleanup-логики.
+**Файл:** `receipts.js:733`
+**Было:** При ошибке `INSERT` файл оставался в storage.
+**Фикс:** В блоке `if (dbError)` вызывается `client.storage.from('receipts').remove([filePath])` перед `throw`.
 
-### 7.3 `updated_at` не записывается при создании профиля
+### ~~7.3 `updated_at` не записывается при создании профиля~~ **FIXED**
 
 **Файл:** `dashboard-settings.js:50-58`
-При INSERT в `profiles` не передаётся `updated_at`. Если колонка без `DEFAULT now()`, у нового профиля будет `null`.
+**Было:** `INSERT` в `profiles` без `updated_at`.
+**Фикс:** Добавлено `updated_at: new Date().toISOString()` в объект вставки.
 
-### 7.4 `warranty_months = 0` показывает как просроченное
+### ~~7.4 `warranty_months = 0` показывает как просроченное~~ **FIXED**
 
 **Файл:** `dashboard-items.js:69`
-`if (!months) return -999` — 0 является falsy. Предмет с гарантией 0 месяцев будет считаться просроченным.
+**Было:** `if (!months) return -999` — `0` был falsy.
+**Фикс:** `if (months == null || months === '')` — только null/undefined/'' возвращают -999.
 
-### 7.5 Email сохраняется в localStorage после успешного логина
+### ~~7.5 Email сохраняется в localStorage после успешного логина~~ **FIXED**
 
 **Файл:** `auth.js:114-118`
-`localStorage.setItem('valuon-remember-email', email)` вызывается **после** успешного signInWithPassword. Если логин упал после вызова API, email не сохранится. Стоит сохранять до вызова.
+**Было:** `localStorage.setItem` после вызова API.
+**Фикс:** Сохранение email вынесено **до** `signInWithPassword`.
 
-### 7.6 `showToast` — непоследовательная инициализация
+### ~~7.6 `showToast` — непоследовательная инициализация~~ **FIXED**
 
 **Файл:** `business-panel.js:11-13`
-```javascript
-if (typeof window.showToast !== 'function') {
-    window.showToast = (msg) => console.log(`[TOAST] ${msg}`);
-}
-```
-Если `toast.js` не загружен, тост не показывается (нет элемента `toast-container` в DOM). Заглушка только логирует в консоль.
+**Было:** Заглушка только логировала в консоль, тост не появлялся.
+**Фикс:** Fallback создаёт `#toast-container` динамически и рендерит toast через DOM.
 
 ---
 

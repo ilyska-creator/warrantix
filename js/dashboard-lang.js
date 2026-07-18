@@ -143,6 +143,8 @@ const dashboardTranslations = {
 
         items_tab_mine: "Мои вещи",
         items_tab_verified: "Подтвержденные товары",
+        receipts_tab_personal: "Ваши чеки",
+        receipts_tab_business: "Чеки от партнеров",
         verified_empty_title: "Пока нет подтвержденных товаров",
         verified_empty_text: "Товары из чеков от партнёров появятся здесь автоматически.",
         verified_locked: "Подтверждено продавцом — нельзя изменить",
@@ -293,6 +295,8 @@ const dashboardTranslations = {
 
         items_tab_mine: "My Items",
         items_tab_verified: "Confirmed Items",
+        receipts_tab_personal: "Your Receipts",
+        receipts_tab_business: "Partner Receipts",
         verified_empty_title: "No confirmed items yet",
         verified_empty_text: "Items from partner receipts will appear here automatically.",
         verified_locked: "Confirmed by seller — cannot be edited",

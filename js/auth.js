@@ -103,6 +103,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setLoadingButton(btn);
 
                 const client = getSupabaseClient(rememberMe);
+
+                if (rememberMe) {
+                    localStorage.setItem('valuon-remember-email', email);
+                } else {
+                    localStorage.removeItem('valuon-remember-email');
+                }
+
                 const { data, error } = await client.auth.signInWithPassword({
                     email,
                     password,
@@ -110,12 +117,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
 
                 if (error) throw error;
-
-                if (rememberMe) {
-                    localStorage.setItem('valuon-remember-email', email);
-                } else {
-                    localStorage.removeItem('valuon-remember-email');
-                }
 
                 if (data.session) {
                     window.location.href = 'dashboard.html';
