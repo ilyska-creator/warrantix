@@ -888,3 +888,17 @@
     }
 }
 
+.result-store-dd {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#result-shop-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+

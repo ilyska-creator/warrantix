@@ -129,19 +129,7 @@ function renderItems(items) {
 
     grid.innerHTML = items.map(item => {
         const iconClass = DEVICE_ICONS[item.type] || DEVICE_ICONS.other;
-        const daysLeft = calculateDaysLeft(item.purchase_date, item.warranty_months);
-        const status = getStatusInfo(daysLeft);
-
-        const statusKeyMap = {
-            active: 'status_active',
-            warning: 'status_expiring',
-            expired: 'status_expired'
-        };
-        const statusTextKey = statusKeyMap[status.class] || 'status_active';
-        const progressTextKey = daysLeft > 0 ? 'days_left' : 'warranty_expired_text';
-
-        const totalDays = (item.warranty_months || 12) * 30;
-        const progress = totalDays > 0 ? Math.max(0, Math.min(100, (daysLeft / totalDays) * 100)) : 0;
+        const noWarranty = !item.warranty_months;
 
         const tags = [];
         if (item.serial_number) {
@@ -156,22 +144,40 @@ function renderItems(items) {
         const btnEditText = escapeHtml(t.btn_edit || 'Изменить');
         const btnDeleteText = escapeHtml(t.btn_delete || 'Удалить');
 
-        return `
-            <div class="item-card" data-item-id="${escapeHtml(item.id)}">
-                <div class="item-header">
-                    <div class="item-icon"><i class="fa-solid ${iconClass}"></i></div>
-                    <div class="item-status-badge ${status.class}" data-i18n="${statusTextKey}">${escapeHtml(t[statusTextKey] || '')}</div>
-                </div>
-                
-                <div class="item-body">
-                    <h3 class="item-title">${escapeHtml(item.name)}</h3>
-                    <div class="item-brand">${escapeHtml(item.brand) || escapeHtml(t.brand_not_specified || 'Brand not specified')}</div>
-                    
-                    <div class="item-tags">
-                        ${tags.join('')}
-                    </div>
-                </div>
+        let statusBadgeHtml, footerHtml;
 
+        if (noWarranty) {
+            statusBadgeHtml = `<div class="item-status-badge none" data-i18n="no_warranty">${escapeHtml(t.no_warranty || 'No warranty')}</div>`;
+            footerHtml = `
+                <div class="item-footer">
+                    <div class="no-warranty-track"><i class="fa-solid fa-shield-slash"></i></div>
+                    <div class="item-actions">
+                        <button class="btn-action primary btn-edit-item" data-id="${escapeHtml(item.id)}" title="${btnEditText}">
+                            <i class="fa-solid fa-pen"></i>
+                            <span data-i18n="btn_edit">${btnEditText}</span>
+                        </button>
+                        <button class="btn-action danger btn-delete-item" data-id="${escapeHtml(item.id)}" title="${btnDeleteText}">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>`;
+        } else {
+            const daysLeft = calculateDaysLeft(item.purchase_date, item.warranty_months);
+            const status = getStatusInfo(daysLeft);
+
+            const statusKeyMap = {
+                active: 'status_active',
+                warning: 'status_expiring',
+                expired: 'status_expired'
+            };
+            const statusTextKey = statusKeyMap[status.class] || 'status_active';
+            const progressTextKey = daysLeft > 0 ? 'days_left' : 'warranty_expired_text';
+
+            const totalDays = (item.warranty_months || 12) * 30;
+            const progress = totalDays > 0 ? Math.max(0, Math.min(100, (daysLeft / totalDays) * 100)) : 0;
+
+            statusBadgeHtml = `<div class="item-status-badge ${status.class}" data-i18n="${statusTextKey}">${escapeHtml(t[statusTextKey] || '')}</div>`;
+            footerHtml = `
                 <div class="item-footer">
                     <div class="progress-bar-bg">
                         <div class="progress-bar-fill ${status.class}" style="width: 0" data-progress="${progress}"></div>
@@ -189,7 +195,26 @@ function renderItems(items) {
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
+                </div>`;
+        }
+
+        return `
+            <div class="item-card" data-item-id="${escapeHtml(item.id)}">
+                <div class="item-header">
+                    <div class="item-icon"><i class="fa-solid ${iconClass}"></i></div>
+                    ${statusBadgeHtml}
                 </div>
+                
+                <div class="item-body">
+                    <h3 class="item-title">${escapeHtml(item.name)}</h3>
+                    <div class="item-brand">${escapeHtml(item.brand) || escapeHtml(t.brand_not_specified || 'Brand not specified')}</div>
+                    
+                    <div class="item-tags">
+                        ${tags.join('')}
+                    </div>
+                </div>
+
+                ${footerHtml}
             </div>
         `;
     }).join('');
@@ -254,17 +279,42 @@ function renderVerifiedItems(receipts, t) {
     };
 
     grid.innerHTML = allItems.map(item => {
-        const daysLeft = calculateDaysLeft(item.purchase_date, item.warranty_months);
-        const status = getStatusInfo(daysLeft);
-        const statusTextKey = statusKeyMap[status.class] || 'status_active';
         const dateStr = item.purchase_date
             ? new Date(item.purchase_date).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')
             : '—';
         const qty = parseInt(item.qty, 10) || 1;
+        const noWarranty = !item.warranty_months;
 
-        const totalDays = (item.warranty_months || 12) * 30;
-        const progress = totalDays > 0 ? Math.max(0, Math.min(100, (daysLeft / totalDays) * 100)) : 0;
-        const progressTextKey = daysLeft > 0 ? 'days_left' : 'warranty_expired_text';
+        let statusBadgeHtml, footerHtml;
+
+        if (noWarranty) {
+            statusBadgeHtml = `<div class="item-status-badge none" data-i18n="no_warranty">${escapeHtml(t.no_warranty || 'No warranty')}</div>`;
+            footerHtml = `
+                <div class="item-footer">
+                    <div class="no-warranty-track"><i class="fa-solid fa-shield-slash"></i></div>
+                    <div class="verified-lock-note"><i class="fa-solid fa-lock"></i> <span data-i18n="verified_locked">${escapeHtml(t.verified_locked || 'Подтверждено продавцом — нельзя изменить')}</span></div>
+                </div>`;
+        } else {
+            const daysLeft = calculateDaysLeft(item.purchase_date, item.warranty_months);
+            const status = getStatusInfo(daysLeft);
+            const statusTextKey = statusKeyMap[status.class] || 'status_active';
+            const totalDays = (item.warranty_months || 12) * 30;
+            const progress = totalDays > 0 ? Math.max(0, Math.min(100, (daysLeft / totalDays) * 100)) : 0;
+            const progressTextKey = daysLeft > 0 ? 'days_left' : 'warranty_expired_text';
+
+            statusBadgeHtml = `<div class="item-status-badge ${status.class}" data-i18n="${statusTextKey}">${escapeHtml(t[statusTextKey] || '')}</div>`;
+            footerHtml = `
+                <div class="item-footer">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill ${status.class}" style="width: 0" data-progress="${progress}"></div>
+                    </div>
+                    <div class="days-left-text ${status.class}" 
+                         data-i18n="${progressTextKey}" 
+                         data-i18n-count="${daysLeft > 0 ? daysLeft : ''}">
+                    </div>
+                    <div class="verified-lock-note"><i class="fa-solid fa-lock"></i> <span data-i18n="verified_locked">${escapeHtml(t.verified_locked || 'Подтверждено продавцом — нельзя изменить')}</span></div>
+                </div>`;
+        }
 
         return `
             <div class="item-card verified-item-card">
@@ -272,7 +322,7 @@ function renderVerifiedItems(receipts, t) {
                 <div class="item-header">
                     <div class="item-icon verified"><i class="fa-solid fa-box-open"></i></div>
                     <div class="item-header-badges">
-                        <div class="item-status-badge ${status.class}" data-i18n="${statusTextKey}">${escapeHtml(t[statusTextKey] || '')}</div>
+                        ${statusBadgeHtml}
                     </div>
                 </div>
 
@@ -283,21 +333,12 @@ function renderVerifiedItems(receipts, t) {
                     <div class="item-tags">
                         ${qty > 1 ? `<span class="tag"><i class="fa-solid fa-layer-group"></i> ×${escapeHtml(String(qty))}</span>` : ''}
                         <span class="tag"><i class="fa-solid fa-tag"></i> $${escapeHtml(parseFloat(item.gross_total || 0).toFixed(2))}</span>
-                        <span class="tag"><i class="fa-solid fa-shield-halved"></i> ${escapeHtml(String(item.warranty_months || 0))} ${escapeHtml(t.months_short || 'mo')}.</span>
+                        ${!noWarranty ? `<span class="tag"><i class="fa-solid fa-shield-halved"></i> ${escapeHtml(String(item.warranty_months || 0))} ${escapeHtml(t.months_short || 'mo')}.</span>` : ''}
                         <span class="tag"><i class="fa-regular fa-calendar"></i> ${escapeHtml(dateStr)}</span>
                     </div>
                 </div>
 
-                <div class="item-footer">
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill ${status.class}" style="width: 0" data-progress="${progress}"></div>
-                    </div>
-                    <div class="days-left-text ${status.class}" 
-                         data-i18n="${progressTextKey}" 
-                         data-i18n-count="${daysLeft > 0 ? daysLeft : ''}">
-                    </div>
-                    <div class="verified-lock-note"><i class="fa-solid fa-lock"></i> <span data-i18n="verified_locked">${escapeHtml(t.verified_locked || 'Подтверждено продавцом — нельзя изменить')}</span></div>
-                </div>
+                ${footerHtml}
             </div>`;
     }).join('');
 
@@ -438,6 +479,7 @@ function updateStats(items) {
     let expiredCount = 0;
 
     items.forEach(item => {
+        if (!item.warranty_months) return;
         const days = calculateDaysLeft(item.purchase_date, item.warranty_months);
         if (days > 30) activeCount++;
         else if (days > 0 && days <= 30) expiringCount++;
@@ -478,7 +520,7 @@ async function openEditModal(itemId, client, userId) {
     form.querySelector('[name="store_name"]').value = item.store_name || '';
     form.querySelector('[name="serial_number"]').value = item.serial_number || '';
     form.querySelector('[name="purchase_date"]').value = item.purchase_date || '';
-    form.querySelector('[name="warranty_months"]').value = item.warranty_months || 12;
+    form.querySelector('[name="warranty_months"]').value = item.warranty_months ?? 12;
     form.querySelector('[name="location"]').value = item.location || '';
 
     if (typeof window.applyDashboardLang === 'function') {

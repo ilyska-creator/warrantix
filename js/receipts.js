@@ -445,9 +445,10 @@ function restoreListeners(client, userId) {
                 const mockShop = {
                     shop_name: receipt.shop_name || 'Partner Store',
                     address: receipt.address || '',
-                    tax_id: receipt.tax_id || ''
+                    tax_id: receipt.tax_id || '',
+                    logo_path: receipt.logo_path || null
                 };
-                downloadReceiptPDF(receipt, mockShop);
+                await downloadReceiptPDF(receipt, mockShop);
             } catch (e) {
                 console.error('PDF generation error:', e);
                 showToast(

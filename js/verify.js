@@ -205,8 +205,19 @@ function showResult(status, data) {
             resultReceiptNumber.textContent = data.receiptNumber || '—';
             resultReceiptDate.textContent = data.date || '—';
             resultReceiptAmount.textContent = data.amount || '—';
-            resultReceiptStore.textContent = data.store || '—';
+            const storeSpan = resultReceiptStore.querySelector('span');
+            if (storeSpan) storeSpan.textContent = data.store || '—';
             resultSellerStatus.textContent = data.sellerStatus || '—';
+
+            // Shop logo
+            const logoImg = document.getElementById('result-shop-logo');
+            if (logoImg && data.shopLogo) {
+                logoImg.onerror = () => { logoImg.style.display = 'none'; };
+                logoImg.src = data.shopLogo;
+                logoImg.style.display = 'inline-block';
+            } else if (logoImg) {
+                logoImg.style.display = 'none';
+            }
 
             const lineItems = Array.isArray(data.items) ? data.items : [];
             if (resultItemsList && resultItemsRow && resultItemsWrap) {
@@ -331,6 +342,12 @@ async function verifyReceiptFromQRData(qrRaw) {
         const items = Array.isArray(receipt.items) ? receipt.items : [];
         const receiptNum = receipt.receiptNumber ? `#RCP-${receipt.receiptNumber}` : null;
 
+        let shopLogoUrl = null;
+        if (shop.logoPath) {
+            const SUPABASE_URL = 'https://qjnzawjivqvgupbgxdao.supabase.co';
+            shopLogoUrl = `${SUPABASE_URL}/storage/v1/object/public/shop-logos/${shop.logoPath}`;
+        }
+
         showResult('success', {
             receiptNumber: receiptNum || '—',
             items,
@@ -338,6 +355,7 @@ async function verifyReceiptFromQRData(qrRaw) {
             amount,
             store: shop.shopName || '—',
             sellerStatus,
+            shopLogo: shopLogoUrl,
         });
     } catch (err) {
         console.error('[verify] Unexpected error:', err);

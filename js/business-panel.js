@@ -216,12 +216,122 @@ async function initBusinessPanel() {
         if (nameEl) nameEl.textContent = shop.shop_name || 'Без названия';
         if (vatEl) vatEl.textContent = shop.tax_id || '—';
         if (addrEl) addrEl.textContent = shop.address || '—';
+
+        updateShopLogo(shop.logo_path);
     }
+
+    function updateShopLogo(path) {
+        const img = document.getElementById('shop-logo');
+        const placeholder = document.getElementById('shop-logo-placeholder');
+        if (!img || !placeholder) return;
+        if (path) {
+            const { data: { publicUrl } } = client.storage.from('shop-logos').getPublicUrl(path);
+            img.onerror = () => {
+                console.warn('[logo] failed to load:', publicUrl);
+                img.style.display = 'none';
+                placeholder.style.display = 'flex';
+            };
+            img.src = publicUrl;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            placeholder.style.display = 'flex';
+        }
+    }
+
+    // Registration form logo preview
+    const regLogoInput = document.getElementById('reg-logo-input');
+    const logoDropZone = document.getElementById('logo-drop-zone');
+    const logoDropContent = document.getElementById('logo-drop-content');
+    const logoDropPreview = document.getElementById('logo-drop-preview');
+    const logoDropRemove = document.getElementById('logo-drop-remove');
+    const logoPreviewImg = logoDropPreview?.querySelector('img');
+
+    function getLogoLang() {
+        const lang = localStorage.getItem('valuon-lang') || 'ru';
+        return window.businessTranslations?.[lang] || {};
+    }
+
+    function validateLogoFile(file) {
+        const t = getLogoLang();
+        if (!file) return 'no file';
+        if (!['image/png', 'image/jpeg'].includes(file.type)) {
+            window.showToast(t.logo_bad_format || 'Только PNG и JPG.', 'error');
+            return false;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            window.showToast(t.logo_too_large || 'Файл слишком большой. Максимум 2 МБ.', 'error');
+            return false;
+        }
+        return true;
+    }
+
+    function showLogoPreview(file) {
+        const valid = validateLogoFile(file);
+        if (valid !== true) return;
+        logoDropContent.style.display = 'none';
+        logoDropPreview.style.display = 'flex';
+        logoDropZone.classList.add('has-image');
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            logoPreviewImg.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function resetLogoDrop() {
+        regLogoInput.value = '';
+        logoDropContent.style.display = 'flex';
+        logoDropPreview.style.display = 'none';
+        logoDropZone.classList.remove('has-image');
+    }
+
+    logoDropZone?.addEventListener('click', () => regLogoInput?.click());
+
+    logoDropZone?.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        logoDropZone.style.borderColor = 'var(--primary)';
+        logoDropZone.style.background = 'rgba(59, 130, 246, 0.05)';
+    });
+
+    logoDropZone?.addEventListener('dragleave', () => {
+        logoDropZone.style.borderColor = '';
+        logoDropZone.style.background = '';
+    });
+
+    logoDropZone?.addEventListener('drop', (e) => {
+        e.preventDefault();
+        logoDropZone.style.borderColor = '';
+        logoDropZone.style.background = '';
+        const file = e.dataTransfer?.files?.[0];
+        if (!file) return;
+        const valid = validateLogoFile(file);
+        if (valid !== true) return;
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        regLogoInput.files = dt.files;
+        showLogoPreview(file);
+    });
+
+    regLogoInput?.addEventListener('change', () => {
+        const file = regLogoInput.files?.[0];
+        if (file) {
+            showLogoPreview(file);
+        } else {
+            resetLogoDrop();
+        }
+    });
+
+    logoDropRemove?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetLogoDrop();
+    });
 
     try {
         const { data: shop, error } = await client
             .from('shops')
-            .select('id, shop_name, tax_id, address, public_key, owner_id')
+            .select('id, shop_name, tax_id, address, logo_path, public_key, owner_id')
             .eq('owner_id', user.id)
             .maybeSingle();
 
@@ -293,6 +403,23 @@ async function initBusinessPanel() {
 
                 const fd = new FormData(e.target);
 
+                // Upload logo if selected (before keygen, so user waits once)
+                let logoPath = null;
+                const logoFile = fd.get('logo');
+                if (logoFile && logoFile.size && logoFile.size > 0) {
+                    if (logoFile.size > 2 * 1024 * 1024) {
+                        window.showToast('Файл слишком большой. Максимум 2 МБ.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalHTML;
+                        return;
+                    }
+                    if (!['image/png', 'image/jpeg'].includes(logoFile.type)) {
+                        window.showToast('Только PNG и JPG.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalHTML;
+                        return;
+                    }
+                }
 
                 const signer = new Ed25519Signer();
                 const keyPair = await signer.generateKeyPair();
@@ -310,14 +437,41 @@ async function initBusinessPanel() {
 
                 if (error) {
                     window.showToast(error.code === '23505' ? 'Магазин уже существует' : 'Ошибка создания', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
                     return;
                 }
 
-                window.showToast('Магазин создан с криптографической подписью!', 'success');
+                // Upload logo now that shop exists
+                if (logoFile && logoFile.size && logoFile.size > 0) {
+                    try {
+                        const ext = logoFile.name.split('.').pop().toLowerCase();
+                        const { data: justCreated } = await client
+                            .from('shops')
+                            .select('id')
+                            .eq('owner_id', currentUser.id)
+                            .maybeSingle();
+                        if (justCreated) {
+                            const filePath = `${justCreated.id}/logo.${ext}`;
+                            const { error: upErr } = await client.storage
+                                .from('shop-logos')
+                                .upload(filePath, logoFile, { upsert: false });
+                            if (!upErr) {
+                                logoPath = filePath;
+                                await client.from('shops')
+                                    .update({ logo_path: filePath })
+                                    .eq('id', justCreated.id);
+                            }
+                        }
+                    } catch (_) { /* logo is optional */ }
+                }
+
+                const createdLang = localStorage.getItem('valuon-lang') || 'ru';
+                window.showToast(createdLang === 'en' ? 'Store created with cryptographic signature!' : 'Магазин создан с криптографической подписью!', 'success');
 
                 const { data: newShop } = await client
                     .from('shops')
-                    .select('id, shop_name, tax_id, address, public_key, owner_id')
+                    .select('id, shop_name, tax_id, address, logo_path, public_key, owner_id')
                     .eq('owner_id', currentUser.id)
                     .maybeSingle();
 
@@ -404,12 +558,12 @@ async function initBusinessPanel() {
                 }
 
                 const items = readItemRows();
-                if (items.length === 0 || items.some(it => !it.itemName || it.qty <= 0 || it.warrantyMonths <= 0)) {
+                if (items.length === 0 || items.some(it => !it.itemName || it.qty <= 0 || it.warrantyMonths < 0)) {
                     const valLang = localStorage.getItem('valuon-lang') || 'ru';
                     window.showToast(
                         valLang === 'en'
-                            ? 'Fill in every line item (product, quantity and warranty term)'
-                            : 'Заполните все позиции чека (товар, количество и срок гарантии)',
+                            ? 'Fill in every line item (product, quantity)'
+                            : 'Заполните все позиции чека (товар, количество)',
                         'warning'
                     );
                     return;
@@ -464,7 +618,8 @@ async function initBusinessPanel() {
                     fiscal_hash: fiscalSignature,
                     shop_name: currentShop.shop_name,
                     tax_id: currentShop.tax_id,
-                    address: currentShop.address
+                    address: currentShop.address,
+                    logo_path: currentShop.logo_path
                 };
 
                 const { data: inserted, error } = await client
@@ -510,6 +665,10 @@ async function initBusinessPanel() {
                 window.showToast(succLang === 'en' ? `Receipt${receiptLabel} issued!` : `Чек${receiptLabel} выписан!`, 'success');
                 toggleModal(false);
                 await refreshDashboard(client, currentShop.id, stats, list);
+            } catch (err) {
+                console.error('Receipt issue error:', err);
+                const errLang = localStorage.getItem('valuon-lang') || 'ru';
+                window.showToast(errLang === 'en' ? 'Error issuing receipt' : 'Ошибка выписки чека', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;
@@ -644,12 +803,12 @@ async function initBusinessPanel() {
             });
 
             listEl.grid.querySelectorAll('.btn-download-receipt').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', async () => {
                     const receiptId = btn.dataset.id;
                     const receipt = currentReceiptsList.find(r => r.id === receiptId);
 
                     if (receipt && currentShop) {
-                        downloadReceiptPDF(receipt, currentShop);
+                        await downloadReceiptPDF(receipt, currentShop);
                     } else {
                         const errLang = localStorage.getItem('valuon-lang') || 'ru';
                         window.showToast(errLang === 'en' ? 'Receipt data not found' : 'Не удалось найти данные чека', 'error');

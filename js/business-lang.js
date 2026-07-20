@@ -63,6 +63,7 @@ const businessTranslations = {
 
         warranty_months_label: 'Гарантия, мес.',
         warranty_months_placeholder: '12',
+        warranty_hint: '0 = нет гарантии',
         warranty_suffix: 'мес.',
         add_item_btn: 'Добавить товар',
         remove_item_title: 'Удалить товар',
@@ -106,6 +107,12 @@ const businessTranslations = {
         chart_period_year: 'За последние 12 месяцев',
 
         loading_shop: 'Проверка данных магазина...',
+        shop_badge: 'Магазин',
+        logo_label: 'Логотип (опционально)',
+        logo_drop: 'Нажмите, чтобы выбрать логотип',
+        logo_hint: 'PNG или JPG, до 2 МБ',
+        logo_bad_format: 'Только PNG и JPG.',
+        logo_too_large: 'Файл слишком большой. Максимум 2 МБ.',
     },
     en: {
 
@@ -170,6 +177,7 @@ const businessTranslations = {
 
         warranty_months_label: 'Warranty, months',
         warranty_months_placeholder: '12',
+        warranty_hint: '0 = no warranty',
         warranty_suffix: 'mo.',
         add_item_btn: 'Add item',
         remove_item_title: 'Remove item',
@@ -211,6 +219,12 @@ const businessTranslations = {
         chart_period_year: 'Last 12 months',
 
         loading_shop: 'Checking store data...',
+        shop_badge: 'Store',
+        logo_label: 'Logo (optional)',
+        logo_drop: 'Click to select a logo',
+        logo_hint: 'PNG or JPG, up to 2 MB',
+        logo_bad_format: 'Only PNG and JPG.',
+        logo_too_large: 'File too large. Maximum 2 MB.',
     }
 };
 

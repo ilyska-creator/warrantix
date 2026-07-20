@@ -37,7 +37,7 @@ export function generateQRDataURL(text, size = 80) {
 }
 
 
-export function downloadReceiptPDF(receipt, shop) {
+export async function downloadReceiptPDF(receipt, shop) {
     if (typeof window.jspdf === 'undefined') {
         console.error('jsPDF library is not loaded');
         alert('Библиотека генерации PDF не загружена. Попробуйте обновить страницу.');
@@ -52,6 +52,24 @@ export function downloadReceiptPDF(receipt, shop) {
         const sellerAddress = shop?.address || '';
         const taxId = shop?.tax_id || '';
         const registerSerial = `CR-${new Date().getFullYear()}-001`;
+
+        // Fetch logo if exists
+        let logoDataUrl = null;
+        if (shop?.logo_path) {
+            try {
+                const SUPABASE_URL = 'https://qjnzawjivqvgupbgxdao.supabase.co';
+                const logoUrl = `${SUPABASE_URL}/storage/v1/object/public/shop-logos/${shop.logo_path}`;
+                const resp = await fetch(logoUrl);
+                if (resp.ok) {
+                    const blob = await resp.blob();
+                    logoDataUrl = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                }
+            } catch (e) { /* skip logo */ }
+        }
 
         const purchaseDate = new Date(receipt.purchase_date);
         const pdfDate = purchaseDate.toLocaleString('ru-RU', {
@@ -89,19 +107,24 @@ export function downloadReceiptPDF(receipt, shop) {
         y = 28;
         doc.setTextColor(0, 0, 0);
 
+        const nameLeft = logoDataUrl ? leftCol + 22 : leftCol;
+
+        if (logoDataUrl) {
+            doc.addImage(logoDataUrl, 'PNG', leftCol, y - 4, 16, 16);
+        }
 
         doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
-        doc.text(sellerName, leftCol, y);
+        doc.text(sellerName, nameLeft, y);
         y += 7;
 
         doc.setFontSize(9);
         doc.setFont(undefined, 'normal');
         doc.setTextColor(60, 60, 60);
         const addressLines = doc.splitTextToSize(sellerAddress, 170);
-        doc.text(addressLines, leftCol, y);
+        doc.text(addressLines, nameLeft, y);
         y += addressLines.length * 4 + 2;
-        doc.text(`Tax ID: ${taxId}   |   Reg. S/N: ${registerSerial}`, leftCol, y);
+        doc.text(`Tax ID: ${taxId}   |   Reg. S/N: ${registerSerial}`, nameLeft, y);
         y += 10;
 
         doc.setDrawColor(220, 220, 220);

@@ -65,32 +65,50 @@
                         чеков клиентам.</p>
                 </div>
 
-                <form id="create-shop-form" class="mt-6" action="#">
-                    <div class="input-group">
-                        <label for="shop_name">Название бизнеса</label>
-                        <input type="text" id="shop_name" name="shop_name" required placeholder="My Awesome Store"
-                            autocomplete="organization">
-                        <small class="field-hint">Как вас знают клиенты</small>
-                    </div>
+                    <form id="create-shop-form" class="mt-6" action="#">
+                        <div class="input-group">
+                            <label data-i18n="logo_label">Логотип (опционально)</label>
+                            <div class="logo-drop-zone" id="logo-drop-zone">
+                                <input type="file" id="reg-logo-input" name="logo" accept="image/png,image/jpeg" hidden>
+                                <div class="logo-drop-content" id="logo-drop-content">
+                                    <div class="logo-drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                    <span class="logo-drop-text" data-i18n="logo_drop">Нажмите, чтобы выбрать логотип</span>
+                                    <span class="logo-drop-hint" data-i18n="logo_hint">PNG или JPG, до 2 МБ</span>
+                                </div>
+                                <div class="logo-drop-preview" id="logo-drop-preview" style="display:none">
+                                    <img src="" alt="preview">
+                                    <button type="button" class="logo-drop-remove" id="logo-drop-remove" title="Удалить">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="input-group">
-                        <label for="tax_id">Налоговый номер (Tax ID / INN)</label>
-                        <input type="text" id="tax_id" name="tax_id" required placeholder="1234567890"
-                            autocomplete="off">
-                        <small class="field-hint">Основной идентификатор для налоговой отчетности</small>
-                    </div>
+                        <div class="input-group">
+                            <label for="shop_name">Название бизнеса</label>
+                            <input type="text" id="shop_name" name="shop_name" required placeholder="My Awesome Store"
+                                autocomplete="organization">
+                            <small class="field-hint">Как вас знают клиенты</small>
+                        </div>
 
-                    <div class="input-group">
-                        <label for="address">Юридический адрес</label>
-                        <textarea id="address" name="address" rows="3" required
-                            placeholder="ул. Примерная, д. 1, офис 101" autocomplete="street-address"></textarea>
-                        <small class="field-hint">Адрес регистрации компании</small>
-                    </div>
+                        <div class="input-group">
+                            <label for="tax_id">Налоговый номер (Tax ID / INN)</label>
+                            <input type="text" id="tax_id" name="tax_id" required placeholder="1234567890"
+                                autocomplete="off">
+                            <small class="field-hint">Основной идентификатор для налоговой отчетности</small>
+                        </div>
 
-                    <button type="submit" class="btn btn-primary w-full mt-4 btn-lg">
-                        <i class="fa-solid fa-check-circle"></i> Зарегистрировать магазин
-                    </button>
-                </form>
+                        <div class="input-group">
+                            <label for="address">Юридический адрес</label>
+                            <textarea id="address" name="address" rows="3" required
+                                placeholder="ул. Примерная, д. 1, офис 101" autocomplete="street-address"></textarea>
+                            <small class="field-hint">Адрес регистрации компании</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-full mt-4 btn-lg">
+                            <i class="fa-solid fa-check-circle"></i> Зарегистрировать магазин
+                        </button>
+                    </form>
             </div>
         </section>
         <section id="shop-dashboard-view" class="view">
@@ -105,18 +123,19 @@
             </div>
 
             <div class="shop-info-card mb-6" data-animate>
-                <div class="shop-icon">
-                    <i class="fa-solid fa-store"></i>
-                </div>
-                <div class="shop-details">
-                    <h3 class="shop-name" id="display-shop-name">Загрузка...</h3>
-                    <div class="shop-meta">
-                        <span class="meta-item"><i class="fa-solid fa-hashtag"></i> <span
-                                id="display-tax-id">—</span></span>
-                        <span class="meta-separator">•</span>
-                        <span class="meta-item"><i class="fa-solid fa-location-dot"></i> <span
-                                id="display-address">—</span></span>
+                <div class="shop-info-top">
+                    <div class="shop-icon" id="shop-logo-wrapper">
+                        <img id="shop-logo" src="" alt="Logo" style="display:none">
+                        <i class="fa-solid fa-store" id="shop-logo-placeholder"></i>
                     </div>
+                    <div class="shop-details">
+                        <h3 class="shop-name" id="display-shop-name">Загрузка...</h3>
+                        <span class="shop-badge" data-i18n="shop_badge">Магазин</span>
+                    </div>
+                </div>
+                <div class="shop-meta">
+                    <div class="meta-item"><i class="fa-solid fa-hashtag"></i> <span id="display-tax-id">—</span></div>
+                    <div class="meta-item"><i class="fa-solid fa-location-dot"></i> <span id="display-address">—</span></div>
                 </div>
             </div>
 
@@ -210,8 +229,8 @@
                                 </div>
                                 <div class="input-group small">
                                     <label data-i18n="warranty_months_label">Гарантия, мес.</label>
-                                    <input type="number" data-field="warranty_months" min="1" max="600" step="1"
-                                        data-i18n-placeholder="warranty_months_placeholder" placeholder="12" required>
+                                    <input type="number" data-field="warranty_months" min="0" max="600" step="1"
+                                        data-i18n-placeholder="warranty_months_placeholder" placeholder="12">
                                 </div>
                                 <button type="button" class="btn-action delete btn-remove-item"
                                     data-i18n-title="remove_item_title" title="Удалить товар">

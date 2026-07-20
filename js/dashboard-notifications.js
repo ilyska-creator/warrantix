@@ -87,6 +87,7 @@ async function loadNotifications(userId, client) {
 
     const notifications = [];
     items.forEach(item => {
+        if (!item.warranty_months) return;
         const daysLeft = calculateDaysLeft(item.purchase_date, item.warranty_months);
         const t = getNotifT();
 
