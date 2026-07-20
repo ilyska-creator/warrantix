@@ -111,17 +111,13 @@ function renderItems(items) {
     if (countEl) countEl.textContent = String(items.length);
 
     if (items.length === 0) {
-        const emptyTitle = t.empty_state_title || (lang === 'ru' ? 'Пока нет добавленных вещей' : 'No items yet');
-        const emptyText = t.empty_state || (lang === 'ru' ? 'Добавьте первую покупку — чек, гарантию, серийный номер.' : 'Add your first purchase — receipt, warranty, serial number.');
-        const emptyCta = t.empty_state_cta || (lang === 'ru' ? 'Добавить вещь' : 'Add item');
-
         grid.innerHTML = `
             <div class="empty-state" data-animate="zoom">
                 <div class="empty-icon"><i class="fa-solid fa-box-open"></i></div>
-                <h3>${escapeHtml(emptyTitle)}</h3>
-                <p>${escapeHtml(emptyText)}</p>
+                <h3 data-i18n="empty_state_title">${escapeHtml(t.empty_state_title || 'Пока нет добавленных вещей')}</h3>
+                <p data-i18n="empty_state">${escapeHtml(t.empty_state || 'Добавьте первую покупку — чек, гарантию, серийный номер.')}</p>
                 <button type="button" class="btn btn-outline empty-state-cta" id="empty-add-item-btn">
-                    <i class="fa-solid fa-plus"></i> ${escapeHtml(emptyCta)}
+                    <i class="fa-solid fa-plus"></i> <span data-i18n="empty_state_cta">${escapeHtml(t.empty_state_cta || 'Добавить вещь')}</span>
                 </button>
             </div>`;
 
@@ -245,8 +241,8 @@ function renderVerifiedItems(receipts, t) {
         grid.innerHTML = `
             <div class="empty-state" data-animate="zoom">
                 <div class="empty-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                <h3>${escapeHtml(t.verified_empty_title || 'Пока нет подтвержденных товаров')}</h3>
-                <p>${escapeHtml(t.verified_empty_text || 'Товары из чеков от партнёров появятся здесь автоматически.')}</p>
+                <h3 data-i18n="verified_empty_title">${escapeHtml(t.verified_empty_title || 'Пока нет подтвержденных товаров')}</h3>
+                <p data-i18n="verified_empty_text">${escapeHtml(t.verified_empty_text || 'Товары из чеков от партнёров появятся здесь автоматически.')}</p>
             </div>`;
         return;
     }

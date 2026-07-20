@@ -159,10 +159,10 @@ function buildPersonalGridHTML(receipts, t, lang) {
         return `
             <div class="empty-state" data-animate="zoom">
                 <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
-                <h3>${lang === 'ru' ? 'Пока нет загруженных чеков' : 'No personal receipts yet'}</h3>
-                <p>${lang === 'ru' ? 'Сфотографируйте или загрузите первый чек — он останется здесь навсегда.' : 'Photograph or upload your first receipt — it will stay here for good.'}</p>
+                <h3 data-i18n="no_personal_receipts">${t.no_personal_receipts || (lang === 'ru' ? 'Пока нет загруженных чеков' : 'No personal receipts yet')}</h3>
+                <p data-i18n="personal_empty_desc">${t.personal_empty_desc || (lang === 'ru' ? 'Сфотографируйте или загрузите первый чек — он останется здесь навсегда.' : 'Photograph or upload your first receipt — it will stay here for good.')}</p>
                 <button type="button" class="btn btn-outline empty-state-cta" id="empty-upload-receipt-btn">
-                    <i class="fa-solid fa-upload"></i> ${lang === 'ru' ? 'Загрузить чек' : 'Upload receipt'}
+                    <i class="fa-solid fa-upload"></i> <span data-i18n="personal_empty_cta">${t.personal_empty_cta || (lang === 'ru' ? 'Загрузить чек' : 'Upload receipt')}</span>
                 </button>
             </div>`;
     }
@@ -185,8 +185,8 @@ function buildBusinessGridHTML(receipts, t, lang) {
         return `
             <div class="empty-state" data-animate="zoom">
                 <div class="empty-icon"><i class="fa-solid fa-store"></i></div>
-                <h3>${lang === 'ru' ? 'Пока нет чеков от партнёров' : 'No business receipts yet'}</h3>
-                <p>${lang === 'ru' ? 'Как только магазин-партнёр Valuon выпишет чек на ваш email, он появится здесь автоматически.' : 'Once a Valuon partner store issues a receipt to your email, it will appear here automatically.'}</p>
+                <h3 data-i18n="no_business_receipts">${t.no_business_receipts || (lang === 'ru' ? 'Пока нет чеков от партнёров' : 'No business receipts yet')}</h3>
+                <p data-i18n="business_empty_desc">${t.business_empty_desc || (lang === 'ru' ? 'Как только магазин-партнёр Valuon выпишет чек на ваш email, он появится здесь автоматически.' : 'Once a Valuon partner store issues a receipt to your email, it will appear here automatically.')}</p>
             </div>`;
     }
 
