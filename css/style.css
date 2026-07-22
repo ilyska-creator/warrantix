@@ -424,10 +424,43 @@ ul {
 
 .hero-text h1 {
     font-size: 3.5rem;
-    line-height: 1.1;
+    line-height: 1.2;
     font-weight: 800;
-    margin-bottom: 24px;
-    color: var(--text-main);
+    padding-bottom: 0.15em;
+    margin-bottom: calc(24px - 0.15em);
+    display: inline-block;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    background-image: linear-gradient(
+        to right,
+        var(--text-main) 0%,
+        var(--text-main) 30%,
+        rgba(255,255,255,0.15) 47%,
+        rgba(255,255,255,0.15) 53%,
+        var(--text-main) 70%,
+        var(--text-main) 100%
+    );
+    background-size: 300% 100%;
+    overflow: visible;
+}
+
+[data-theme="dark"] .hero-text h1 {
+    background-image: linear-gradient(
+        to right,
+        var(--text-main) 0%,
+        var(--text-main) 30%,
+        rgba(59,130,246,0.12) 47%,
+        rgba(59,130,246,0.12) 53%,
+        var(--text-main) 70%,
+        var(--text-main) 100%
+    );
+}
+
+@keyframes shimmer {
+    0% { background-position: 300% 0; }
+    50% { background-position: -300% 0; }
+    100% { background-position: 300% 0; }
 }
 
 .highlight {
@@ -906,7 +939,8 @@ ul {
 }
 
 .hero-text h1 {
-    animation: titleReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    animation: titleReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both,
+               shimmer 5s ease-in-out 1.5s infinite alternate;
 }
 
 @keyframes titleReveal {

@@ -121,13 +121,6 @@ const translations = {
     }
 };
 
-function sanitizeHTML(str) {
-    return str
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        .replace(/\bon\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
-        .replace(/href\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, 'href="#"');
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     const currentLang = localStorage.getItem('valuon-lang') || 'ru';
     const path = window.location.pathname;
@@ -142,11 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (path.includes('reset-password')) descKey = 'meta_description_reset';
     const desc = document.querySelector('meta[name="description"]');
     if (desc) desc.content = translations[currentLang][descKey];
+    const htmlKeys = ['reg_terms'];
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[currentLang][key]) {
-            el.innerHTML = sanitizeHTML(translations[currentLang][key]);
+            if (htmlKeys.includes(key)) {
+                el.innerHTML = translations[currentLang][key];
+            } else {
+                el.textContent = translations[currentLang][key];
+            }
         }
     });
 
