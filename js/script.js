@@ -237,11 +237,12 @@ async function checkAuthOnHome() {
 
         if (startBtn) {
             startBtn.href = 'dashboard.html';
-            startBtn.innerHTML = '<span>' + t.hero_btn_start + '</span> <i class="fa-solid fa-arrow-right"></i>';
+            const span = startBtn.querySelector('span');
+            if (span) span.textContent = t.hero_btn_start;
         }
         if (loginBtn) {
             loginBtn.href = 'dashboard.html';
-            loginBtn.innerHTML = t.hero_btn_login;
+            loginBtn.textContent = t.hero_btn_login;
         }
     }
 }
